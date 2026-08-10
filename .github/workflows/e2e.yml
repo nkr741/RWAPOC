@@ -7,8 +7,6 @@ on:
   workflow_dispatch: # manual re-run button
 
 env:
-  QA_USER: ${{ secrets.QA_USER }}
-  QA_PASSWORD: ${{ secrets.QA_PASSWORD }}
   BASE_URL: http://localhost:3000
   API_URL: http://localhost:3001
 
@@ -41,9 +39,13 @@ jobs:
         working-directory: rwa-app-ci
         run: yarn db:seed
 
-      - name: Debug seeded users
+      - name: Set test credentials from seeded data
         working-directory: rwa-app-ci
-        run: node -e "const d=require('./data/database.json');d.users.slice(0,5).forEach(u=>console.log(u.username));console.log('Total users:',d.users.length)"
+        run: |
+          SEEDED_USER=$(node -e "console.log(require('./data/database.json').users[0].username)")
+          echo "QA_USER=$SEEDED_USER" >> $GITHUB_ENV
+          echo "QA_PASSWORD=s3cret" >> $GITHUB_ENV
+          echo "Using seeded user: $SEEDED_USER"
 
       - name: Start RWA app in background
         working-directory: rwa-app-ci
@@ -51,20 +53,6 @@ jobs:
 
       - name: Wait for RWA app to be ready
         run: npx wait-on http-get://localhost:3000 --timeout 120000
-
-      - name: Debug login API
-        run: |
-          echo "QA_USER length: ${#QA_USER}"
-          echo "QA_PASSWORD length: ${#QA_PASSWORD}"
-          echo "Testing login with first seeded user..."
-          FIRST_USER=$(cd rwa-app-ci && node -e "console.log(require('./data/database.json').users[0].username)")
-          echo "First seeded user: $FIRST_USER"
-          echo "Login response with seeded user:"
-          curl -s -X POST http://localhost:3001/login -H "Content-Type: application/json" -d "{\"username\":\"$FIRST_USER\",\"password\":\"s3cret\"}" | head -c 200
-          echo ""
-          echo "Login response with QA_USER secret:"
-          curl -s -o /dev/null -w "HTTP %{http_code}" -X POST http://localhost:3001/login -H "Content-Type: application/json" -d "{\"username\":\"$QA_USER\",\"password\":\"$QA_PASSWORD\"}"
-          echo ""
 
       - name: Show RWA logs on failure
         if: failure()
@@ -125,9 +113,13 @@ jobs:
         working-directory: rwa-app-ci
         run: yarn db:seed
 
-      - name: Debug seeded users
+      - name: Set test credentials from seeded data
         working-directory: rwa-app-ci
-        run: node -e "const d=require('./data/database.json');d.users.slice(0,5).forEach(u=>console.log(u.username));console.log('Total users:',d.users.length)"
+        run: |
+          SEEDED_USER=$(node -e "console.log(require('./data/database.json').users[0].username)")
+          echo "QA_USER=$SEEDED_USER" >> $GITHUB_ENV
+          echo "QA_PASSWORD=s3cret" >> $GITHUB_ENV
+          echo "Using seeded user: $SEEDED_USER"
 
       - name: Start RWA app in background
         working-directory: rwa-app-ci
@@ -135,20 +127,6 @@ jobs:
 
       - name: Wait for RWA app to be ready
         run: npx wait-on http-get://localhost:3000 --timeout 120000
-
-      - name: Debug login API
-        run: |
-          echo "QA_USER length: ${#QA_USER}"
-          echo "QA_PASSWORD length: ${#QA_PASSWORD}"
-          echo "Testing login with first seeded user..."
-          FIRST_USER=$(cd rwa-app-ci && node -e "console.log(require('./data/database.json').users[0].username)")
-          echo "First seeded user: $FIRST_USER"
-          echo "Login response with seeded user:"
-          curl -s -X POST http://localhost:3001/login -H "Content-Type: application/json" -d "{\"username\":\"$FIRST_USER\",\"password\":\"s3cret\"}" | head -c 200
-          echo ""
-          echo "Login response with QA_USER secret:"
-          curl -s -o /dev/null -w "HTTP %{http_code}" -X POST http://localhost:3001/login -H "Content-Type: application/json" -d "{\"username\":\"$QA_USER\",\"password\":\"$QA_PASSWORD\"}"
-          echo ""
 
       - name: Show RWA logs on failure
         if: failure()
