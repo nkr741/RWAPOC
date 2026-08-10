@@ -1,0 +1,858 @@
+<title>Ryvan E2E — Every Concept Explained</title>
+<style>
+  @font-face {
+    font-family: 'Display';
+    src: local('Segoe UI Semibold'), local('SF Pro Display Medium'), local('Helvetica Neue Medium');
+    font-weight: 600;
+  }
+  @font-face {
+    font-family: 'Body';
+    src: local('Segoe UI'), local('SF Pro Text'), local('Helvetica Neue');
+    font-weight: 400;
+  }
+  @font-face {
+    font-family: 'Mono';
+    src: local('Cascadia Code'), local('SF Mono'), local('Consolas'), local('monospace');
+    font-weight: 400;
+  }
+
+  :root {
+    --bg: #FAFAF8;
+    --bg-card: #FFFFFF;
+    --bg-code: #F3F2EE;
+    --text: #1A1A18;
+    --text-secondary: #5C5B56;
+    --accent: #2D6A4F;
+    --accent-light: #E8F0EC;
+    --border: #E2E1DC;
+    --border-light: #EDECE8;
+    --tag-bg: #EDF2EE;
+    --tag-text: #2D6A4F;
+    --number-color: #B5B3AC;
+    --shadow: 0 1px 3px rgba(26,26,24,0.06);
+    --concept-open-icon: "▸";
+    --concept-close-icon: "▾";
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #161614;
+      --bg-card: #1E1E1C;
+      --bg-code: #252523;
+      --text: #E8E7E3;
+      --text-secondary: #9C9B96;
+      --accent: #52B788;
+      --accent-light: #1C2E24;
+      --border: #2E2E2B;
+      --border-light: #262624;
+      --tag-bg: #1E2E23;
+      --tag-text: #52B788;
+      --number-color: #4A4A46;
+      --shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #161614;
+    --bg-card: #1E1E1C;
+    --bg-code: #252523;
+    --text: #E8E7E3;
+    --text-secondary: #9C9B96;
+    --accent: #52B788;
+    --accent-light: #1C2E24;
+    --border: #2E2E2B;
+    --border-light: #262624;
+    --tag-bg: #1E2E23;
+    --tag-text: #52B788;
+    --number-color: #4A4A46;
+    --shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+  :root[data-theme="light"] {
+    --bg: #FAFAF8;
+    --bg-card: #FFFFFF;
+    --bg-code: #F3F2EE;
+    --text: #1A1A18;
+    --text-secondary: #5C5B56;
+    --accent: #2D6A4F;
+    --accent-light: #E8F0EC;
+    --border: #E2E1DC;
+    --border-light: #EDECE8;
+    --tag-bg: #EDF2EE;
+    --tag-text: #2D6A4F;
+    --number-color: #B5B3AC;
+    --shadow: 0 1px 3px rgba(26,26,24,0.06);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Body', 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 15.5px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 5rem;
+  }
+
+  header {
+    margin-bottom: 3.5rem;
+    padding-bottom: 2.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  header .eyebrow {
+    font-family: 'Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+  }
+
+  header h1 {
+    font-family: 'Display', sans-serif;
+    font-size: 2rem;
+    font-weight: 600;
+    line-height: 1.2;
+    text-wrap: balance;
+    color: var(--text);
+    margin-bottom: 0.75rem;
+  }
+
+  header .subtitle {
+    color: var(--text-secondary);
+    font-size: 1.05rem;
+    line-height: 1.6;
+    max-width: 600px;
+  }
+
+  .stats {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .stat-value {
+    font-family: 'Display', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat-label {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    letter-spacing: 0.02em;
+  }
+
+  .phase {
+    margin-bottom: 3rem;
+  }
+
+  .phase-header {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--accent);
+  }
+
+  .phase-number {
+    font-family: 'Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--accent-light);
+    padding: 0.2em 0.6em;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+
+  .phase-title {
+    font-family: 'Display', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  .concept {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    margin-bottom: 0.75rem;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .concept-toggle {
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.85rem;
+    padding: 1rem 1.25rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    color: var(--text);
+    font-family: inherit;
+    font-size: inherit;
+    line-height: 1.5;
+  }
+
+  .concept-toggle:hover {
+    background: var(--accent-light);
+  }
+
+  .concept-toggle:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+  }
+
+  .concept-arrow {
+    font-family: 'Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--accent);
+    flex-shrink: 0;
+    width: 1em;
+    margin-top: 0.15em;
+    transition: transform 0.15s ease;
+  }
+
+  .concept.open .concept-arrow {
+    transform: rotate(90deg);
+  }
+
+  .concept-name {
+    font-family: 'Display', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    flex: 1;
+  }
+
+  .concept-file {
+    font-family: 'Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+    margin-top: 0.1em;
+  }
+
+  .concept-body {
+    padding: 0 1.25rem 1.25rem 3rem;
+  }
+
+  .concept-body p {
+    color: var(--text-secondary);
+    margin-bottom: 0.85rem;
+    line-height: 1.75;
+  }
+
+  .concept-body p:last-child {
+    margin-bottom: 0;
+  }
+
+  .concept-body strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .analogy {
+    background: var(--accent-light);
+    border-left: 3px solid var(--accent);
+    padding: 0.75rem 1rem;
+    border-radius: 0 4px 4px 0;
+    margin: 0.85rem 0;
+    font-size: 0.92rem;
+    line-height: 1.65;
+    color: var(--text);
+  }
+
+  .analogy::before {
+    content: "Real-world analogy: ";
+    font-weight: 600;
+    color: var(--accent);
+    font-size: 0.78rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+
+  code {
+    font-family: 'Mono', monospace;
+    font-size: 0.85em;
+    background: var(--bg-code);
+    padding: 0.15em 0.4em;
+    border-radius: 3px;
+    color: var(--accent);
+  }
+
+  .tag-row {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    margin-top: 0.6rem;
+  }
+
+  .tag {
+    font-family: 'Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.02em;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    padding: 0.15em 0.55em;
+    border-radius: 3px;
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 0.85rem 0;
+  }
+
+  @media (max-width: 600px) {
+    .page { padding: 2rem 1rem 4rem; }
+    header h1 { font-size: 1.6rem; }
+    .stats { gap: 1.25rem; }
+    .concept-file { display: none; }
+    .concept-body { padding-left: 2.5rem; }
+  }
+</style>
+
+<div class="page">
+  <header>
+    <div class="eyebrow">Ryvan E2E &middot; POC Framework</div>
+    <h1>Every Concept Explained in Plain English</h1>
+    <p class="subtitle">What each piece of this Playwright test framework does, why it exists, and how it maps to the real world. No jargon required.</p>
+    <div class="stats">
+      <div class="stat"><span class="stat-value">25</span><span class="stat-label">Concepts covered</span></div>
+      <div class="stat"><span class="stat-value">113</span><span class="stat-label">Tests passing</span></div>
+      <div class="stat"><span class="stat-value">23</span><span class="stat-label">Spec files</span></div>
+      <div class="stat"><span class="stat-value">0</span><span class="stat-label">Lint errors</span></div>
+    </div>
+  </header>
+
+  <!-- PHASE 1 -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-number">Phase 1</span>
+      <span class="phase-title">How the Framework is Built</span>
+    </div>
+
+    <div class="concept">
+      <button class="concept-toggle" aria-expanded="false">
+        <span class="concept-arrow">&#9656;</span>
+        <span class="concept-name">Page Object Model (POM)</span>
+        <span class="concept-file">pages/*.page.ts</span>
+      </button>
+      <div class="concept-body">
+        <div class="analogy">You're a waiter at a restaurant. A customer says "I want coffee." You don't tell them "Walk to the kitchen, open cabinet 3, grab the filter, fill the machine..." &mdash; you just bring the coffee. The customer doesn't need to know HOW the kitchen works.</div>
+        <p>POM is the same idea. A <strong>page object</strong> is the "waiter" &mdash; it knows where every button, input, and link is on a page and how to interact with them. The test (the "customer") just says <code>signinPage.login('user', 'pass')</code> and never touches a single HTML element directly.</p>
+        <p><strong>Why it matters:</strong> If the developers change the login button from <code>&lt;button&gt;</code> to <code>&lt;a&gt;</code>, you fix ONE file (the page object), not 20 test files. The tests themselves don't change at all.</p>
+        <p>In this POC, every page of the RWA app has its own class: <code>SigninPage</code>, <code>HomePage</code>, <code>TransactionPage</code>, <code>BankAccountPage</code>, etc. Each extends <code>BasePage</code> which gives it a standard <code>open()</code> method and access to the sidebar/topbar navigation.</p>
+        <div class="tag-row"><span class="tag">signin.page.ts</span><span class="tag">home.page.ts</span><span class="tag">transaction.page.ts</span><span class="tag">base.page.ts</span></div>
+      </div>
+    </div>
+
+    <div class="concept">
+      <button class="concept-toggle" aria-expanded="false">
+        <span class="concept-arrow">&#9656;</span>
+        <span class="concept-name">Component Composition (Keyword-Driven)</span>
+        <span class="concept-file">pages/components/</span>
+      </button>
+      <div class="concept-body">
+        <div class="analogy">The sidebar menu appears on EVERY page of the app &mdash; Home, Bank Accounts, Settings, everywhere. Instead of teaching each page object how to click "Home" or "Logout" separately, you write it once in a SideNavComponent and hand it to every page. Like installing the same remote control in every room of your house.</div>
+        <p><code>SideNavComponent</code> and <code>TopNavComponent</code> are shared "keyword" classes. Methods like <code>navigateHome()</code>, <code>logout()</code>, <code>clickNewTransaction()</code> are <strong>keywords</strong> &mdash; plain English actions any manual tester would understand.</p>
+        <p>Every page object gets these keywords automatically through <strong>composition</strong> (the page HAS a sidenav, not IS a sidenav). So <code>homePage.sidenav.logout()</code> and <code>settingsPage.sidenav.logout()</code> both work &mdash; same keyword, different pages.</p>
+        <div class="tag-row"><span class="tag">sidenav.component.ts</span><span class="tag">topnav.component.ts</span></div>
+      </div>
+    </div>
+
+    <div class="concept">
+      <button class="concept-toggle" aria-expanded="false">
+        <span class="concept-arrow">&#9656;</span>
+        <span class="concept-name">Fixtures &amp; Dependency Injection</span>
+        <span class="concept-file">fixtures/test.ts</span>
+      </button>
+      <div class="concept-body">
+        <div class="analogy">When you sit down at a fancy restaurant, the table is already set &mdash; plates, glasses, cutlery. You didn't ask for them; they're just there. If you don't use the soup spoon, that's fine, it doesn't cost anything extra. Fixtures work the same way.</div>
+        <p>In <code>fixtures/test.ts</code>, we register every page object, API client, and database client. A test simply says <code>async ({ signinPage, sidenav, authedApi }) =></code> and Playwright creates exactly what the test needs. If a test doesn't mention <code>bankAccountPage</code>, it's never created &mdash; zero overhead.</p>
+        <p>This is <strong>dependency injection</strong>: the test declares what it needs, the framework provides it. The test never does <code>new SigninPage(page)</code> itself &mdash; the fixture handles creation, setup, and cleanup.</p>
+        <div class="tag-row"><span class="tag">fixtures/test.ts</span></div>
+      </div>
+    </div>
+
+    <div class="concept">
+      <button class="concept-toggle" aria-expanded="false">
+        <span class="concept-arrow">&#9656;</span>
+        <span class="concept-name">Dynamic Test Data (Faker)</span>
+        <span class="concept-file">data/test-data.ts</span>
+      </button>
+      <div class="concept-body">
+        <div class="analogy">Imagine filling out a form during testing. If you always type "John Smith" with email "john@test.com", your tests only prove that one specific set of data works. Faker is like having a random name generator that gives you "Priya Patel", "Carlos Rivera", "Aisha Bello" &mdash; different realistic data every time.</div>
+        <p><code>@faker-js/faker</code> generates unique bank names, routing numbers, usernames, passwords, and transaction amounts per run. No two test runs use identical data, which catches bugs that hardcoded values would miss (like a field that breaks on special characters).</p>
+        <p><strong>Static data</strong> (like the login credentials) comes from environment variables. <strong>Dynamic data</strong> (like bank account details) is generated fresh. <strong>Factory functions</strong> (like <code>SignupData.newUser()</code>) generate unique data on every call &mdash; useful when a test creates multiple users.</p>
+        <div class="tag-row"><span class="tag">data/test-data.ts</span><span class="tag">@faker-js/faker</span></div>
+      </div>
+    </div>
+
+    <div class="concept">
+      <button class="concept-toggle" aria-expanded="false">
+        <span class="concept-arrow">&#9656;</span>
+        <span class="concept-name">Locators &amp; Selectors</span>
+        <span class="concept-file">pages/*.page.ts</span>
+      </button>
+      <div class="concept-body">
+        <div class="analogy">Finding an element on a webpage is like finding a person in a crowd. You can describe them by their <strong>role</strong> ("the cashier"), their <strong>name tag</strong> ("Hi, I'm Sarah"), or their <strong>outfit</strong> ("the person in the red shirt, third from left"). Some descriptions are fragile ("third person from left" &mdash; what if someone moves?), others are stable ("the cashier" &mdash; there's always one).</div>
+        <p>Playwright offers a <strong>priority hierarchy</strong>:</p>
+        <p><code>getByRole('button', { name: 'Sign In' })</code> &mdash; finds by what it IS (a button labeled "Sign In"). Most resilient.</p>
+        <p><code>getByLabel('Username')</code> &mdash; finds by its form label. Great for inputs.</p>
+        <p><code>getByTestId('sidenav-home')</code> &mdash; finds by a <code>data-test</code> attribute developers add specifically for testing. Reliable fallback.</p>
+        <p><code>page.locator('[data-test*="transaction-item"]')</code> &mdash; CSS selector. Last resort, but sometimes necessary for lists of items.</p>
+        <p>The RWA app uses <code>data-test</code> (not <code>data-testid</code>), so Playwright's config sets <code>testIdAttribute: 'data-test'</code> to make <code>getByTestId()</code> work correctly.</p>
+        <div class="tag-row"><span class="tag">getByRole</span><span class="tag">getByLabel</span><span class="tag">getByTestId</span><span class="tag">locator()</span></div>
+      </div>
+    </div>
+
+    <div class="concept">
+      <button class="concept-toggle" aria-expanded="false">
+        <span class="concept-arrow">&#9656;</span>
+        <span class="concept-name">Assertions (Soft vs Hard, Auto-Retry)</span>
+        <span class="concept-file">tests/practice/soft-assertions.spec.ts</span>
+      </button>
+      <div class="concept-body">
+        <div class="analogy">A <strong>hard assertion</strong> is like a security guard at a door: if you don't have ID, you're stopped immediately &mdash; nobody behind you gets in either. A <strong>soft assertion</strong> is like a building inspector: they note every problem (cracked window, loose railing, bad wiring) and hand you the full list at the end. Neither stops the inspection early.</div>
+        <p><strong>Auto-retrying assertions</strong> are the key difference from other frameworks. <code>await expect(element).toBeVisible()</code> doesn't check once and fail &mdash; it keeps checking for up to 10 seconds. Web pages are dynamic; elements appear after API calls, animations, or React re-renders. Playwright waits patiently instead of failing on timing.</p>
+        <p><code>expect.soft()</code> collects failures without stopping the test. Use it when you want to check 10 things on a page and see ALL failures at once, not just the first one.</p>
+        <div class="tag-row"><span class="tag">expect()</span><span class="tag">expect.soft()</span><span class="tag">toBeVisible()</span><span class="tag">toHaveURL()</span></div>
+      </div>
+    </div>
+
+    <div class="concept">
+      <button class="concept-toggle" aria-expanded="false">
+        <span class="concept-arrow">&#9656;</span>
+        <span class="concept-name">Single Browser Window</span>
+        <span class="concept-file">fixtures/test.ts</span>
+      </button>
+      <div class="concept-body">
+        <div class="analogy">Most test frameworks open a fresh browser window for every single test. That's like closing and reopening Chrome 70+ times during a test run. Our approach: open Chrome once, run all tests in the same window, like a real user would browse.</div>
+        <p>This is done through <strong>worker-scoped fixtures</strong>. <code>sharedContext</code> and <code>sharedPage</code> are created once per worker and survive across all tests. The built-in <code>page</code> fixture is overridden to point to <code>sharedPage</code> &mdash; so tests think they have their own page, but they're all sharing one.</p>
+        <p><strong>Trade-off:</strong> Tests run sequentially (can't run 5 tests at once in one window). For speed, you'd switch to <code>workers: 4</code> with full isolation per test, or use sharding across CI machines.</p>
+        <div class="tag-row"><span class="tag">scope: 'worker'</span><span class="tag">sharedPage</span><span class="tag">sharedContext</span></div>
+      </div>
+    </div>
+
+    <div class="concept">
+      <button class="concept-toggle" aria-expanded="false">
+        <span class="concept-arrow">&#9656;</span>
+        <span class="concept-name">TypeScript &amp; Strict Lint</span>
+        <span class="concept-file">tsconfig.json, eslint.config.mjs</span>
+      </button>
+      <div class="concept-body">
+        <div class="analogy">Writing JavaScript without TypeScript is like driving without a dashboard &mdash; you have no speedometer, no fuel gauge, no warning lights. TypeScript adds those gauges. ESLint adds the lane departure warning &mdash; it stops you from doing things that technically work but cause problems later.</div>
+        <p><strong>TypeScript</strong> catches bugs before you run anything. Misspell <code>signinPage.usernme</code> instead of <code>.username</code>? The editor shows a red squiggle instantly. No more discovering typos at 2am in CI.</p>
+        <p><strong>ESLint with playwright plugin</strong> enforces best practices. It blocks <code>waitForTimeout()</code> (arbitrary sleeps), <code>networkidle</code> (unreliable waits), and conditionals in tests (<code>if/else</code> makes tests non-deterministic). Every <code>JSON.parse()</code> call has a type assertion to prevent <code>any</code> from leaking through the codebase.</p>
+        <p>The project has <strong>zero ESLint errors and zero TypeScript errors</strong> across all files.</p>
+        <div class="tag-row"><span class="tag">strict: true</span><span class="tag">0 errors</span><span class="tag">moduleResolution: bundler</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PHASE 2 -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-number">Phase 2</span>
+      <span class="phase-title">Authentication &amp; State</span>
+    </div>
+
+    <div class="concept">
+      <button class="concept-toggle" aria-expanded="false">
+        <span class="concept-arrow">&#9656;</span>
+        <span class="concept-name">Authentication &amp; storageState</span>
+        <span class="concept-file">tests/setup/auth.setup.ts</span>
+      </button>
+      <div class="concept-body">
+        <div class="analogy">Imagine 70 people need to enter a building that requires ID check. Instead of each person going through security separately, ONE person goes through, gets a visitor badge cloned 70 times, and hands one to each person. Everyone walks right in.</div>
+        <p><code>auth.setup.ts</code> logs in once, then saves the cookies and localStorage to a JSON file (<code>storageState</code>). Every subsequent test loads that saved state &mdash; it starts already logged in. This saves 2-3 seconds per test (no login page, no typing, no waiting for redirect).</p>
+        <p>The setup runs <strong>before</strong> all other test projects via the <code>dependencies: ['setup']</code> config. Chromium, Firefox, and WebKit all reuse the same auth file.</p>
+        <div class="tag-row"><span class="tag">storageState</span><span class="tag">auth.setup.ts</span><span class="tag">dependencies</span></div>
+      </div>
+    </div>
+
+    <div class="concept">
+      <button class="concept-toggle" aria-expanded="false">
+        <span class="concept-arrow">&#9656;</span>
+        <span class="concept-name">Smart Login State Management</span>
+        <span class="concept-file">utils/login.helper.ts</span>
+      </button>
+      <div class="concept-body">
+        <div class="analogy">Before entering a room, you check if the door is already open. If it is, you walk through. If it's locked, you use your key. You don't use your key on an open door &mdash; that's wasted effort.</div>
+        <p><code>ensureLoggedIn()</code> checks the current page state. If the sidenav is visible, the user is already logged in &mdash; do nothing. If the sign-in button is visible, perform the login. This avoids redundant login flows in a shared browser window.</p>
+        <p>It uses <code>signinBtn.or(sidenav).waitFor()</code> &mdash; a composite locator that matches whichever appears first. No guessing, no try/catch, no arbitrary waits.</p>
+        <p><code>ensureLoggedOut()</code> does the reverse: clears cookies, clears storage, and navigates to the signin page.</p>
+        <div class="tag-row"><span class="tag">ensureLoggedIn()</span><span class="tag">ensureLoggedOut()</span><span class="tag">.or() locator</span></div>
+      </div>
+    </div>
+
+    <div class="concept">
+      <button class="concept-toggle" aria-expanded="false">
+        <span class="concept-arrow">&#9656;</span>
+        <span class="concept-name">Cookies, localStorage &amp; sessionStorage</span>
+        <span class="concept-file">tests/e2e/cookies-storage.spec.ts</span>
+      </button>
+      <div class="concept-body">
+        <div class="analogy">Your browser has three places to store information. <strong>Cookies</strong> are like a wristband at a concert &mdash; the server gave it to you, it proves who you are, and the server checks it every time. <strong>localStorage</strong> is like a notebook you keep in your desk &mdash; it stays there even after you leave and come back. <strong>sessionStorage</strong> is like a sticky note on your monitor &mdash; it's gone the moment you close that browser tab.</div>
+        <p>The 16 tests in this spec cover everything: reading <code>httpOnly</code> cookies (which JavaScript can't see but Playwright can), injecting custom cookies, clearing cookies to break auth, reading/writing localStorage, verifying sessionStorage doesn't leak between tabs, and using <code>addInitScript</code> to pre-populate storage before the page even loads.</p>
+        <p>The key Playwright APIs: <code>context.cookies()</code>, <code>context.addCookies()</code>, <code>context.clearCookies()</code>, and <code>page.evaluate(() => localStorage.getItem(...))</code>.</p>
+        <div class="tag-row"><span class="tag">16 tests</span><span class="tag">cookies</span><span class="tag">localStorage</span><span class="tag">sessionStorage</span><span class="tag">addInitScript</span></div>
+      </div>
+    </div>
+
+    <div class="concept">
+      <button class="concept-toggle" aria-expanded="false">
+        <span class="concept-arrow">&#9656;</span>
+        <span class="concept-name">Auto-Dismiss Onboarding (addLocatorHandler)</span>
+        <span class="concept-file">utils/onboarding.helper.ts</span>
+      </button>
+      <div class="concept-body">
+        <div class="analogy">Imagine a pop-up ad that appears randomly on any page. You can't predict when it'll show up. Instead of checking for it at the start of every test, you install an ad blocker that automatically clicks "dismiss" whenever it appears. That's <code>addLocatorHandler</code>.</div>
+        <p>The RWA has a 3-step onboarding dialog that pops up for new users. It can appear on any page, at any time. <code>registerOnboardingHandler()</code> sets up a rule: "whenever the onboarding dialog becomes visible, click through all three steps and dismiss it."</p>
+        <p>This is registered once in the fixture setup. Every test in the entire suite is protected automatically. No test ever needs to think about onboarding &mdash; the handler takes care of it.</p>
+        <p>The same pattern works for cookie consent banners, chat widgets, GDPR popups, or any overlay that appears unpredictably.</p>
+        <div class="tag-row"><span class="tag">addLocatorHandler</span><span class="tag">onboarding.helper.ts</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PHASE 3 -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-number">Phase 3</span>
+      <span class="phase-title">User Interactions</span>
+    </div>
+
+    <div class="concept">
+      <button class="concept-toggle" aria-expanded="false">
+        <span class="concept-arrow">&#9656;</span>
+        <span class="concept-name">Form Handling</span>
+        <span class="concept-file">tests/practice/form-controls.spec.ts</span>
+      </button>
+      <div class="concept-body">
+        <div class="analogy">Forms are the primary way users give information to an app. Testing forms means verifying every input type works: text boxes, checkboxes (on/off toggles), radio buttons (pick one from a group), and dropdowns (select from a list).</div>
+        <p><code>check()</code> is smarter than <code>click()</code> for checkboxes: calling <code>check()</code> on an already-checked box does nothing (idempotent). <code>click()</code> would uncheck it. Same idea with <code>uncheck()</code>.</p>
+        <p><code>selectOption()</code> works three ways: by value (<code>'1'</code>), by visible text (<code>{ label: 'Option 2' }</code>), or by position (<code>{ index: 1 }</code>). The test covers all three. For Material UI dropdowns (not native <code>&lt;select&gt;</code>), you click to open, then click the option &mdash; different flow, same result.</p>
+        <p>Radio buttons automatically deselect others in their group when one is selected, and the test verifies this behavior.</p>
+        <div class="tag-row"><span class="tag">check()</span><span class="tag">selectOption()</span><span class="tag">radio buttons</span><span class="tag">fill()</span></div>
+      </div>
+    </div>
+
+    <div class="concept">
+      <button class="concept-toggle" aria-expanded="false">
+        <span class="concept-arrow">&#9656;</span>
+        <span class="concept-name">Dialogs, Alerts &amp; Prompts</span>
+        <span class="concept-file">tests/e2e/dialogs.spec.ts</span>
+      </button>
+      <div class="concept-body">
+        <div class="analogy">Native browser dialogs (alert, confirm, prompt) are like someone tapping you on the shoulder &mdash; everything stops until you respond. They're not part of the webpage DOM; they're OS-level popups that Playwright handles through events.</div>
+        <p>You <strong>must</strong> set up a listener <strong>before</strong> triggering the dialog: <code>page.once('dialog', callback)</code>. Inside the callback, you can <code>accept()</code>, <code>dismiss()</code>, or <code>accept('input value')</code> for prompts.</p>
+        <p><code>page.once()</code> handles one dialog and auto-removes itself. <code>page.on()</code> stays active for multiple sequential dialogs. The POC tests both patterns, plus dismissing (returning false/null).</p>
+        <p>7 tests cover: alert accept, confirm accept, confirm dismiss, prompt with input, prompt dismiss, auto-dismiss onboarding overlay, and three sequential dialogs in a row.</p>
+        <div class="tag-row"><span class="tag">7 tests</span><span class="tag">alert</span><span class="tag">confirm</span><span class="tag">prompt</span><span class="tag">page.once('dialog')</span></div>
+      </div>
+    </div>
+
+    <div class="concept">
+      <button class="concept-toggle" aria-expanded="false">
+        <span class="concept-arrow">&#9656;</span>
+        <span class="concept-name">Multi-Tab &amp; Windows</span>
+        <span class="concept-file">tests/e2e/multi-tab.spec.ts</span>
+      </button>
+      <div class="concept-body">
+        <div class="analogy">All tabs in one browser window share the same login session. Open Gmail in two tabs &mdash; both show your inbox. Navigate one tab to Calendar &mdash; the other still shows Gmail. Create an email in tab 1, refresh tab 2, it shows up. That's exactly what we test.</div>
+        <p><strong>Opening a tab:</strong> <code>sharedContext.newPage()</code> creates a new tab in the same browser context. Shared cookies mean shared auth &mdash; the new tab is already logged in.</p>
+        <p><strong>Independent navigation:</strong> Each tab has its own URL and DOM. Moving tab 1 to <code>/notifications</code> doesn't change tab 2 sitting on <code>/bankaccounts</code>.</p>
+        <p><strong>Cross-tab sync:</strong> Tab 1 makes a payment. Tab 2 reloads and sees it. This verifies the server persisted the data correctly &mdash; not Playwright magic, just how web apps work.</p>
+        <p><strong>Popups:</strong> When a <code>target="_blank"</code> link opens a new window, you capture it with <code>page.waitForEvent('popup')</code> set up BEFORE clicking the link. <code>Promise.all</code> ensures the listener is ready before the click fires.</p>
+        <p>For POM on dynamic tabs, we instantiate page objects directly: <code>new SideNavComponent(secondTab)</code>. The locators still live in the page object class &mdash; not in the test.</p>
+        <div class="tag-row"><span class="tag">5 tests</span><span class="tag">context.newPage()</span><span class="tag">waitForEvent('popup')</span><span class="tag">context.pages()</span></div>
+      </div>
+    </div>
+
+    <div class="concept">
+      <button class="concept-toggle" aria-expanded="false">
+        <span class="concept-arrow">&#9656;</span>
+        <span class="concept-name">Iframes &amp; Frames</span>
+        <span class="concept-file">tests/e2e/iframes.spec.ts</span>
+      </button>
+      <div class="concept-body">
+        <div class="analogy">An iframe is a webpage inside a webpage &mdash; like a picture frame on a wall, except the picture is a live, interactive mini-website. You can't just click inside a painting on the wall; you need to "step into" the frame first.</div>
+        <p><code>page.frameLocator('#child')</code> gives you a handle to interact with elements inside the iframe. From there, <code>frame.locator('#input').fill('Hello')</code> works just like the main page. Nested iframes chain: <code>page.frameLocator('#outer').frameLocator('#inner')</code>.</p>
+        <p><strong>The clever part:</strong> The RWA app has NO iframes. So we created synthetic test pages using <code>page.route()</code> &mdash; intercepting HTTP requests and serving custom HTML with embedded iframes. The browser doesn't know the difference. 8 iframe tests, zero changes to the actual app.</p>
+        <p>Tests cover: basic iframe interaction, frame lookup by name/URL, enumerating all frames, nested iframes, cross-frame postMessage communication, embedding the RWA inside an iframe, and multi-tab + iframe combined.</p>
+        <div class="tag-row"><span class="tag">8 tests</span><span class="tag">frameLocator()</span><span class="tag">page.route()</span><span class="tag">nested iframes</span><span class="tag">postMessage</span></div>
+      </div>
+    </div>
+
+    <div class="concept">
+      <button class="concept-toggle" aria-expanded="false">
+        <span class="concept-arrow">&#9656;</span>
+        <span class="concept-name">Advanced Actions (Hover, Keyboard, Drag, Mouse)</span>
+        <span class="concept-file">tests/practice/advanced-actions.spec.ts</span>
+      </button>
+      <div class="concept-body">
+        <div class="analogy">Basic actions are clicking and typing. Advanced actions are everything else a human does: hovering to reveal a tooltip, pressing keyboard shortcuts (Ctrl+A to select all), dragging a file from one folder to another, or clicking at a specific spot on a map.</div>
+        <p><strong>Hover:</strong> <code>element.hover()</code> moves the mouse over an element, revealing hidden content (tooltips, dropdown menus, hover effects).</p>
+        <p><strong>Keyboard:</strong> <code>keyboard.type('Hello', { delay: 30 })</code> simulates human typing speed. <code>keyboard.press('Control+A')</code> sends keyboard shortcuts.</p>
+        <p><strong>Drag-and-drop:</strong> <code>elementA.dragTo(elementB)</code> implements HTML5 native drag. Works with most drag libraries (React DnD, SortableJS).</p>
+        <p><strong>Mouse coordinates:</strong> <code>page.mouse.click(x, y)</code> clicks at exact pixel coordinates. Essential for canvas elements, image maps, or click regions where there's no DOM element to target.</p>
+        <div class="tag-row"><span class="tag">5 tests</span><span class="tag">hover()</span><span class="tag">keyboard.press()</span><span class="tag">dragTo()</span><span class="tag">mouse.click()</span></div>
+      </div>
+    </div>
+
+    <div class="concept">
+      <button class="concept-toggle" aria-expanded="false">
+        <span class="concept-arrow">&#9656;</span>
+        <span class="concept-name">File Upload &amp; Download</span>
+        <span class="concept-file">tests/practice/file-operations.spec.ts</span>
+      </button>
+      <div class="concept-body">
+        <div class="analogy">Normally when you click "Choose File" on a website, your OS opens a file picker dialog. In automated testing, you can't interact with OS dialogs. So Playwright skips the dialog entirely and injects the file directly into the input element &mdash; like sliding a document under the door instead of walking through it.</div>
+        <p><strong>Upload from memory:</strong> <code>setInputFiles({ name: 'test.txt', buffer: Buffer.from('content') })</code> creates a file on the fly without touching the filesystem. Clean, fast, no temp files to manage.</p>
+        <p><strong>Upload from disk:</strong> <code>setInputFiles('/path/to/file.txt')</code> uses a real file. Useful for testing file-size limits or binary formats like PDFs.</p>
+        <p><strong>Download:</strong> <code>page.waitForEvent('download')</code> captures the download event, then <code>download.saveAs(path)</code> saves it. You verify the filename, size, and content.</p>
+        <div class="tag-row"><span class="tag">3 tests</span><span class="tag">setInputFiles()</span><span class="tag">Buffer.from()</span><span class="tag">waitForEvent('download')</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PHASE 4 -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-number">Phase 4</span>
+      <span class="phase-title">API &amp; Network</span>
+    </div>
+
+    <div class="concept">
+      <button class="concept-toggle" aria-expanded="false">
+        <span class="concept-arrow">&#9656;</span>
+        <span class="concept-name">API Testing</span>
+        <span class="concept-file">tests/api/*.api.spec.ts</span>
+      </button>
+      <div class="concept-body">
+        <div class="analogy">UI testing is like ordering food at a restaurant and checking the dish looks right. API testing is like going into the kitchen and checking the chef is following the recipe correctly. Even if the waiter serves the dish beautifully, the kitchen might be cutting corners.</div>
+        <p>Playwright has a built-in HTTP client (<code>APIRequestContext</code>) that sends real HTTP requests &mdash; no browser needed. The <code>ApiClient</code> class wraps it with typed methods: <code>get&lt;T&gt;()</code>, <code>post()</code>, <code>delete()</code>. If a request fails, <code>ApiError</code> tells you exactly which endpoint returned which status code.</p>
+        <p>22 API tests cover: users (list, profile, search, create, login), transactions (list, public feed, create, get by ID), bank accounts (CRUD + auth check), contacts, likes, comments, and notifications.</p>
+        <p>The <code>authedApi</code> fixture auto-authenticates before each test. The <code>api</code> fixture stays unauthenticated &mdash; used to verify that protected endpoints return 401.</p>
+        <div class="tag-row"><span class="tag">22 tests</span><span class="tag">6 spec files</span><span class="tag">ApiClient</span><span class="tag">authedApi fixture</span></div>
+      </div>
+    </div>
+
+    <div class="concept">
+      <button class="concept-toggle" aria-expanded="false">
+        <span class="concept-arrow">&#9656;</span>
+        <span class="concept-name">Network Interception &amp; Mocking</span>
+        <span class="concept-file">tests/practice/network-mocking.spec.ts</span>
+      </button>
+      <div class="concept-body">
+        <div class="analogy">Imagine you could intercept every letter sent from your house to the post office. You could: <strong>block</strong> junk mail (route.abort), <strong>modify</strong> the return address (route.continue with changed headers), <strong>replace</strong> the letter entirely with a fake one (route.fulfill), or <strong>open</strong> the real letter, change one word, and reseal it (route.fetch + modify).</div>
+        <p><code>page.route()</code> intercepts HTTP requests at the network level. Four patterns:</p>
+        <p><strong>Abort:</strong> Block all images to test how the page looks without them, or block analytics scripts to speed up tests.</p>
+        <p><strong>Continue with modifications:</strong> Add custom headers to requests &mdash; useful for testing auth header forwarding or feature flags.</p>
+        <p><strong>Fulfill:</strong> Return completely fake data. The backend doesn't even get called. Perfect for testing edge cases (empty lists, error responses, massive datasets) without setting up real data.</p>
+        <p><strong>Fetch + modify:</strong> Let the real request go through, but tweak the response. Test how the UI handles a slightly different data shape without changing the backend.</p>
+        <p>This is also how we created synthetic iframe test pages &mdash; <code>route.fulfill()</code> served custom HTML for URLs that don't really exist on the server.</p>
+        <div class="tag-row"><span class="tag">4 tests</span><span class="tag">route.abort()</span><span class="tag">route.continue()</span><span class="tag">route.fulfill()</span><span class="tag">route.fetch()</span></div>
+      </div>
+    </div>
+
+    <div class="concept">
+      <button class="concept-toggle" aria-expanded="false">
+        <span class="concept-arrow">&#9656;</span>
+        <span class="concept-name">Three-Layer Integration Testing</span>
+        <span class="concept-file">tests/integration/transaction.integration.spec.ts</span>
+      </button>
+      <div class="concept-body">
+        <div class="analogy">When you transfer money using a banking app: (1) you see "Transfer successful" on screen, (2) the bank's API records the transaction, (3) the database stores it permanently. If any layer lies &mdash; the screen says success but the API didn't process it, or the API returns OK but the database didn't write it &mdash; you have a bug that single-layer testing would never catch.</div>
+        <p>This single test verifies all three layers in sequence:</p>
+        <p><strong>Layer 1 &mdash; UI:</strong> Log in, navigate to new transaction, select a user, enter amount, click pay, see the success alert.</p>
+        <p><strong>Layer 2 &mdash; API:</strong> Call <code>GET /transactions</code> and find the transaction we just created by its description.</p>
+        <p><strong>Layer 3 &mdash; Database:</strong> Read the lowdb JSON file directly and verify the transaction record exists with the correct sender, amount, and status.</p>
+        <p>Each layer uses <code>test.step()</code> so the HTML report shows exactly which layer failed &mdash; "UI worked, API worked, DB failed" &mdash; without reading through all assertions.</p>
+        <div class="tag-row"><span class="tag">1 test</span><span class="tag">UI + API + DB</span><span class="tag">test.step()</span><span class="tag">DbClient</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PHASE 5 -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-number">Phase 5</span>
+      <span class="phase-title">Visual &amp; Cross-Browser</span>
+    </div>
+
+    <div class="concept">
+      <button class="concept-toggle" aria-expanded="false">
+        <span class="concept-arrow">&#9656;</span>
+        <span class="concept-name">Visual Regression Testing</span>
+        <span class="concept-file">tests/practice/visual-regression.spec.ts</span>
+      </button>
+      <div class="concept-body">
+        <div class="analogy">You take a photo of your living room today. Next week, after the cleaners come, you take another photo and compare them pixel by pixel. If the couch moved 2 inches or a painting is crooked, the comparison catches it. Visual regression testing does this for web pages.</div>
+        <p><code>toHaveScreenshot('name.png')</code> compares the current page (or element) against a saved baseline image. If they differ beyond a threshold, the test fails and shows you a visual diff &mdash; red highlights where pixels changed.</p>
+        <p>First run creates the baseline. Subsequent runs compare against it. If the change is intentional (new design), run with <code>--update-snapshots</code> to save new baselines.</p>
+        <p>We use <code>page.setContent()</code> with hardcoded HTML for deterministic baselines &mdash; no dynamic data (timestamps, usernames) to cause false positives.</p>
+        <div class="tag-row"><span class="tag">2 tests</span><span class="tag">toHaveScreenshot()</span><span class="tag">--update-snapshots</span></div>
+      </div>
+    </div>
+
+    <div class="concept">
+      <button class="concept-toggle" aria-expanded="false">
+        <span class="concept-arrow">&#9656;</span>
+        <span class="concept-name">Cross-Browser Testing</span>
+        <span class="concept-file">playwright.config.ts</span>
+      </button>
+      <div class="concept-body">
+        <div class="analogy">Your website works perfectly in Chrome. But a customer using Safari sees a broken layout, and a Firefox user can't click the submit button. Cross-browser testing runs the same tests in all three browsers to catch these differences before your users do.</div>
+        <p>Playwright bundles its own browser binaries &mdash; Chromium, Firefox, and WebKit (Safari's engine). No WebDriver, no driver version mismatches, no browser compatibility issues. <code>npx playwright install</code> downloads exact versions tested against your Playwright version.</p>
+        <p>Three projects in the config: <code>chromium</code> (primary), <code>firefox</code>, <code>webkit</code>. The same test code runs identically on all three. Run all with <code>npm run test:cross-browser</code> or individual browsers with <code>--project=firefox</code>.</p>
+        <p>For mobile testing, Playwright offers device presets like <code>devices['iPhone 13']</code> that set viewport size, user agent, and touch mode. No emulators needed &mdash; the desktop browser resizes to match.</p>
+        <div class="tag-row"><span class="tag">Chromium</span><span class="tag">Firefox</span><span class="tag">WebKit</span><span class="tag">devices[]</span></div>
+      </div>
+    </div>
+
+    <div class="concept">
+      <button class="concept-toggle" aria-expanded="false">
+        <span class="concept-arrow">&#9656;</span>
+        <span class="concept-name">Sharding &amp; Parallel Execution</span>
+        <span class="concept-file">playwright.config.ts</span>
+      </button>
+      <div class="concept-body">
+        <div class="analogy">You have 300 exam papers to grade. One teacher takes 3 hours. Three teachers split the stack into thirds and finish in 1 hour. That's sharding &mdash; splitting the work across multiple machines.</div>
+        <p><code>--shard=1/3</code> runs the first third of test files, <code>--shard=2/3</code> the second, <code>--shard=3/3</code> the last. Each shard is a completely independent process &mdash; different CI machine, different Node process. After all finish, <code>merge-reports</code> combines the results into one HTML report.</p>
+        <p>Sharding is different from workers. <strong>Workers</strong> run tests in parallel within one machine (multiple CPUs). <strong>Shards</strong> run tests in parallel across machines. You can combine both: 3 shards with 4 workers each = 12 parallel test streams.</p>
+        <p>For CI, a GitHub Actions matrix strategy creates one job per shard. Each uploads its blob report as an artifact, and a final job merges them.</p>
+        <div class="tag-row"><span class="tag">--shard=N/M</span><span class="tag">merge-reports</span><span class="tag">workers</span><span class="tag">CI matrix</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PHASE 6 -->
+  <section class="phase">
+    <div class="phase-header">
+      <span class="phase-number">Phase 6</span>
+      <span class="phase-title">Debugging &amp; Real-World Patterns</span>
+    </div>
+
+    <div class="concept">
+      <button class="concept-toggle" aria-expanded="false">
+        <span class="concept-arrow">&#9656;</span>
+        <span class="concept-name">Debugging &amp; Trace Viewer</span>
+        <span class="concept-file">npm run test:debug</span>
+      </button>
+      <div class="concept-body">
+        <div class="analogy">When a test fails in CI at 3am, you need to see exactly what the browser saw. Playwright's Trace Viewer is like a flight recorder (black box) for your test &mdash; it captures a timeline of every click, every network request, every DOM change, and lets you replay it frame by frame.</div>
+        <p><strong>Debug mode</strong> (<code>--debug</code>): Opens the Playwright Inspector with step-through execution, locator highlighting, and a live DOM explorer. Like Chrome DevTools but for your test script.</p>
+        <p><strong>Trace Viewer:</strong> A zip file containing screenshots at every step, network logs, console output, and DOM snapshots. Download from CI artifacts, open with <code>npx playwright show-trace trace.zip</code>. You see exactly what the test saw.</p>
+        <p><strong>UI mode</strong> (<code>--ui</code>): Interactive test runner with watch mode. Change code, tests re-run automatically. See pass/fail in real time with screenshots.</p>
+        <p><code>page.pause()</code> in code freezes the test at that exact point and opens the inspector.</p>
+        <div class="tag-row"><span class="tag">--debug</span><span class="tag">Trace Viewer</span><span class="tag">--ui</span><span class="tag">page.pause()</span></div>
+      </div>
+    </div>
+
+    <div class="concept">
+      <button class="concept-toggle" aria-expanded="false">
+        <span class="concept-arrow">&#9656;</span>
+        <span class="concept-name">Transactions (Full E2E Workflow)</span>
+        <span class="concept-file">tests/e2e/transaction.spec.ts</span>
+      </button>
+      <div class="concept-body">
+        <div class="analogy">This is the core business flow of the app: viewing transactions, creating payments, requesting money, liking and commenting. It's like testing every feature of a banking app from the customer's perspective.</div>
+        <p>11 tests cover: displaying the transaction feed, switching between tabs (Everyone / Friends / Mine), navigating to new transaction, searching for a user, creating a payment, creating a request, returning to the feed after payment, viewing transaction detail, liking a transaction, and adding a comment.</p>
+        <p>The <strong>like test</strong> uses <code>{ force: true }</code> on click because the button gets a <code>disabled</code> attribute after being liked &mdash; Playwright normally won't click disabled elements, but force overrides this for testing.</p>
+        <p>Every interaction goes through the POM: <code>transactionPage.selectUser()</code>, <code>transactionPage.pay()</code>, <code>homePage.switchToEveryoneTab()</code>. No raw locators in the test file.</p>
+        <div class="tag-row"><span class="tag">11 tests</span><span class="tag">payment</span><span class="tag">request</span><span class="tag">like</span><span class="tag">comment</span><span class="tag">force: true</span></div>
+      </div>
+    </div>
+
+    <div class="concept">
+      <button class="concept-toggle" aria-expanded="false">
+        <span class="concept-arrow">&#9656;</span>
+        <span class="concept-name">Bank Accounts (CRUD Operations)</span>
+        <span class="concept-file">tests/e2e/bank-accounts.spec.ts</span>
+      </button>
+      <div class="concept-body">
+        <div class="analogy">CRUD = Create, Read, Update, Delete. These are the four basic operations every app does with data. For bank accounts: navigate to the page (Read), see existing accounts (Read), create a new one (Create), validate the form rejects bad data (validation), and delete an account (Delete).</div>
+        <p>5 tests with dynamic data from faker: the bank name is <code>`${faker.company.name()} Bank`</code>, routing and account numbers are generated via <code>faker.finance</code>. Each test run creates a different bank account.</p>
+        <p>The <strong>validation test</strong> enters an invalid routing number ("123") and verifies the error message appears. The <strong>delete test</strong> clicks the delete button and verifies "(Deleted)" label appears.</p>
+        <p>MUI form fields need <code>.locator('input')</code> chaining because <code>data-test</code> is on the wrapper <code>&lt;div&gt;</code>, not the actual <code>&lt;input&gt;</code>.</p>
+        <div class="tag-row"><span class="tag">5 tests</span><span class="tag">CRUD</span><span class="tag">faker data</span><span class="tag">MUI inputs</span></div>
+      </div>
+    </div>
+
+    <div class="concept">
+      <button class="concept-toggle" aria-expanded="false">
+        <span class="concept-arrow">&#9656;</span>
+        <span class="concept-name">Environment Configuration</span>
+        <span class="concept-file">config/env.ts</span>
+      </button>
+      <div class="concept-body">
+        <div class="analogy">Your app runs on different servers: localhost for development, staging.company.com for QA, app.company.com for production. Each has different URLs and credentials. Environment variables are like a settings dial &mdash; turn it to "staging" and every test automatically points to the right server.</div>
+        <p><code>config/env.ts</code> reads from a <code>.env</code> file (gitignored, never committed) and exports a typed <code>ENV</code> object. Required variables (<code>QA_USER</code>, <code>QA_PASSWORD</code>) throw immediately if missing &mdash; fail fast with a clear error instead of timing out on a wrong URL 5 minutes later.</p>
+        <p>Optional variables have defaults: <code>BASE_URL</code> defaults to <code>http://localhost:3000</code>. In CI, environment variables override the file.</p>
+        <p>The <code>EnvConfig</code> interface guarantees type safety: misspell <code>baseURL</code> as <code>baseUrl</code> anywhere in the codebase, and TypeScript catches it at compile time.</p>
+        <div class="tag-row"><span class="tag">dotenv</span><span class="tag">.env</span><span class="tag">fail-fast</span><span class="tag">EnvConfig interface</span></div>
+      </div>
+    </div>
+
+    <div class="concept">
+      <button class="concept-toggle" aria-expanded="false">
+        <span class="concept-arrow">&#9656;</span>
+        <span class="concept-name">Reporting &amp; CI/CD</span>
+        <span class="concept-file">playwright.config.ts</span>
+      </button>
+      <div class="concept-body">
+        <div class="analogy">After running 113 tests, you need answers fast: what passed? What failed? Why? A test report is like a medical lab report &mdash; it summarizes all results, highlights the abnormals, and gives you enough detail to diagnose the problem.</div>
+        <p><strong>List reporter:</strong> Real-time terminal output during the run. Shows each test as it starts and finishes.</p>
+        <p><strong>HTML reporter:</strong> A self-contained web page with screenshots, traces, timing data, and step-by-step breakdowns. Open with <code>npm run report</code>. Shows flaky tests (passed on retry) vs failed tests (failed all attempts).</p>
+        <p><strong>JUnit reporter:</strong> XML format for CI systems (Jenkins, Azure DevOps, GitLab). Enables test trend dashboards and failure tracking.</p>
+        <p><strong>Retries:</strong> <code>retries: 2</code> in CI means a failed test runs up to 3 times total. <code>trace: 'on-first-retry'</code> captures a trace only when a test needs retrying &mdash; this is the trace you debug, not the successful run.</p>
+        <div class="tag-row"><span class="tag">HTML report</span><span class="tag">list reporter</span><span class="tag">JUnit</span><span class="tag">retries</span><span class="tag">traces</span></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+  document.querySelectorAll('.concept').forEach(el => {
+    const toggle = el.querySelector('.concept-toggle');
+    const body = el.querySelector('.concept-body');
+    body.style.display = 'none';
+
+    toggle.addEventListener('click', () => {
+      const isOpen = el.classList.contains('open');
+      if (isOpen) {
+        el.classList.remove('open');
+        toggle.setAttribute('aria-expanded', 'false');
+        body.style.display = 'none';
+      } else {
+        el.classList.add('open');
+        toggle.setAttribute('aria-expanded', 'true');
+        body.style.display = 'block';
+      }
+    });
+  });
+</script>

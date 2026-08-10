@@ -1,0 +1,1874 @@
+<title>Ryvan E2E — 30 Module Curriculum Guide</title>
+<style>
+  @font-face {
+    font-family: 'Display';
+    src: local('Segoe UI Semibold'), local('SF Pro Display Medium'), local('Helvetica Neue Medium');
+    font-weight: 600;
+  }
+  @font-face {
+    font-family: 'Body';
+    src: local('Segoe UI'), local('SF Pro Text'), local('Helvetica Neue');
+    font-weight: 400;
+  }
+  @font-face {
+    font-family: 'Mono';
+    src: local('Cascadia Code'), local('SF Mono'), local('Consolas'), local('monospace');
+    font-weight: 400;
+  }
+
+  :root {
+    --bg: #FAFAF8;
+    --bg-card: #FFFFFF;
+    --bg-code: #F5F4F0;
+    --text: #1A1A18;
+    --text-secondary: #5C5B56;
+    --accent: #2D6A4F;
+    --accent-light: #E8F0EC;
+    --border: #E2E1DC;
+    --border-light: #EDECE8;
+    --tag-bg: #EDF2EE;
+    --tag-text: #2D6A4F;
+    --number-color: #B5B3AC;
+    --shadow: 0 1px 3px rgba(26,26,24,0.06);
+    --yes-bg: #E8F5E9;
+    --yes-text: #2E7D32;
+    --code-keyword: #7C3AED;
+    --code-string: #059669;
+    --code-comment: #9CA3AF;
+    --code-fn: #2563EB;
+    --code-type: #D97706;
+    --code-num: #DC2626;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #161614;
+      --bg-card: #1E1E1C;
+      --bg-code: #1C1C1A;
+      --text: #E8E7E3;
+      --text-secondary: #9C9B96;
+      --accent: #52B788;
+      --accent-light: #1C2E24;
+      --border: #2E2E2B;
+      --border-light: #262624;
+      --tag-bg: #1E2E23;
+      --tag-text: #52B788;
+      --number-color: #4A4A46;
+      --shadow: 0 1px 3px rgba(0,0,0,0.3);
+      --yes-bg: #1B3A1E;
+      --yes-text: #66BB6A;
+      --code-keyword: #C4B5FD;
+      --code-string: #6EE7B7;
+      --code-comment: #6B7280;
+      --code-fn: #93C5FD;
+      --code-type: #FCD34D;
+      --code-num: #FCA5A5;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #161614;
+    --bg-card: #1E1E1C;
+    --bg-code: #1C1C1A;
+    --text: #E8E7E3;
+    --text-secondary: #9C9B96;
+    --accent: #52B788;
+    --accent-light: #1C2E24;
+    --border: #2E2E2B;
+    --border-light: #262624;
+    --tag-bg: #1E2E23;
+    --tag-text: #52B788;
+    --number-color: #4A4A46;
+    --shadow: 0 1px 3px rgba(0,0,0,0.3);
+    --yes-bg: #1B3A1E;
+    --yes-text: #66BB6A;
+    --code-keyword: #C4B5FD;
+    --code-string: #6EE7B7;
+    --code-comment: #6B7280;
+    --code-fn: #93C5FD;
+    --code-type: #FCD34D;
+    --code-num: #FCA5A5;
+  }
+  :root[data-theme="light"] {
+    --bg: #FAFAF8;
+    --bg-card: #FFFFFF;
+    --bg-code: #F5F4F0;
+    --text: #1A1A18;
+    --text-secondary: #5C5B56;
+    --accent: #2D6A4F;
+    --accent-light: #E8F0EC;
+    --border: #E2E1DC;
+    --border-light: #EDECE8;
+    --tag-bg: #EDF2EE;
+    --tag-text: #2D6A4F;
+    --number-color: #B5B3AC;
+    --shadow: 0 1px 3px rgba(26,26,24,0.06);
+    --yes-bg: #E8F5E9;
+    --yes-text: #2E7D32;
+    --code-keyword: #7C3AED;
+    --code-string: #059669;
+    --code-comment: #9CA3AF;
+    --code-fn: #2563EB;
+    --code-type: #D97706;
+    --code-num: #DC2626;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Body', 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 15.5px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page { max-width: 900px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
+
+  header { margin-bottom: 3rem; padding-bottom: 2.5rem; border-bottom: 1px solid var(--border); }
+  header .eyebrow { font-family: 'Mono', monospace; font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.75rem; }
+  header h1 { font-family: 'Display', sans-serif; font-size: 2rem; font-weight: 600; line-height: 1.2; text-wrap: balance; margin-bottom: 0.75rem; }
+  header .subtitle { color: var(--text-secondary); font-size: 1.05rem; line-height: 1.6; max-width: 700px; }
+  .stats { display: flex; gap: 2rem; margin-top: 1.5rem; flex-wrap: wrap; }
+  .stat { display: flex; flex-direction: column; }
+  .stat-value { font-family: 'Display', sans-serif; font-size: 1.4rem; font-weight: 600; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .stat-label { font-size: 0.78rem; color: var(--text-secondary); letter-spacing: 0.02em; }
+
+  .part { margin-bottom: 3rem; }
+  .part-header { display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 1.25rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--accent); }
+  .part-number { font-family: 'Mono', monospace; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); background: var(--accent-light); padding: 0.2em 0.6em; border-radius: 3px; white-space: nowrap; }
+  .part-title { font-family: 'Display', sans-serif; font-size: 1.25rem; font-weight: 600; }
+
+  .module { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 6px; margin-bottom: 0.75rem; box-shadow: var(--shadow); overflow: hidden; }
+  .module-toggle { width: 100%; display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; background: none; border: none; cursor: pointer; text-align: left; font-family: inherit; font-size: inherit; color: var(--text); line-height: 1.4; }
+  .module-toggle:hover { background: var(--accent-light); }
+  .module-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .module-num { font-family: 'Mono', monospace; font-size: 0.72rem; color: var(--number-color); min-width: 1.8rem; flex-shrink: 0; }
+  .module-title { font-family: 'Display', sans-serif; font-weight: 600; font-size: 0.98rem; flex: 1; }
+  .badge { font-family: 'Mono', monospace; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.04em; padding: 0.15em 0.55em; border-radius: 3px; flex-shrink: 0; background: var(--yes-bg); color: var(--yes-text); }
+  .arrow { font-size: 0.8rem; color: var(--text-secondary); transition: transform 0.2s; flex-shrink: 0; }
+  .module[data-open="true"] .arrow { transform: rotate(90deg); }
+
+  .module-body { display: none; padding: 0 1.25rem 1.5rem 3.8rem; }
+  .module[data-open="true"] .module-body { display: block; }
+
+  .analogy { background: var(--accent-light); border-radius: 5px; padding: 0.9rem 1rem; margin-bottom: 1.25rem; font-size: 0.92rem; line-height: 1.65; }
+  .analogy-label { font-family: 'Mono', monospace; font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.3rem; }
+
+  .theory { margin-bottom: 1.25rem; }
+  .theory h4 { font-family: 'Display', sans-serif; font-size: 0.88rem; font-weight: 600; color: var(--accent); margin-bottom: 0.5rem; letter-spacing: 0.02em; text-transform: uppercase; }
+  .theory p, .theory ul { font-size: 0.92rem; line-height: 1.7; color: var(--text-secondary); margin-bottom: 0.6rem; }
+  .theory strong { color: var(--text); font-weight: 600; }
+  .theory ul { padding-left: 1.25rem; }
+  .theory li { margin-bottom: 0.3rem; }
+  .theory code { font-family: 'Mono', monospace; font-size: 0.82rem; background: var(--bg-code); padding: 0.15em 0.4em; border-radius: 3px; color: var(--accent); }
+
+  .code-section { margin-bottom: 1.25rem; }
+  .code-label { font-family: 'Mono', monospace; font-size: 0.7rem; letter-spacing: 0.04em; color: var(--text-secondary); margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.5rem; }
+  .code-file { color: var(--accent); }
+  .code-block { background: var(--bg-code); border: 1px solid var(--border-light); border-radius: 5px; padding: 1rem 1.15rem; overflow-x: auto; font-family: 'Mono', monospace; font-size: 0.8rem; line-height: 1.7; color: var(--text); white-space: pre; tab-size: 2; }
+  .code-block .kw { color: var(--code-keyword); }
+  .code-block .str { color: var(--code-string); }
+  .code-block .cm { color: var(--code-comment); font-style: italic; }
+  .code-block .fn { color: var(--code-fn); }
+  .code-block .tp { color: var(--code-type); }
+  .code-block .num { color: var(--code-num); }
+
+  .code-explain { font-size: 0.88rem; line-height: 1.65; color: var(--text-secondary); margin-top: 0.6rem; padding-left: 0.5rem; border-left: 2px solid var(--border); }
+  .code-explain strong { color: var(--text); }
+
+  .file-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.5rem; }
+  .file-tag { font-family: 'Mono', monospace; font-size: 0.7rem; background: var(--tag-bg); color: var(--tag-text); padding: 0.15em 0.55em; border-radius: 3px; }
+
+  .controls { display: flex; gap: 0.75rem; margin-bottom: 2rem; }
+  .controls button { font-family: 'Mono', monospace; font-size: 0.72rem; letter-spacing: 0.04em; padding: 0.4em 0.9em; border: 1px solid var(--border); border-radius: 4px; background: var(--bg-card); color: var(--text-secondary); cursor: pointer; }
+  .controls button:hover { border-color: var(--accent); color: var(--accent); }
+  .controls button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  @media (max-width: 640px) {
+    .page { padding: 2rem 1rem 3rem; }
+    header h1 { font-size: 1.6rem; }
+    .module-body { padding-left: 1.25rem; }
+    .stats { gap: 1.25rem; }
+    .code-block { font-size: 0.74rem; padding: 0.75rem; }
+  }
+</style>
+
+<div class="page">
+  <header>
+    <div class="eyebrow">Ryvan E2E POC</div>
+    <h1>30-Module Curriculum — In-Depth Guide</h1>
+    <p class="subtitle">Every module explained in plain English with real-world analogies, theoretical depth, and actual code from our POC. Click any module to expand its full breakdown.</p>
+    <div class="stats">
+      <div class="stat"><span class="stat-value">30 / 30</span><span class="stat-label">YES Verdict</span></div>
+      <div class="stat"><span class="stat-value">114</span><span class="stat-label">Tests</span></div>
+      <div class="stat"><span class="stat-value">12</span><span class="stat-label">Classes</span></div>
+      <div class="stat"><span class="stat-value">23</span><span class="stat-label">Spec Files</span></div>
+    </div>
+  </header>
+
+  <div class="controls">
+    <button onclick="toggleAll(true)">Expand All</button>
+    <button onclick="toggleAll(false)">Collapse All</button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ PART 1 ══════════════════════════════════════════════ -->
+  <div class="part">
+    <div class="part-header">
+      <span class="part-number">Part 1</span>
+      <span class="part-title">JavaScript Foundations</span>
+    </div>
+
+    <!-- MODULE 1 -->
+    <div class="module" data-open="false">
+      <button class="module-toggle" aria-expanded="false" onclick="toggle(this)">
+        <span class="module-num">01</span>
+        <span class="module-title">Getting Started</span>
+        <span class="badge">YES</span>
+        <span class="arrow">&#9654;</span>
+      </button>
+      <div class="module-body">
+        <div class="analogy">
+          <div class="analogy-label">Real-world analogy</div>
+          Setting up your workbench before building furniture. You need the right tools (Node.js), the right workspace (project folder), and a parts list (package.json) before you cut a single piece of wood.
+        </div>
+        <div class="theory">
+          <h4>What it means</h4>
+          <p>Before writing a single test, you need a <strong>runtime</strong> (Node.js — the engine that runs JavaScript outside a browser), a <strong>package manager</strong> (npm — fetches libraries and manages versions), and a <strong>project manifest</strong> (package.json — the parts list that says "this project needs Playwright 1.52, TypeScript 5.8, etc."). You also need an <strong>environment config</strong> so secrets like passwords aren't hardcoded in source code.</p>
+          <p>Think of <code>package.json</code> as a recipe card's ingredient list. When a new developer joins, they run <code>npm install</code> and get the exact same ingredients you used — no guessing, no "works on my machine."</p>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">package.json</span> — project manifest with 13 npm scripts</div>
+          <div class="code-block">{
+  <span class="str">"engines"</span>: { <span class="str">"node"</span>: <span class="str">"&gt;=22.5.0"</span> },
+  <span class="str">"scripts"</span>: {
+    <span class="str">"test"</span>:        <span class="str">"playwright test --project=chromium"</span>,
+    <span class="str">"test:headed"</span>: <span class="str">"playwright test --project=chromium --headed"</span>,
+    <span class="str">"test:debug"</span>:  <span class="str">"playwright test --project=chromium --debug"</span>,
+    <span class="str">"test:ui"</span>:     <span class="str">"playwright test --ui"</span>,
+    <span class="str">"test:smoke"</span>:  <span class="str">"playwright test --grep @smoke --project=chromium"</span>,
+    <span class="str">"test:cross"</span>:  <span class="str">"playwright test"</span>,
+    <span class="str">"report"</span>:      <span class="str">"playwright show-report"</span>,
+    <span class="str">"typecheck"</span>:   <span class="str">"tsc --noEmit"</span>,
+    <span class="str">"lint"</span>:        <span class="str">"eslint ."</span>
+  }
+}</div>
+          <div class="code-explain"><strong>Why 13 scripts?</strong> Each is a different "mode" of running tests. <code>test</code> runs fast in headless. <code>test:headed</code> opens a visible browser so you can watch. <code>test:debug</code> lets you pause and step through code. <code>test:ui</code> opens Playwright's interactive dashboard. <code>test:smoke</code> runs only the fast critical-path tests. <code>test:cross</code> runs all browsers.</div>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">config/env.ts</span> — environment variables loaded from .env file</div>
+          <div class="code-block"><span class="kw">import</span> * <span class="kw">as</span> dotenv <span class="kw">from</span> <span class="str">'dotenv'</span>;
+dotenv.<span class="fn">config</span>();
+
+<span class="kw">function</span> <span class="fn">req</span>(name: <span class="tp">string</span>): <span class="tp">string</span> {
+  <span class="kw">const</span> value = process.env[name];
+  <span class="kw">if</span> (!value) <span class="kw">throw new</span> <span class="tp">Error</span>(<span class="str">`Missing required env var: ${</span>name<span class="str">}`</span>);
+  <span class="kw">return</span> value;
+}
+
+<span class="kw">export const</span> ENV = {
+  baseURL: process.env.BASE_URL || <span class="str">'http://localhost:3000'</span>,
+  apiURL:  process.env.API_URL  || <span class="str">'http://localhost:3001'</span>,
+  user: { username: <span class="fn">req</span>(<span class="str">'QA_USER'</span>), password: <span class="fn">req</span>(<span class="str">'QA_PASSWORD'</span>) },
+};</div>
+          <div class="code-explain"><strong>dotenv</strong> reads a <code>.env</code> file and loads key=value pairs into <code>process.env</code>. The <code>req()</code> function ensures critical variables exist — if someone forgets to set <code>QA_USER</code>, the test suite fails immediately with a clear message instead of silently using <code>undefined</code>.</div>
+        </div>
+        <div class="file-tags">
+          <span class="file-tag">package.json</span>
+          <span class="file-tag">tsconfig.json</span>
+          <span class="file-tag">playwright.config.ts</span>
+          <span class="file-tag">config/env.ts</span>
+          <span class="file-tag">.env</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 2 -->
+    <div class="module" data-open="false">
+      <button class="module-toggle" aria-expanded="false" onclick="toggle(this)">
+        <span class="module-num">02</span>
+        <span class="module-title">Core Language Basics</span>
+        <span class="badge">YES</span>
+        <span class="arrow">&#9654;</span>
+      </button>
+      <div class="module-body">
+        <div class="analogy">
+          <div class="analogy-label">Real-world analogy</div>
+          Learning the alphabet and grammar before writing a novel. Variables are labeled boxes, types say what goes in each box, and operators are the verbs that connect them.
+        </div>
+        <div class="theory">
+          <h4>What it means</h4>
+          <p><strong>const</strong> = a box you fill once and never swap (the label stays). <strong>let</strong> = a box you can refill. We almost always use <code>const</code> because most values don't need to change — and if they can't change, there's one fewer thing that can go wrong.</p>
+          <p><strong>Template literals</strong> use backticks and <code>${...}</code> to embed values inside strings — like a form letter where you drop in the recipient's name. <strong>Strict equality</strong> (<code>===</code>) checks both value AND type — <code>1 === '1'</code> is false because number vs. string.</p>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">data/test-data.ts</span> — const, template literals, as const</div>
+          <div class="code-block"><span class="kw">import</span> { faker } <span class="kw">from</span> <span class="str">'@faker-js/faker'</span>;
+
+<span class="kw">export const</span> TransactionData = {
+  payment: {
+    amount: faker.number.<span class="fn">int</span>({ min: <span class="num">1</span>, max: <span class="num">50</span> }).<span class="fn">toString</span>(),
+    description: <span class="str">`Payment ${</span>faker.word.<span class="fn">adjective</span>()<span class="str">} ${</span>faker.word.<span class="fn">noun</span>()<span class="str">}`</span>,
+  },
+} <span class="kw">as const</span>;</div>
+          <div class="code-explain"><strong>const</strong> makes <code>TransactionData</code> itself immutable. <strong>Template literals</strong> <code>`Payment ${...}`</code> build dynamic descriptions. <strong>as const</strong> is a TypeScript trick — it tells the compiler "these values are literal and fixed, not just generic strings." This gives you narrower types for better autocomplete.</div>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">utils/login.helper.ts</span> — let, operators, strict equality</div>
+          <div class="code-block"><span class="kw">const</span> signinBtn = page.<span class="fn">getByRole</span>(<span class="str">'button'</span>, { name: <span class="str">'Sign In'</span> });
+<span class="kw">const</span> sidenav  = page.<span class="fn">getByTestId</span>(<span class="str">'sidenav-user-full-name'</span>);
+
+<span class="cm">// .or() = "whichever appears first wins"</span>
+<span class="kw">await</span> signinBtn.<span class="fn">or</span>(sidenav).<span class="fn">waitFor</span>({ timeout: <span class="num">10_000</span> });
+
+<span class="kw">if</span> (<span class="kw">await</span> signinBtn.<span class="fn">isVisible</span>()) {
+  <span class="cm">// Not logged in — fill credentials and submit</span>
+  <span class="kw">await</span> page.<span class="fn">getByLabel</span>(<span class="str">'Username'</span>).<span class="fn">fill</span>(ENV.user.username);
+  <span class="kw">await</span> page.<span class="fn">getByLabel</span>(<span class="str">'Password'</span>).<span class="fn">fill</span>(ENV.user.password);
+  <span class="kw">await</span> signinBtn.<span class="fn">click</span>();
+}</div>
+          <div class="code-explain"><strong>if/else</strong> branching at its most practical: "if the sign-in button is visible, we're logged out — log in. Otherwise, we're already in." The <code>||</code> (or) operator in the <code>.or()</code> method waits for whichever element appears first. <code>10_000</code> is 10,000 milliseconds — the underscore is just a visual separator for readability (like writing 10,000 instead of 10000).</div>
+        </div>
+        <div class="file-tags">
+          <span class="file-tag">data/test-data.ts</span>
+          <span class="file-tag">config/env.ts</span>
+          <span class="file-tag">utils/login.helper.ts</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 3 -->
+    <div class="module" data-open="false">
+      <button class="module-toggle" aria-expanded="false" onclick="toggle(this)">
+        <span class="module-num">03</span>
+        <span class="module-title">Control Flow</span>
+        <span class="badge">YES</span>
+        <span class="arrow">&#9654;</span>
+      </button>
+      <div class="module-body">
+        <div class="analogy">
+          <div class="analogy-label">Real-world analogy</div>
+          A choose-your-own-adventure book. The story branches based on decisions (if/else), repeats chapters (loops), and sometimes jumps to a specific section based on a keyword (switch).
+        </div>
+        <div class="theory">
+          <h4>What it means</h4>
+          <p>Control flow decides <strong>which code runs</strong> and <strong>how many times</strong>. Without it, code would just run top-to-bottom, line-by-line, every time.</p>
+          <ul>
+            <li><strong>if / else if / else</strong> — pick one path based on a condition</li>
+            <li><strong>switch</strong> — pick from a fixed menu of options (cleaner than a long if/else chain when you're matching one value against many possibilities)</li>
+            <li><strong>for / for...of</strong> — repeat for each item in a collection</li>
+            <li><strong>for...in</strong> — repeat for each key (property name) in an object</li>
+            <li><strong>while</strong> — repeat until a condition becomes false (useful when you don't know how many iterations you'll need)</li>
+          </ul>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">utils/data.helpers.ts</span> — switch statement</div>
+          <div class="code-block"><span class="kw">export function</span> <span class="fn">transactionLabel</span>(type: <span class="str">'payment'</span> | <span class="str">'request'</span>): <span class="tp">string</span> {
+  <span class="kw">switch</span> (type) {
+    <span class="kw">case</span> <span class="str">'payment'</span>: <span class="kw">return</span> <span class="str">'paid'</span>;
+    <span class="kw">case</span> <span class="str">'request'</span>: <span class="kw">return</span> <span class="str">'requested'</span>;
+  }
+}</div>
+          <div class="code-explain"><strong>switch</strong> reads like a lookup table: "if type is 'payment', return 'paid'; if 'request', return 'requested'." It's cleaner than <code>if (type === 'payment') ... else if (type === 'request') ...</code> when you have a fixed set of values to match against.</div>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">utils/data.helpers.ts</span> — else if chain</div>
+          <div class="code-block"><span class="kw">export function</span> <span class="fn">categorizeAmount</span>(amount: <span class="tp">number</span>) {
+  <span class="kw">if</span> (amount &lt; <span class="num">10</span>)        <span class="kw">return</span> <span class="str">'micro'</span>;
+  <span class="kw">else if</span> (amount &lt; <span class="num">100</span>)  <span class="kw">return</span> <span class="str">'small'</span>;
+  <span class="kw">else if</span> (amount &lt; <span class="num">1000</span>) <span class="kw">return</span> <span class="str">'medium'</span>;
+  <span class="kw">else</span>                     <span class="kw">return</span> <span class="str">'large'</span>;
+}</div>
+          <div class="code-explain"><strong>else if</strong> creates a waterfall of checks. The first one that matches wins, and the rest are skipped. It reads exactly like English: "if it's under 10, it's micro; otherwise if it's under 100, it's small; otherwise if it's under 1000, it's medium; otherwise it's large."</div>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">utils/data.helpers.ts</span> — while loop + for...in</div>
+          <div class="code-block"><span class="cm">// while — repeat until condition is met</span>
+<span class="kw">export async function</span> <span class="fn">pollUntil</span>(
+  check: () =&gt; <span class="tp">Promise</span>&lt;<span class="tp">boolean</span>&gt;, maxAttempts = <span class="num">10</span>
+): <span class="tp">Promise</span>&lt;<span class="tp">boolean</span>&gt; {
+  <span class="kw">let</span> attempt = <span class="num">0</span>;
+  <span class="kw">while</span> (attempt &lt; maxAttempts) {
+    <span class="kw">if</span> (<span class="kw">await</span> <span class="fn">check</span>()) <span class="kw">return true</span>;
+    attempt++;
+  }
+  <span class="kw">return false</span>;
+}
+
+<span class="cm">// for...in — iterate over object keys</span>
+<span class="kw">export function</span> <span class="fn">objectFieldTypes</span>(obj: <span class="tp">Record</span>&lt;<span class="tp">string</span>, <span class="tp">unknown</span>&gt;) {
+  <span class="kw">const</span> types: <span class="tp">Record</span>&lt;<span class="tp">string</span>, <span class="tp">string</span>&gt; = {};
+  <span class="kw">for</span> (<span class="kw">const</span> key <span class="kw">in</span> obj) {
+    types[key] = <span class="kw">typeof</span> obj[key];
+  }
+  <span class="kw">return</span> types;
+}</div>
+          <div class="code-explain"><strong>while</strong> keeps retrying until the check passes or we hit max attempts — you use this when you don't know how many tries you'll need (unlike <code>for</code> which runs a fixed number of times). <strong>for...in</strong> walks over an object's property names. If <code>obj = { name: "Naveen", age: 30 }</code>, the loop visits <code>"name"</code> then <code>"age"</code>.</div>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">tests/e2e/cookies-storage.spec.ts</span> — for...of loop over cookies</div>
+          <div class="code-block"><span class="kw">const</span> cookies = <span class="kw">await</span> page.<span class="fn">context</span>().<span class="fn">cookies</span>();
+
+<span class="kw">for</span> (<span class="kw">const</span> cookie <span class="kw">of</span> cookies) {
+  <span class="fn">expect</span>(cookie.name).<span class="fn">toBeTruthy</span>();
+  <span class="fn">expect</span>(cookie.value).<span class="fn">toBeDefined</span>();
+  <span class="fn">expect</span>(cookie.domain).<span class="fn">toBeTruthy</span>();
+}</div>
+          <div class="code-explain"><strong>for...of</strong> walks over each item in an array. Unlike <code>for...in</code> (which gives you keys/indexes), <code>for...of</code> gives you the actual values. Here, each <code>cookie</code> is a full cookie object with name, value, domain, etc.</div>
+        </div>
+        <div class="file-tags">
+          <span class="file-tag">utils/data.helpers.ts</span>
+          <span class="file-tag">utils/login.helper.ts</span>
+          <span class="file-tag">tests/e2e/cookies-storage.spec.ts</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 4 -->
+    <div class="module" data-open="false">
+      <button class="module-toggle" aria-expanded="false" onclick="toggle(this)">
+        <span class="module-num">04</span>
+        <span class="module-title">Functions</span>
+        <span class="badge">YES</span>
+        <span class="arrow">&#9654;</span>
+      </button>
+      <div class="module-body">
+        <div class="analogy">
+          <div class="analogy-label">Real-world analogy</div>
+          A recipe. You give it ingredients (parameters), it follows steps, and produces a dish (return value). Arrow functions are shorthand recipe cards. Callbacks are giving someone your recipe to run later.
+        </div>
+        <div class="theory">
+          <h4>What it means</h4>
+          <p>Functions let you write a block of code once and call it many times. <strong>Function declarations</strong> use the <code>function</code> keyword. <strong>Arrow functions</strong> (<code>=&gt;</code>) are more concise and capture the surrounding context. <strong>Default parameters</strong> provide fallback values. <strong>Callbacks</strong> are functions you pass to other functions — "here's a recipe, call it when you're ready."</p>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">config/env.ts</span> — function declaration with validation</div>
+          <div class="code-block"><span class="kw">function</span> <span class="fn">req</span>(name: <span class="tp">string</span>): <span class="tp">string</span> {
+  <span class="kw">const</span> value = process.env[name];
+  <span class="kw">if</span> (!value) <span class="kw">throw new</span> <span class="tp">Error</span>(<span class="str">`Missing: ${</span>name<span class="str">}`</span>);
+  <span class="kw">return</span> value;
+}</div>
+          <div class="code-explain">A traditional <code>function</code> declaration. Takes a string (the env var name), looks it up, and either returns the value or throws an error. Simple, reusable, and self-documenting.</div>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">pages/transaction.page.ts</span> — arrow function with default parameter</div>
+          <div class="code-block"><span class="fn">getTransactionItem</span>(index = <span class="num">0</span>) {
+  <span class="kw">return this</span>.page.<span class="fn">locator</span>(<span class="str">'[data-test*="transaction-item"]'</span>).<span class="fn">nth</span>(index);
+}</div>
+          <div class="code-explain"><strong>Default parameter</strong> <code>index = 0</code> means: if no argument is passed, use 0. So <code>getTransactionItem()</code> returns the first item, <code>getTransactionItem(3)</code> returns the fourth. One method, flexible for any caller.</div>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">fixtures/test.ts</span> — callback pattern in Playwright fixtures</div>
+          <div class="code-block">signinPage: <span class="kw">async</span> ({ sharedPage }, <span class="fn">use</span>) =&gt; {
+  <span class="kw">await</span> <span class="fn">use</span>(<span class="kw">new</span> <span class="tp">SigninPage</span>(sharedPage));
+},</div>
+          <div class="code-explain"><strong>use</strong> is a callback provided by Playwright. You create the fixture value (<code>new SigninPage(...)</code>), hand it to <code>use()</code>, and Playwright gives it to your test. When the test finishes, control returns here for cleanup. This is the "sandwich" pattern: setup → hand off → teardown.</div>
+        </div>
+        <div class="file-tags">
+          <span class="file-tag">config/env.ts</span>
+          <span class="file-tag">pages/transaction.page.ts</span>
+          <span class="file-tag">fixtures/test.ts</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 5 -->
+    <div class="module" data-open="false">
+      <button class="module-toggle" aria-expanded="false" onclick="toggle(this)">
+        <span class="module-num">05</span>
+        <span class="module-title">Data Structures</span>
+        <span class="badge">YES</span>
+        <span class="arrow">&#9654;</span>
+      </button>
+      <div class="module-body">
+        <div class="analogy">
+          <div class="analogy-label">Real-world analogy</div>
+          Containers in your kitchen. Arrays are a spice rack (ordered slots). Objects are labeled jars (name + contents). Destructuring is grabbing exactly the jars you need in one motion. Spread (...) is pouring one jar's contents into another.
+        </div>
+        <div class="theory">
+          <h4>What it means</h4>
+          <p>Data structures organize information so you can process it efficiently:</p>
+          <ul>
+            <li><strong>.find()</strong> — find the first match ("find the user named Heath")</li>
+            <li><strong>.filter()</strong> — keep only items that match ("all transactions over $100")</li>
+            <li><strong>.map()</strong> — transform each item ("convert every amount to a formatted currency string")</li>
+            <li><strong>.reduce()</strong> — boil a list down to a single value ("sum all amounts")</li>
+            <li><strong>Destructuring</strong> — unpack values in one line: <code>const { first, last } = user</code></li>
+            <li><strong>Spread (...)</strong> — copy/merge: <code>{ ...defaults, ...overrides }</code></li>
+          </ul>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">utils/db.client.ts</span> — .find() and .filter()</div>
+          <div class="code-block"><span class="fn">userByUsername</span>(username: <span class="tp">string</span>): <span class="tp">RwaUser</span> | <span class="tp">undefined</span> {
+  <span class="kw">return this</span>.<span class="fn">read</span>().users.<span class="fn">find</span>((u) =&gt; u.username === username);
+}
+
+<span class="fn">transactionsForUser</span>(userId: <span class="tp">string</span>): <span class="tp">RwaTransaction</span>[] {
+  <span class="kw">return this</span>.<span class="fn">read</span>().transactions.<span class="fn">filter</span>(
+    (t) =&gt; t.senderId === userId || t.receiverId === userId,
+  );
+}</div>
+          <div class="code-explain"><strong>.find()</strong> returns the first user whose username matches — or <code>undefined</code> if none does. <strong>.filter()</strong> returns ALL transactions where the user is either the sender or receiver. Think of .find() as "show me the first one" and .filter() as "show me all that match."</div>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">utils/data.helpers.ts</span> — .reduce(), .map(), array destructuring</div>
+          <div class="code-block"><span class="cm">// .reduce() — boil a list to one value</span>
+<span class="kw">export function</span> <span class="fn">totalAmounts</span>(amounts: <span class="tp">number</span>[]): <span class="tp">number</span> {
+  <span class="kw">return</span> amounts.<span class="fn">reduce</span>((sum, n) =&gt; sum + n, <span class="num">0</span>);
+}
+
+<span class="cm">// .map() — transform every item</span>
+<span class="kw">export function</span> <span class="fn">formatCurrency</span>(amounts: <span class="tp">number</span>[]): <span class="tp">string</span>[] {
+  <span class="kw">return</span> amounts.<span class="fn">map</span>((a) =&gt; <span class="str">`$${</span>a.<span class="fn">toFixed</span>(<span class="num">2</span>)<span class="str">}`</span>);
+}
+
+<span class="cm">// Array destructuring — unpack in one line</span>
+<span class="kw">export function</span> <span class="fn">splitFullName</span>(fullName: <span class="tp">string</span>) {
+  <span class="kw">const</span> [first, ...rest] = fullName.<span class="fn">split</span>(<span class="str">' '</span>);
+  <span class="kw">return</span> { first, last: rest.<span class="fn">join</span>(<span class="str">' '</span>) };
+}</div>
+          <div class="code-explain"><strong>.reduce()</strong> starts with 0, then adds each number one by one: [5, 10, 3] → 0+5=5 → 5+10=15 → 15+3=18. <strong>.map()</strong> transforms every item: [5, 10] → ["$5.00", "$10.00"]. <strong>Destructuring</strong> <code>[first, ...rest]</code> takes the first word and puts everything else into <code>rest</code>. "Naveen Kumar" → first="Naveen", rest=["Kumar"].</div>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">playwright.config.ts</span> — spread operator</div>
+          <div class="code-block">{
+  name: <span class="str">'chromium'</span>,
+  use: { ...<span class="fn">devices</span>[<span class="str">'Desktop Chrome'</span>] },
+},</div>
+          <div class="code-explain"><strong>Spread</strong> <code>...devices['Desktop Chrome']</code> copies all properties (viewport size, user agent, etc.) from Playwright's built-in device preset into our project config. Like pouring a pre-mixed spice blend into your recipe instead of measuring each spice individually.</div>
+        </div>
+        <div class="file-tags">
+          <span class="file-tag">utils/db.client.ts</span>
+          <span class="file-tag">utils/data.helpers.ts</span>
+          <span class="file-tag">playwright.config.ts</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 6 -->
+    <div class="module" data-open="false">
+      <button class="module-toggle" aria-expanded="false" onclick="toggle(this)">
+        <span class="module-num">06</span>
+        <span class="module-title">Asynchronous JavaScript</span>
+        <span class="badge">YES</span>
+        <span class="arrow">&#9654;</span>
+      </button>
+      <div class="module-body">
+        <div class="analogy">
+          <div class="analogy-label">Real-world analogy</div>
+          Ordering food at a restaurant. You place your order (start an async operation), then wait for it (await). You don't stand at the kitchen door. Promise.all is ordering for the whole table at once and waiting for everyone's food to arrive.
+        </div>
+        <div class="theory">
+          <h4>What it means</h4>
+          <p>Browser actions take time — clicking, navigating, fetching data. <strong>async/await</strong> lets you write "wait for this, then do that" code that reads like a normal script. Without it, you'd need nested callbacks (the dreaded "callback hell"). <strong>Promise.all()</strong> runs multiple operations simultaneously. <strong>try/catch</strong> handles errors gracefully instead of crashing.</p>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">tests/e2e/multi-tab.spec.ts</span> — Promise.all for popup handling</div>
+          <div class="code-block"><span class="cm">// Wait for popup AND click simultaneously</span>
+<span class="kw">const</span> [popup] = <span class="kw">await</span> <span class="tp">Promise</span>.<span class="fn">all</span>([
+  page.<span class="fn">waitForEvent</span>(<span class="str">'popup'</span>),       <span class="cm">// Start listening BEFORE the click</span>
+  page.<span class="fn">locator</span>(<span class="str">'#test-popup-link'</span>).<span class="fn">click</span>(), <span class="cm">// This triggers the popup</span>
+]);
+
+<span class="kw">await</span> popup.<span class="fn">waitForLoadState</span>();
+<span class="kw">await</span> <span class="fn">expect</span>(popup).<span class="fn">toHaveURL</span>(<span class="str">/\/bankaccounts/</span>);</div>
+          <div class="code-explain"><strong>Promise.all()</strong> is critical here. If you click first and THEN start listening for the popup, you might miss it — the popup could open before your listener is ready. By wrapping both in <code>Promise.all</code>, the listener and click start simultaneously. It's like having one person watching the door while another knocks.</div>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">utils/login.helper.ts</span> — try/catch for error handling</div>
+          <div class="code-block"><span class="kw">export async function</span> <span class="fn">ensureLoggedOut</span>(page: <span class="tp">Page</span>) {
+  <span class="kw">await</span> page.<span class="fn">context</span>().<span class="fn">clearCookies</span>();
+  <span class="kw">try</span> {
+    <span class="kw">await</span> page.<span class="fn">evaluate</span>(() =&gt; {
+      localStorage.<span class="fn">clear</span>();
+      sessionStorage.<span class="fn">clear</span>();
+    });
+  } <span class="kw">catch</span> {
+    <span class="cm">// page might be about:blank — that's fine</span>
+  }
+  <span class="kw">await</span> page.<span class="fn">goto</span>(<span class="str">'/signin'</span>);
+}</div>
+          <div class="code-explain"><strong>try/catch</strong> wraps risky code. If <code>page.evaluate()</code> fails (because the page is <code>about:blank</code> and has no localStorage), the error is caught and swallowed. Without it, the entire test would crash. The empty <code>catch</code> says "I know this might fail, and that's OK."</div>
+        </div>
+        <div class="file-tags">
+          <span class="file-tag">All test files (async/await)</span>
+          <span class="file-tag">tests/e2e/multi-tab.spec.ts</span>
+          <span class="file-tag">utils/login.helper.ts</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 7 -->
+    <div class="module" data-open="false">
+      <button class="module-toggle" aria-expanded="false" onclick="toggle(this)">
+        <span class="module-num">07</span>
+        <span class="module-title">Modules &amp; Tooling</span>
+        <span class="badge">YES</span>
+        <span class="arrow">&#9654;</span>
+      </button>
+      <div class="module-body">
+        <div class="analogy">
+          <div class="analogy-label">Real-world analogy</div>
+          LEGO sets. Each bag (module) contains specific pieces. You import the pieces you need, build your structure, and export the finished section for others to use.
+        </div>
+        <div class="theory">
+          <h4>What it means</h4>
+          <p>Modules split code into separate files that share functionality via <strong>import/export</strong>. Without them, all code would live in one giant file. <strong>Type-only imports</strong> (<code>import type</code>) import just the TypeScript type — no runtime code is generated. <strong>Re-exports</strong> create convenience entry points.</p>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">fixtures/test.ts</span> — import types, import values, re-export</div>
+          <div class="code-block"><span class="cm">// Type-only import — erased at compile time, zero runtime cost</span>
+<span class="kw">import type</span> { <span class="tp">BrowserContext</span>, <span class="tp">Page</span> } <span class="kw">from</span> <span class="str">'@playwright/test'</span>;
+
+<span class="cm">// Value imports — actual code used at runtime</span>
+<span class="kw">import</span> { test <span class="kw">as</span> base } <span class="kw">from</span> <span class="str">'@playwright/test'</span>;
+<span class="kw">import</span> { <span class="tp">SigninPage</span> } <span class="kw">from</span> <span class="str">'../pages/signin.page'</span>;
+<span class="kw">import</span> { <span class="tp">ApiClient</span> } <span class="kw">from</span> <span class="str">'../utils/api.client'</span>;
+
+<span class="cm">// Re-export — so tests import { test, expect } from one place</span>
+<span class="kw">export</span> { expect } <span class="kw">from</span> <span class="str">'@playwright/test'</span>;</div>
+          <div class="code-explain"><strong>import type</strong> tells TypeScript "I only need this for type-checking, not runtime." This keeps the compiled JavaScript smaller. <strong>import as</strong> renames: <code>test as base</code> renames Playwright's <code>test</code> to <code>base</code> so we can extend it. <strong>Re-export</strong> of <code>expect</code> means all test files import from <code>fixtures/test.ts</code> — one import, not two.</div>
+        </div>
+        <div class="file-tags">
+          <span class="file-tag">fixtures/test.ts</span>
+          <span class="file-tag">package.json</span>
+          <span class="file-tag">tsconfig.json</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ PART 2 ══════════════════════════════════════════════ -->
+  <div class="part">
+    <div class="part-header">
+      <span class="part-number">Part 2</span>
+      <span class="part-title">TypeScript Essentials</span>
+    </div>
+
+    <!-- MODULE 8 -->
+    <div class="module" data-open="false">
+      <button class="module-toggle" aria-expanded="false" onclick="toggle(this)">
+        <span class="module-num">08</span>
+        <span class="module-title">TypeScript Fundamentals</span>
+        <span class="badge">YES</span>
+        <span class="arrow">&#9654;</span>
+      </button>
+      <div class="module-body">
+        <div class="analogy">
+          <div class="analogy-label">Real-world analogy</div>
+          Labels on electrical outlets. TypeScript adds labels — "laptop only", "lamp only" — so you can't plug a toaster into the wrong socket. Mistakes are caught before the power is on (before the code runs).
+        </div>
+        <div class="theory">
+          <h4>What it means</h4>
+          <p>TypeScript is JavaScript with a safety net. You write <code>amount: number</code> and the compiler ensures nobody accidentally passes a string. <strong>strict: true</strong> enables all checks. <strong>Type inference</strong> means TypeScript often knows the type without you saying it — <code>const x = 5</code> is automatically <code>number</code>.</p>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">tsconfig.json</span> — strict compiler config</div>
+          <div class="code-block">{
+  <span class="str">"compilerOptions"</span>: {
+    <span class="str">"target"</span>: <span class="str">"ES2022"</span>,
+    <span class="str">"module"</span>: <span class="str">"ES2022"</span>,
+    <span class="str">"strict"</span>: <span class="num">true</span>,         <span class="cm">// All type-safety checks on</span>
+    <span class="str">"noUnusedLocals"</span>: <span class="num">true</span>, <span class="cm">// Dead code = compile error</span>
+    <span class="str">"noUnusedParameters"</span>: <span class="num">true</span>
+  }
+}</div>
+          <div class="code-explain"><strong>strict: true</strong> is the "all safety features ON" switch. It catches null/undefined access, implicit any types, and more. <strong>noUnusedLocals</strong> means if you declare a variable and never use it, TypeScript throws an error — no dead code allowed. <strong>ES2022</strong> target means we can use modern JS features like top-level await and <code>Array.at()</code>.</div>
+        </div>
+        <div class="file-tags">
+          <span class="file-tag">tsconfig.json</span>
+          <span class="file-tag">All .ts files</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 9 -->
+    <div class="module" data-open="false">
+      <button class="module-toggle" aria-expanded="false" onclick="toggle(this)">
+        <span class="module-num">09</span>
+        <span class="module-title">Type System</span>
+        <span class="badge">YES</span>
+        <span class="arrow">&#9654;</span>
+      </button>
+      <div class="module-body">
+        <div class="analogy">
+          <div class="analogy-label">Real-world analogy</div>
+          A form with specific field types. "Name" must be text, "Age" must be a number, "Agree to terms" must be yes/no. The form rejects mismatched input before you submit.
+        </div>
+        <div class="theory">
+          <h4>What it means</h4>
+          <p><strong>Array types</strong> (<code>RwaUser[]</code>) = "a list of users." <strong>Union types</strong> (<code>RwaUser | undefined</code>) = "a user, or nothing." <strong>Literal types</strong> fix exact values: <code>'payment' | 'request'</code> means only those two strings are allowed — not "pament" (typo caught at compile time). <strong>Type aliases</strong> give names to complex types for reuse.</p>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">fixtures/test.ts</span> — type aliases for fixture shapes</div>
+          <div class="code-block"><span class="kw">type</span> <span class="tp">Fixtures</span> = {
+  signinPage:      <span class="tp">SigninPage</span>;
+  homePage:        <span class="tp">HomePage</span>;
+  transactionPage: <span class="tp">TransactionPage</span>;
+  sidenav:         <span class="tp">SideNavComponent</span>;
+  api:             <span class="tp">ApiClient</span>;
+};
+
+<span class="kw">type</span> <span class="tp">WorkerFixtures</span> = {
+  db:            <span class="tp">DbClient</span>;
+  sharedContext: <span class="tp">BrowserContext</span>;
+  sharedPage:    <span class="tp">Page</span>;
+};</div>
+          <div class="code-explain"><strong>Type aliases</strong> name what each fixture provides. When you write <code>async ({ signinPage }) =&gt;</code> in a test, TypeScript knows <code>signinPage</code> is a <code>SigninPage</code> instance — you get full autocomplete for <code>.login()</code>, <code>.username</code>, <code>.password</code>. If you typo <code>singninPage</code>, the compiler catches it instantly.</div>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">utils/db.client.ts</span> — union type with undefined</div>
+          <div class="code-block"><span class="fn">user</span>(id: <span class="tp">string</span>): <span class="tp">RwaUser</span> | <span class="tp">undefined</span> {
+  <span class="kw">return this</span>.<span class="fn">read</span>().users.<span class="fn">find</span>((u) =&gt; u.id === id);
+}</div>
+          <div class="code-explain"><strong>RwaUser | undefined</strong> tells the caller: "this might return nothing." TypeScript then forces the caller to handle the <code>undefined</code> case — you can't call <code>.firstName</code> on a possibly-undefined value without checking first. This prevents the dreaded "Cannot read property of undefined" runtime error.</div>
+        </div>
+        <div class="file-tags">
+          <span class="file-tag">fixtures/test.ts</span>
+          <span class="file-tag">utils/db.client.ts</span>
+          <span class="file-tag">data/test-data.ts</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 10 -->
+    <div class="module" data-open="false">
+      <button class="module-toggle" aria-expanded="false" onclick="toggle(this)">
+        <span class="module-num">10</span>
+        <span class="module-title">Objects &amp; Structures</span>
+        <span class="badge">YES</span>
+        <span class="arrow">&#9654;</span>
+      </button>
+      <div class="module-body">
+        <div class="analogy">
+          <div class="analogy-label">Real-world analogy</div>
+          A blueprint for a house. An interface says "every house must have a door, windows, and a roof." <strong>readonly</strong> is a load-bearing wall — once built, you can't move it.
+        </div>
+        <div class="theory">
+          <h4>What it means</h4>
+          <p><strong>Interfaces</strong> define contracts: "any object claiming to be an EnvConfig must have these exact properties." <strong>Optional properties</strong> (<code>?</code>) can be present or absent. <strong>readonly</strong> prevents accidental mutation — critical for page object locators that should never be reassigned.</p>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">config/env.ts</span> — interface with readonly + optional</div>
+          <div class="code-block"><span class="kw">export interface</span> <span class="tp">EnvConfig</span> {
+  <span class="kw">readonly</span> baseURL: <span class="tp">string</span>;
+  <span class="kw">readonly</span> apiURL: <span class="tp">string</span>;
+  <span class="kw">readonly</span> user: {
+    <span class="kw">readonly</span> username: <span class="tp">string</span>;
+    <span class="kw">readonly</span> password: <span class="tp">string</span>;
+  };
+}</div>
+          <div class="code-explain">Every property is <strong>readonly</strong>. Once <code>ENV</code> is created, you can read <code>ENV.baseURL</code> but can't do <code>ENV.baseURL = "something else"</code> — the compiler blocks it. This guarantees config values stay consistent throughout the entire test run.</div>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">utils/db.client.ts</span> — interfaces for database entities</div>
+          <div class="code-block"><span class="kw">export interface</span> <span class="tp">RwaUser</span> {
+  id: <span class="tp">string</span>;
+  username: <span class="tp">string</span>;
+  firstName: <span class="tp">string</span>;
+  lastName: <span class="tp">string</span>;
+  email: <span class="tp">string</span>;
+  balance: <span class="tp">number</span>;
+}
+
+<span class="kw">export interface</span> <span class="tp">RwaTransaction</span> {
+  id: <span class="tp">string</span>;
+  amount: <span class="tp">number</span>;
+  description: <span class="tp">string</span>;
+  senderId: <span class="tp">string</span>;
+  receiverId: <span class="tp">string</span>;
+  status: <span class="tp">string</span>;
+}</div>
+          <div class="code-explain">These interfaces describe the shape of data in the RWA database. When <code>db.users()</code> returns <code>RwaUser[]</code>, TypeScript knows every item has <code>.username</code>, <code>.firstName</code>, <code>.balance</code> etc. You get autocomplete for free, and typos like <code>user.usrname</code> are caught instantly.</div>
+        </div>
+        <div class="file-tags">
+          <span class="file-tag">config/env.ts</span>
+          <span class="file-tag">utils/db.client.ts</span>
+          <span class="file-tag">types/global.d.ts</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 11 -->
+    <div class="module" data-open="false">
+      <button class="module-toggle" aria-expanded="false" onclick="toggle(this)">
+        <span class="module-num">11</span>
+        <span class="module-title">Functions &amp; Generics</span>
+        <span class="badge">YES</span>
+        <span class="arrow">&#9654;</span>
+      </button>
+      <div class="module-body">
+        <div class="analogy">
+          <div class="analogy-label">Real-world analogy</div>
+          A vending machine that works with any product. You don't need a separate machine for sodas and snacks — one machine handles both. <code>get&lt;Soda&gt;()</code> gives you a soda, <code>get&lt;Snack&gt;()</code> gives you a snack, same machine.
+        </div>
+        <div class="theory">
+          <h4>What it means</h4>
+          <p><strong>Generics</strong> are type variables — placeholders that the caller fills in. Instead of writing <code>getUsers()</code>, <code>getTransactions()</code>, <code>getContacts()</code> separately, you write <code>get&lt;T&gt;()</code> once and let the caller specify T. The function stays type-safe no matter what T is.</p>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">utils/api.client.ts</span> — generic API methods</div>
+          <div class="code-block"><span class="kw">async</span> <span class="fn">get</span>&lt;<span class="tp">T</span>&gt;(path: <span class="tp">string</span>): <span class="tp">Promise</span>&lt;<span class="tp">T</span>&gt; {
+  <span class="kw">const</span> res = <span class="kw">await this</span>.request.<span class="fn">get</span>(<span class="str">`${this.baseUrl}${path}`</span>);
+  <span class="kw">if</span> (!res.<span class="fn">ok</span>()) <span class="kw">throw new</span> <span class="tp">ApiError</span>(...);
+  <span class="kw">return</span> (<span class="kw">await</span> res.<span class="fn">json</span>()) <span class="kw">as</span> <span class="tp">T</span>;
+}
+
+<span class="cm">// Caller specifies the exact response type:</span>
+<span class="kw">const</span> data = <span class="kw">await</span> api.<span class="fn">get</span>&lt;{ results: <span class="tp">Array</span>&lt;{ username: <span class="tp">string</span> }&gt; }&gt;(<span class="str">'/users'</span>);
+<span class="cm">// data.results[0].username — fully typed, autocomplete works</span></div>
+          <div class="code-explain"><strong>&lt;T&gt;</strong> is the generic placeholder. When you call <code>get&lt;{results: User[]}&gt;('/users')</code>, T becomes <code>{results: User[]}</code>. The return type <code>Promise&lt;T&gt;</code> becomes <code>Promise&lt;{results: User[]}&gt;</code>. One method serves unlimited response shapes — each caller gets full type safety for their specific API endpoint.</div>
+        </div>
+        <div class="file-tags">
+          <span class="file-tag">utils/api.client.ts</span>
+          <span class="file-tag">fixtures/test.ts</span>
+          <span class="file-tag">tests/api/*.spec.ts</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 12 -->
+    <div class="module" data-open="false">
+      <button class="module-toggle" aria-expanded="false" onclick="toggle(this)">
+        <span class="module-num">12</span>
+        <span class="module-title">Classes &amp; OOP</span>
+        <span class="badge">YES</span>
+        <span class="arrow">&#9654;</span>
+      </button>
+      <div class="module-body">
+        <div class="analogy">
+          <div class="analogy-label">Real-world analogy</div>
+          Vehicle types. <strong>BasePage</strong> is the abstract concept "vehicle" — it defines every vehicle must have an engine and wheels, but you can't drive "a vehicle." <strong>SigninPage</strong> is a "sedan" — a concrete vehicle you can actually drive.
+        </div>
+        <div class="theory">
+          <h4>What it means</h4>
+          <p><strong>Abstract classes</strong> define a template: "every page must implement <code>path</code> and <code>waitForLoaded()</code>." You can't create a BasePage directly — you must subclass it. <strong>Inheritance</strong> means SigninPage gets <code>open()</code>, <code>sidenav</code>, <code>topnav</code> for free from BasePage. <strong>Access modifiers</strong>: <code>public</code> = anyone can use it, <code>private</code> = only this class, <code>readonly</code> = set once, never change.</p>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">pages/base.page.ts</span> — abstract base class</div>
+          <div class="code-block"><span class="kw">export abstract class</span> <span class="tp">BasePage</span> {
+  <span class="kw">readonly</span> sidenav: <span class="tp">SideNavComponent</span>;
+  <span class="kw">readonly</span> topnav: <span class="tp">TopNavComponent</span>;
+
+  <span class="kw">constructor</span>(<span class="kw">public readonly</span> page: <span class="tp">Page</span>) {
+    <span class="kw">this</span>.sidenav = <span class="kw">new</span> <span class="tp">SideNavComponent</span>(page);
+    <span class="kw">this</span>.topnav = <span class="kw">new</span> <span class="tp">TopNavComponent</span>(page);
+  }
+
+  <span class="kw">abstract readonly</span> path: <span class="tp">string</span>;
+  <span class="kw">abstract</span> <span class="fn">waitForLoaded</span>(): <span class="tp">Promise</span>&lt;<span class="tp">void</span>&gt;;
+
+  <span class="kw">async</span> <span class="fn">open</span>(): <span class="tp">Promise</span>&lt;<span class="tp">void</span>&gt; {
+    <span class="kw">await this</span>.page.<span class="fn">goto</span>(<span class="kw">this</span>.path);
+    <span class="kw">await this</span>.<span class="fn">waitForLoaded</span>();
+  }
+}</div>
+          <div class="code-explain"><strong>abstract</strong> means "I declare this exists, but each subclass must implement it." BasePage says "every page has a <code>path</code> and a <code>waitForLoaded()</code>" but doesn't know the specifics. <strong>open()</strong> is concrete — it navigates to <code>this.path</code> and waits. Since every subclass inherits <code>open()</code>, you write the navigation logic once. <strong>Component composition</strong>: every page automatically gets sidenav and topnav access.</div>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">pages/signin.page.ts</span> — concrete subclass</div>
+          <div class="code-block"><span class="kw">export class</span> <span class="tp">SigninPage</span> <span class="kw">extends</span> <span class="tp">BasePage</span> {
+  <span class="kw">readonly</span> path = <span class="str">'/signin'</span>;
+
+  <span class="kw">readonly</span> username = <span class="kw">this</span>.page.<span class="fn">getByLabel</span>(<span class="str">'Username'</span>);
+  <span class="kw">readonly</span> password = <span class="kw">this</span>.page.<span class="fn">getByLabel</span>(<span class="str">'Password'</span>);
+  <span class="kw">readonly</span> submit   = <span class="kw">this</span>.page.<span class="fn">getByRole</span>(<span class="str">'button'</span>, { name: <span class="str">'Sign In'</span> });
+
+  <span class="kw">async</span> <span class="fn">waitForLoaded</span>() { <span class="kw">await this</span>.submit.<span class="fn">waitFor</span>(); }
+
+  <span class="kw">async</span> <span class="fn">login</span>(user: <span class="tp">string</span>, pass: <span class="tp">string</span>) {
+    <span class="kw">await this</span>.username.<span class="fn">fill</span>(user);
+    <span class="kw">await this</span>.password.<span class="fn">fill</span>(pass);
+    <span class="kw">await this</span>.submit.<span class="fn">click</span>();
+  }
+}</div>
+          <div class="code-explain"><strong>extends BasePage</strong> means SigninPage inherits <code>open()</code>, <code>sidenav</code>, <code>topnav</code>. It provides its own <code>path</code> (<code>/signin</code>) and <code>waitForLoaded()</code> (wait for the submit button). Each <strong>readonly</strong> locator is set once during construction and never reassigned. The <code>login()</code> method encapsulates the three steps into one reusable call.</div>
+        </div>
+        <div class="file-tags">
+          <span class="file-tag">pages/base.page.ts</span>
+          <span class="file-tag">pages/signin.page.ts</span>
+          <span class="file-tag">utils/api.client.ts (ApiError extends Error)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ PART 3 ══════════════════════════════════════════════ -->
+  <div class="part">
+    <div class="part-header">
+      <span class="part-number">Part 3</span>
+      <span class="part-title">Playwright Core</span>
+    </div>
+
+    <!-- MODULE 13 -->
+    <div class="module" data-open="false">
+      <button class="module-toggle" aria-expanded="false" onclick="toggle(this)">
+        <span class="module-num">13</span>
+        <span class="module-title">Intro to Test Automation</span>
+        <span class="badge">YES</span>
+        <span class="arrow">&#9654;</span>
+      </button>
+      <div class="module-body">
+        <div class="analogy">
+          <div class="analogy-label">Real-world analogy</div>
+          A robot quality inspector on an assembly line. Instead of a human clicking every button after every code change, the robot does it in seconds — consistently, tirelessly, and at 3am if needed.
+        </div>
+        <div class="theory">
+          <h4>What it means</h4>
+          <p>Playwright's architecture has three layers: <strong>Browser</strong> (the whole application — Chrome, Firefox, or WebKit), <strong>BrowserContext</strong> (an isolated session — like an incognito window with its own cookies and storage), and <strong>Page</strong> (a single tab within a context). Multiple pages can share a context (shared cookies), or each can have its own (isolated).</p>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">fixtures/test.ts</span> — Browser → Context → Page hierarchy</div>
+          <div class="code-block"><span class="cm">// Worker-scoped: ONE context per worker (shared cookies)</span>
+sharedContext: [
+  <span class="kw">async</span> ({ browser }, use) =&gt; {
+    <span class="kw">const</span> context = <span class="kw">await</span> browser.<span class="fn">newContext</span>({ baseURL: ENV.baseURL });
+    <span class="kw">await</span> <span class="fn">use</span>(context);
+    <span class="kw">await</span> context.<span class="fn">close</span>();
+  },
+  { scope: <span class="str">'worker'</span> },
+],
+
+<span class="cm">// ONE page inside that context (all tests share this tab)</span>
+sharedPage: [
+  <span class="kw">async</span> ({ sharedContext }, use) =&gt; {
+    <span class="kw">const</span> page = <span class="kw">await</span> sharedContext.<span class="fn">newPage</span>();
+    <span class="kw">await</span> <span class="fn">use</span>(page);
+  },
+  { scope: <span class="str">'worker'</span> },
+],</div>
+          <div class="code-explain"><strong>browser</strong> → <strong>context</strong> → <strong>page</strong>: like Chrome → incognito window → tab. The <code>worker</code> scope means this context is created once and shared across all tests in the same worker process — they share cookies, localStorage, and login state. This is why we log in once and all tests are already authenticated.</div>
+        </div>
+        <div class="file-tags">
+          <span class="file-tag">playwright.config.ts</span>
+          <span class="file-tag">fixtures/test.ts</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 14 -->
+    <div class="module" data-open="false">
+      <button class="module-toggle" aria-expanded="false" onclick="toggle(this)">
+        <span class="module-num">14</span>
+        <span class="module-title">First Tests</span>
+        <span class="badge">YES</span>
+        <span class="arrow">&#9654;</span>
+      </button>
+      <div class="module-body">
+        <div class="analogy">
+          <div class="analogy-label">Real-world analogy</div>
+          Writing a recipe card. Title it ("should sign in successfully"), list the steps, and write down what the result should look like. If the dish doesn't match, the recipe fails.
+        </div>
+        <div class="theory">
+          <h4>What it means</h4>
+          <p>A test has three parts: <strong>Arrange</strong> (set up the page), <strong>Act</strong> (do something), <strong>Assert</strong> (verify the result). <code>test('name', async () =&gt; { ... })</code> wraps this. <code>expect(thing).toBeVisible()</code> is the assertion — if it's wrong, the test fails with a clear error message.</p>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">tests/e2e/auth.spec.ts</span> — a complete test</div>
+          <div class="code-block"><span class="fn">test</span>(<span class="str">'should sign in successfully'</span>, <span class="kw">async</span> ({ signinPage }) =&gt; {
+  <span class="cm">// ARRANGE: open the sign-in page</span>
+  <span class="kw">await</span> signinPage.<span class="fn">open</span>();
+
+  <span class="cm">// ACT: fill credentials and submit</span>
+  <span class="kw">await</span> signinPage.<span class="fn">login</span>(TestUsers.default.username, TestUsers.default.password);
+
+  <span class="cm">// ASSERT: we're on the home page and see our name</span>
+  <span class="kw">await</span> signinPage.page.<span class="fn">waitForURL</span>(<span class="str">'**/'</span>);
+  <span class="kw">await</span> <span class="fn">expect</span>(signinPage.sidenav.userFullName).<span class="fn">toBeVisible</span>();
+});</div>
+          <div class="code-explain">The test title reads like a sentence: "should sign in successfully." The body follows Arrange-Act-Assert. <strong>Fixtures</strong> (<code>signinPage</code>) are injected automatically — no setup code needed in the test itself. If any assertion fails, Playwright shows exactly what went wrong: expected "visible", got "hidden."</div>
+        </div>
+        <div class="file-tags">
+          <span class="file-tag">All tests/**/*.spec.ts</span>
+          <span class="file-tag">package.json (13 scripts)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 15 -->
+    <div class="module" data-open="false">
+      <button class="module-toggle" aria-expanded="false" onclick="toggle(this)">
+        <span class="module-num">15</span>
+        <span class="module-title">Locators &amp; Selectors</span>
+        <span class="badge">YES</span>
+        <span class="arrow">&#9654;</span>
+      </button>
+      <div class="module-body">
+        <div class="analogy">
+          <div class="analogy-label">Real-world analogy</div>
+          Giving directions to find someone in a crowd. "The person in the red hat" (CSS selector) works, but "the person holding the 'Sign Up' sign" (role/label locator) is more reliable — even if they change their hat.
+        </div>
+        <div class="theory">
+          <h4>What it means</h4>
+          <p>Playwright offers a hierarchy of locator strategies, from most resilient to least:</p>
+          <ul>
+            <li><strong>getByRole()</strong> — find by accessibility role: button, link, heading. Most resilient — survives HTML restructuring</li>
+            <li><strong>getByLabel()</strong> — find form fields by their label text</li>
+            <li><strong>getByTestId()</strong> — find by a <code>data-test</code> attribute (custom, stable hook)</li>
+            <li><strong>locator()</strong> — CSS selector, least resilient but sometimes necessary</li>
+          </ul>
+          <p>You can <strong>chain</strong> (<code>.locator('input')</code>), <strong>filter</strong> (<code>.filter({ hasText })</code>), use <strong>list ops</strong> (<code>.first()</code>, <code>.nth()</code>), and <strong>compose</strong> (<code>.or()</code>).</p>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">pages/signin.page.ts</span> — all four locator strategies in one file</div>
+          <div class="code-block"><span class="cm">// getByLabel — find by the form field's label text</span>
+<span class="kw">readonly</span> username = <span class="kw">this</span>.page.<span class="fn">getByLabel</span>(<span class="str">'Username'</span>);
+
+<span class="cm">// getByRole — find by accessibility role + name</span>
+<span class="kw">readonly</span> submit = <span class="kw">this</span>.page.<span class="fn">getByRole</span>(<span class="str">'button'</span>, { name: <span class="str">'Sign In'</span> });
+
+<span class="cm">// getByTestId — find by data-test attribute</span>
+<span class="kw">readonly</span> error = <span class="kw">this</span>.page.<span class="fn">getByTestId</span>(<span class="str">'signin-error'</span>);
+
+<span class="cm">// CSS locator — text selector for validation message</span>
+<span class="kw">readonly</span> usernameRequired = <span class="kw">this</span>.page.<span class="fn">locator</span>(<span class="str">'text=Username is required'</span>);</div>
+          <div class="code-explain">Each strategy has its place. <strong>getByLabel('Username')</strong> is how a real user finds the field — by reading its label. <strong>getByRole('button')</strong> is how a screen reader finds it. <strong>getByTestId</strong> uses a custom attribute developers add specifically for testing. <strong>locator('text=...')</strong> is a last resort when the element has no role, label, or test ID.</div>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">pages/transaction.page.ts</span> — chaining, filtering, list operations</div>
+          <div class="code-block"><span class="cm">// Chaining — narrow down from parent to child</span>
+<span class="kw">readonly</span> amountInput = <span class="kw">this</span>.page.<span class="fn">getByTestId</span>(<span class="str">'transaction-create-amount-input'</span>)
+  .<span class="fn">locator</span>(<span class="str">'input'</span>);
+
+<span class="cm">// Filtering — find user by name within the list</span>
+<span class="kw">async</span> <span class="fn">selectUser</span>(name: <span class="tp">string</span>) {
+  <span class="kw">await this</span>.page.<span class="fn">locator</span>(<span class="str">'[data-test*="user-list-item"]'</span>)
+    .<span class="fn">filter</span>({ hasText: name }).<span class="fn">first</span>().<span class="fn">click</span>();
+}</div>
+          <div class="code-explain"><strong>Chaining</strong>: <code>getByTestId('...')</code> finds the container, then <code>.locator('input')</code> finds the actual input inside it. <strong>Filtering</strong>: <code>.filter({ hasText: name })</code> narrows the list to items containing the user's name. <strong>.first()</strong> takes the first match. This reads like: "find all user list items, keep only those containing 'Heath', click the first one."</div>
+        </div>
+        <div class="file-tags">
+          <span class="file-tag">pages/signin.page.ts</span>
+          <span class="file-tag">pages/transaction.page.ts</span>
+          <span class="file-tag">pages/home.page.ts</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 16 -->
+    <div class="module" data-open="false">
+      <button class="module-toggle" aria-expanded="false" onclick="toggle(this)">
+        <span class="module-num">16</span>
+        <span class="module-title">Actions &amp; Interactions</span>
+        <span class="badge">YES</span>
+        <span class="arrow">&#9654;</span>
+      </button>
+      <div class="module-body">
+        <div class="analogy">
+          <div class="analogy-label">Real-world analogy</div>
+          Operating a touchscreen. You tap (click), type (fill), swipe (drag), long-press (hover), and use gestures (keyboard shortcuts). Each triggers a different response.
+        </div>
+        <div class="theory">
+          <h4>What it means</h4>
+          <p>Playwright simulates every user interaction: <strong>.click()</strong>, <strong>.fill()</strong>, <strong>.check()/.uncheck()</strong>, <strong>.selectOption()</strong>, <strong>.hover()</strong>, <strong>.dragTo()</strong>, <strong>keyboard.press()</strong>, <strong>mouse.click()</strong>, <strong>.setInputFiles()</strong> for uploads, and <strong>waitForEvent('download')</strong> for downloads. Each action auto-waits for the element to be actionable before proceeding.</p>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">tests/practice/advanced-actions.spec.ts</span> — drag, hover, keyboard, mouse</div>
+          <div class="code-block"><span class="cm">// Hover — reveal hidden content</span>
+<span class="kw">await</span> firstFigure.<span class="fn">hover</span>();
+<span class="kw">await</span> <span class="fn">expect</span>(firstFigure.<span class="fn">locator</span>(<span class="str">'.figcaption'</span>)).<span class="fn">toBeVisible</span>();
+
+<span class="cm">// Drag and drop — move column A to column B</span>
+<span class="kw">await</span> page.<span class="fn">locator</span>(<span class="str">'#column-a'</span>).<span class="fn">dragTo</span>(page.<span class="fn">locator</span>(<span class="str">'#column-b'</span>));
+
+<span class="cm">// Keyboard — type with delay, then select-all and replace</span>
+<span class="kw">await</span> page.keyboard.<span class="fn">type</span>(<span class="str">'Hello World'</span>, { delay: <span class="num">30</span> });
+<span class="kw">await</span> page.keyboard.<span class="fn">press</span>(<span class="str">'Control+A'</span>);
+<span class="kw">await</span> page.keyboard.<span class="fn">type</span>(<span class="str">'Replaced'</span>);
+
+<span class="cm">// Mouse — click at exact coordinates</span>
+<span class="kw">await</span> page.mouse.<span class="fn">click</span>(box.x + <span class="num">150</span>, box.y + <span class="num">100</span>);</div>
+          <div class="code-explain"><strong>.hover()</strong> moves the mouse over an element — useful for tooltips or menus that appear on hover. <strong>.dragTo()</strong> simulates a full drag-and-drop operation. <strong>keyboard.type()</strong> simulates typing one character at a time (with optional delay for realism). <strong>keyboard.press('Control+A')</strong> simulates a shortcut. <strong>mouse.click(x, y)</strong> clicks at exact pixel coordinates — useful for canvas or coordinate-based interactions.</div>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">tests/practice/file-operations.spec.ts</span> — file upload + download</div>
+          <div class="code-block"><span class="cm">// Upload with in-memory buffer (no temp file needed)</span>
+<span class="kw">await</span> page.<span class="fn">locator</span>(<span class="str">'#file-upload'</span>).<span class="fn">setInputFiles</span>({
+  name: <span class="str">'test.txt'</span>,
+  mimeType: <span class="str">'text/plain'</span>,
+  buffer: Buffer.<span class="fn">from</span>(<span class="str">'Uploaded via Playwright'</span>),
+});
+
+<span class="cm">// Download — wait for event, then save</span>
+<span class="kw">const</span> [download] = <span class="kw">await</span> <span class="tp">Promise</span>.<span class="fn">all</span>([
+  page.<span class="fn">waitForEvent</span>(<span class="str">'download'</span>),
+  page.<span class="fn">locator</span>(<span class="str">'#test-dl'</span>).<span class="fn">click</span>(),
+]);
+<span class="kw">await</span> download.<span class="fn">saveAs</span>(savePath);</div>
+          <div class="code-explain"><strong>.setInputFiles()</strong> can take a file path OR a buffer object — the buffer approach is cleaner for tests because you don't need to create and clean up temp files. For downloads, <strong>Promise.all</strong> ensures we're listening for the download event before the click triggers it.</div>
+        </div>
+        <div class="file-tags">
+          <span class="file-tag">tests/practice/advanced-actions.spec.ts</span>
+          <span class="file-tag">tests/practice/file-operations.spec.ts</span>
+          <span class="file-tag">tests/practice/form-controls.spec.ts</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 17 -->
+    <div class="module" data-open="false">
+      <button class="module-toggle" aria-expanded="false" onclick="toggle(this)">
+        <span class="module-num">17</span>
+        <span class="module-title">Assertions</span>
+        <span class="badge">YES</span>
+        <span class="arrow">&#9654;</span>
+      </button>
+      <div class="module-body">
+        <div class="analogy">
+          <div class="analogy-label">Real-world analogy</div>
+          A quality inspector with a checklist. They check: "Is the label visible?" "Does it say 'Approved'?" "Is the button grayed out?" <strong>Soft assertions</strong> note ALL defects on one pass instead of stopping at the first.
+        </div>
+        <div class="theory">
+          <h4>What it means</h4>
+          <p><strong>Web-first assertions</strong> auto-retry until the condition is met or timeout. This handles timing naturally — you don't need <code>sleep(2000)</code>. <strong>Soft assertions</strong> (<code>expect.soft()</code>) collect failures without stopping the test. <strong>Visual assertions</strong> (<code>toHaveScreenshot()</code>) compare pixel-by-pixel against a baseline image.</p>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">tests/practice/soft-assertions.spec.ts</span> — soft assertions</div>
+          <div class="code-block"><span class="cm">// Soft assertions keep running even if one fails</span>
+<span class="kw">await</span> expect.<span class="fn">soft</span>(page.<span class="fn">locator</span>(<span class="str">'#checkboxes'</span>)).<span class="fn">toBeVisible</span>();
+<span class="kw">await</span> expect.<span class="fn">soft</span>(page.<span class="fn">locator</span>(<span class="str">'#checkboxes input'</span>)).<span class="fn">toHaveCount</span>(<span class="num">2</span>);
+<span class="kw">await</span> expect.<span class="fn">soft</span>(page.<span class="fn">locator</span>(<span class="str">'h3'</span>)).<span class="fn">toContainText</span>(<span class="str">'Checkboxes'</span>);
+
+<span class="cm">// Regular assertion at the end — test reports ALL soft failures</span>
+<span class="kw">await</span> <span class="fn">expect</span>(page).<span class="fn">toHaveURL</span>(<span class="str">/\/checkboxes/</span>);</div>
+          <div class="code-explain">With regular <code>expect()</code>, the test stops at the first failure. With <strong>expect.soft()</strong>, it records the failure and keeps going. At the end, the test report shows ALL failures at once — much more useful for debugging than "fix one, re-run, discover the next."</div>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">tests/integration/transaction.integration.spec.ts</span> — custom failure message</div>
+          <div class="code-block"><span class="kw">const</span> found = data.results.<span class="fn">find</span>((t) =&gt; t.description === description);
+<span class="fn">expect</span>(found, <span class="str">'transaction must appear in API response'</span>).<span class="fn">toBeDefined</span>();
+
+<span class="fn">expect</span>(match, <span class="str">'transaction must exist in DB file'</span>).<span class="fn">toBeDefined</span>();</div>
+          <div class="code-explain">The second argument to <code>expect()</code> is a <strong>custom message</strong>. Instead of seeing "expected undefined to be defined", you see "transaction must appear in API response — expected undefined to be defined." Much clearer when debugging a failure at 2am.</div>
+        </div>
+        <div class="file-tags">
+          <span class="file-tag">tests/practice/soft-assertions.spec.ts</span>
+          <span class="file-tag">tests/practice/visual-regression.spec.ts</span>
+          <span class="file-tag">tests/integration/</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 18 -->
+    <div class="module" data-open="false">
+      <button class="module-toggle" aria-expanded="false" onclick="toggle(this)">
+        <span class="module-num">18</span>
+        <span class="module-title">Waiting &amp; Synchronization</span>
+        <span class="badge">YES</span>
+        <span class="arrow">&#9654;</span>
+      </button>
+      <div class="module-body">
+        <div class="analogy">
+          <div class="analogy-label">Real-world analogy</div>
+          Waiting for a traffic light. You don't drive through blindly — you wait until it's green. Playwright's auto-wait is a smart car that waits automatically. <code>.waitFor()</code> is the manual override. <code>.or()</code> is "whichever light turns green first."
+        </div>
+        <div class="theory">
+          <h4>What it means</h4>
+          <p><strong>Auto-waiting</strong>: every Playwright action (<code>.click()</code>, <code>.fill()</code>) automatically waits for the element to be visible, enabled, and stable before acting. <strong>Explicit waits</strong>: <code>.waitFor()</code> for element states, <code>waitForURL()</code> for navigation, <code>waitForEvent()</code> for browser events. <strong>.or()</strong> waits for whichever condition comes first.</p>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">utils/login.helper.ts</span> — .or() composite wait</div>
+          <div class="code-block"><span class="kw">const</span> signinBtn = page.<span class="fn">getByRole</span>(<span class="str">'button'</span>, { name: <span class="str">'Sign In'</span> });
+<span class="kw">const</span> sidenav  = page.<span class="fn">getByTestId</span>(<span class="str">'sidenav-user-full-name'</span>);
+
+<span class="cm">// Wait for EITHER sign-in button OR sidenav — whichever appears first</span>
+<span class="kw">await</span> signinBtn.<span class="fn">or</span>(sidenav).<span class="fn">waitFor</span>({ timeout: <span class="num">10_000</span> });</div>
+          <div class="code-explain"><strong>.or()</strong> creates a composite locator that matches when EITHER element appears. This handles the race condition elegantly: we don't know if we'll land on the login page or the home page — <code>.or()</code> waits for whichever comes first, then we check which one it was. No <code>sleep()</code> needed, no flakiness.</div>
+        </div>
+        <div class="file-tags">
+          <span class="file-tag">utils/login.helper.ts</span>
+          <span class="file-tag">pages/*.page.ts</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ PART 4 ══════════════════════════════════════════════ -->
+  <div class="part">
+    <div class="part-header">
+      <span class="part-number">Part 4</span>
+      <span class="part-title">Playwright Advanced</span>
+    </div>
+
+    <!-- MODULE 19 -->
+    <div class="module" data-open="false">
+      <button class="module-toggle" aria-expanded="false" onclick="toggle(this)">
+        <span class="module-num">19</span>
+        <span class="module-title">Test Organization</span>
+        <span class="badge">YES</span>
+        <span class="arrow">&#9654;</span>
+      </button>
+      <div class="module-body">
+        <div class="analogy">
+          <div class="analogy-label">Real-world analogy</div>
+          Organizing a filing cabinet. <strong>describe</strong> = drawer label. <strong>beforeEach</strong> = unlocking the cabinet each morning. <strong>afterEach</strong> = filing things back. <strong>Tags</strong> = colored sticky tabs. <strong>Parameterized tests</strong> = mail merge — same template, different names. <strong>test.skip</strong> = "hold" stamp.
+        </div>
+        <div class="theory">
+          <h4>What it means</h4>
+          <p>Organization patterns for maintainable test suites: <strong>describe()</strong> groups related tests. <strong>beforeEach/afterEach</strong> run around every test. <strong>beforeAll/afterAll</strong> run once per group. <strong>Tags</strong> filter tests at runtime (<code>--grep @smoke</code>). <strong>Parameterized tests</strong> loop the same logic over different data. <strong>test.skip()</strong> marks tests to skip. <strong>test.step()</strong> creates labeled sub-steps.</p>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">tests/e2e/user-settings.spec.ts</span> — afterEach, parameterized, skip, tags</div>
+          <div class="code-block">test.<span class="fn">describe</span>(<span class="str">'User Settings'</span>, () =&gt; {
+  test.<span class="fn">beforeEach</span>(<span class="kw">async</span> ({ page }) =&gt; {
+    <span class="kw">await</span> <span class="fn">ensureLoggedIn</span>(page);
+  });
+
+  <span class="cm">// afterEach — restore profile after each test</span>
+  test.<span class="fn">afterEach</span>(<span class="kw">async</span> ({ settingsPage }) =&gt; {
+    <span class="kw">try</span> {
+      <span class="kw">await</span> settingsPage.<span class="fn">open</span>();
+      <span class="kw">const</span> first = <span class="kw">await</span> settingsPage.firstName.<span class="fn">inputValue</span>();
+      <span class="kw">if</span> (first !== TestUsers.default.firstName) {
+        <span class="kw">await</span> settingsPage.firstName.<span class="fn">fill</span>(TestUsers.default.firstName);
+        <span class="kw">await</span> settingsPage.submitBtn.<span class="fn">click</span>();
+      }
+    } <span class="kw">catch</span> { <span class="cm">/* page may be in unexpected state */</span> }
+  });
+
+  <span class="cm">// Parameterized — same logic, different data</span>
+  <span class="kw">const</span> requiredFields = [
+    { field: <span class="str">'firstName'</span>, label: <span class="str">'First Name'</span> },
+    { field: <span class="str">'lastName'</span>,  label: <span class="str">'Last Name'</span> },
+  ];
+
+  <span class="kw">for</span> (<span class="kw">const</span> { field, label } <span class="kw">of</span> requiredFields) {
+    <span class="fn">test</span>(<span class="str">`should disable submit when ${</span>label<span class="str">} is cleared @regression`</span>,
+      <span class="kw">async</span> ({ settingsPage }) =&gt; {
+        <span class="kw">await</span> settingsPage.<span class="fn">open</span>();
+        <span class="kw">await</span> settingsPage[field].<span class="fn">clear</span>();
+        <span class="kw">await</span> <span class="fn">expect</span>(settingsPage.submitBtn).<span class="fn">toBeDisabled</span>();
+      });
+  }
+
+  <span class="cm">// test.skip — mark unimplemented tests</span>
+  <span class="fn">test</span>(<span class="str">'should update email notifications @regression'</span>, <span class="kw">async</span> () =&gt; {
+    test.<span class="fn">skip</span>(<span class="num">true</span>, <span class="str">'RWA does not implement notification preferences'</span>);
+  });
+});</div>
+          <div class="code-explain"><strong>afterEach</strong> runs after every test to restore the user's profile — prevents one test's changes from affecting the next. <strong>Parameterized tests</strong> use a <code>for...of</code> loop: one data array, N tests generated. If you add a third required field, you only add one line to the array. <strong>test.skip(true, reason)</strong> marks a test as "intentionally skipped" — it shows up in reports as skipped (not failed, not missing). <strong>@regression</strong> and <strong>@critical</strong> are tags you can filter with <code>--grep @regression</code>.</div>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">tests/integration/transaction.integration.spec.ts</span> — test.step()</div>
+          <div class="code-block"><span class="kw">await</span> test.<span class="fn">step</span>(<span class="str">'LAYER 1 — send a payment via UI'</span>, <span class="kw">async</span> () =&gt; {
+  <span class="kw">await</span> topnav.<span class="fn">clickNewTransaction</span>();
+  <span class="kw">await</span> transactionPage.<span class="fn">pay</span>(<span class="str">'5'</span>, description);
+});
+
+<span class="kw">await</span> test.<span class="fn">step</span>(<span class="str">'LAYER 2 — API confirms the transaction'</span>, <span class="kw">async</span> () =&gt; {
+  <span class="kw">const</span> data = <span class="kw">await</span> authedApi.<span class="fn">get</span>(<span class="str">'/transactions'</span>);
+  <span class="fn">expect</span>(data.results.<span class="fn">find</span>((t) =&gt; t.description === description)).<span class="fn">toBeDefined</span>();
+});
+
+<span class="kw">await</span> test.<span class="fn">step</span>(<span class="str">'LAYER 3 — database persisted the transaction'</span>, <span class="kw">async</span> () =&gt; {
+  <span class="kw">const</span> match = db.<span class="fn">transactionsForUser</span>(sender.id)
+    .<span class="fn">find</span>((t) =&gt; t.description === description);
+  <span class="fn">expect</span>(match.status).<span class="fn">toBe</span>(<span class="str">'complete'</span>);
+});</div>
+          <div class="code-explain"><strong>test.step()</strong> creates labeled sub-steps within a single test. In the trace viewer and report, you see "LAYER 1", "LAYER 2", "LAYER 3" as collapsible sections. If LAYER 2 fails, you immediately know the API didn't confirm the transaction — without reading through the entire test code.</div>
+        </div>
+        <div class="file-tags">
+          <span class="file-tag">tests/e2e/user-settings.spec.ts</span>
+          <span class="file-tag">tests/integration/</span>
+          <span class="file-tag">tests/e2e/transaction.spec.ts</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 20 -->
+    <div class="module" data-open="false">
+      <button class="module-toggle" aria-expanded="false" onclick="toggle(this)">
+        <span class="module-num">20</span>
+        <span class="module-title">Page Object Model</span>
+        <span class="badge">YES</span>
+        <span class="arrow">&#9654;</span>
+      </button>
+      <div class="module-body">
+        <div class="analogy">
+          <div class="analogy-label">Real-world analogy</div>
+          A TV remote. You press "Volume Up" without knowing the electronics inside. If the TV manufacturer changes the wiring, the remote still works. Page objects are the remote — tests press named buttons, and if the HTML changes, only the page object needs updating.
+        </div>
+        <div class="theory">
+          <h4>What it means</h4>
+          <p>POM separates <strong>what</strong> the test does from <strong>how</strong> it finds elements. Tests call <code>signinPage.login(user, pass)</code> — they don't know or care whether the username field uses <code>getByLabel</code> or <code>getByTestId</code>. If the HTML structure changes, you update ONE page object, not 20 tests. Our POC has <strong>zero raw locators in test files</strong>.</p>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">pages/components/sidenav.component.ts</span> — component object (reusable part)</div>
+          <div class="code-block"><span class="kw">export class</span> <span class="tp">SideNavComponent</span> {
+  <span class="kw">readonly</span> userFullName: <span class="tp">Locator</span>;
+  <span class="kw">private readonly</span> homeLink: <span class="tp">Locator</span>;
+  <span class="kw">private readonly</span> settingsLink: <span class="tp">Locator</span>;
+  <span class="kw">private readonly</span> logoutLink: <span class="tp">Locator</span>;
+
+  <span class="kw">constructor</span>(page: <span class="tp">Page</span>) {
+    <span class="kw">this</span>.userFullName  = page.<span class="fn">getByTestId</span>(<span class="str">'sidenav-user-full-name'</span>);
+    <span class="kw">this</span>.homeLink      = page.<span class="fn">getByTestId</span>(<span class="str">'sidenav-home'</span>);
+    <span class="kw">this</span>.settingsLink  = page.<span class="fn">getByTestId</span>(<span class="str">'sidenav-user-settings'</span>);
+    <span class="kw">this</span>.logoutLink    = page.<span class="fn">getByTestId</span>(<span class="str">'sidenav-signout'</span>);
+  }
+
+  <span class="kw">async</span> <span class="fn">navigateMyAccount</span>() { <span class="kw">await this</span>.settingsLink.<span class="fn">click</span>(); }
+  <span class="kw">async</span> <span class="fn">logout</span>()            { <span class="kw">await this</span>.logoutLink.<span class="fn">click</span>(); }
+}</div>
+          <div class="code-explain"><strong>Component objects</strong> represent reusable UI pieces that appear on multiple pages. The sidenav is visible on every page after login — so it's a standalone class that BasePage composes into every page object. <strong>private readonly</strong> means only the class itself can access <code>homeLink</code> — tests call <code>sidenav.navigateMyAccount()</code>, never <code>sidenav.settingsLink.click()</code>. This encapsulation is the POM's core value.</div>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">tests/e2e/multi-tab.spec.ts</span> — POM on dynamic tabs</div>
+          <div class="code-block"><span class="cm">// Dynamic tab — can't use fixtures, so instantiate POM directly</span>
+<span class="kw">const</span> secondTab = <span class="kw">await</span> sharedContext.<span class="fn">newPage</span>();
+<span class="kw">const</span> tab2Sidenav = <span class="kw">new</span> <span class="tp">SideNavComponent</span>(secondTab);
+<span class="kw">await</span> <span class="fn">expect</span>(tab2Sidenav.userFullName).<span class="fn">toBeVisible</span>();
+
+<span class="kw">const</span> tab2Home = <span class="kw">new</span> <span class="tp">HomePage</span>(secondTab);
+<span class="kw">await</span> tab2Home.personalTab.<span class="fn">waitFor</span>();</div>
+          <div class="code-explain">Fixtures are bound to the shared page, but dynamically-created tabs need their own POM instances. You pass the new tab's <code>Page</code> object to the constructor: <code>new SideNavComponent(secondTab)</code>. Same class, different page — POM works identically on any tab.</div>
+        </div>
+        <div class="file-tags">
+          <span class="file-tag">pages/base.page.ts</span>
+          <span class="file-tag">pages/components/sidenav.component.ts</span>
+          <span class="file-tag">tests/e2e/multi-tab.spec.ts</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 21 -->
+    <div class="module" data-open="false">
+      <button class="module-toggle" aria-expanded="false" onclick="toggle(this)">
+        <span class="module-num">21</span>
+        <span class="module-title">Fixtures &amp; Configuration</span>
+        <span class="badge">YES</span>
+        <span class="arrow">&#9654;</span>
+      </button>
+      <div class="module-body">
+        <div class="analogy">
+          <div class="analogy-label">Real-world analogy</div>
+          Catering at an event. <strong>Fixtures</strong> = pre-set tables and place settings — each test "guest" arrives to find everything ready. <strong>Worker-scoped</strong> = the buffet table, set up once, shared by all. <strong>storageState</strong> = a VIP wristband — show it at the door and skip the line.
+        </div>
+        <div class="theory">
+          <h4>What it means</h4>
+          <p><strong>Fixtures</strong> inject pre-built objects into tests — page objects, API clients, DB connections. <strong>Test-scoped</strong> = fresh per test. <strong>Worker-scoped</strong> = shared across all tests in a worker (one browser context for everyone). <strong>Setup projects</strong> run before tests — our <code>auth.setup.ts</code> logs in once and saves the session to <code>storageState</code>, so all tests start already authenticated.</p>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">tests/setup/auth.setup.ts</span> — login once, save session</div>
+          <div class="code-block"><span class="kw">const</span> AUTH_FILE = <span class="str">'playwright/.auth/user.json'</span>;
+
+<span class="fn">setup</span>(<span class="str">'authenticate once for the whole run'</span>, <span class="kw">async</span> ({ page }) =&gt; {
+  <span class="kw">await</span> page.<span class="fn">goto</span>(<span class="str">'/signin'</span>);
+  <span class="kw">await</span> page.<span class="fn">getByLabel</span>(<span class="str">'Username'</span>).<span class="fn">fill</span>(ENV.user.username);
+  <span class="kw">await</span> page.<span class="fn">getByLabel</span>(<span class="str">'Password'</span>).<span class="fn">fill</span>(ENV.user.password);
+  <span class="kw">await</span> page.<span class="fn">getByRole</span>(<span class="str">'button'</span>, { name: <span class="str">'Sign In'</span> }).<span class="fn">click</span>();
+
+  <span class="kw">await</span> page.<span class="fn">waitForURL</span>(<span class="str">'**/'</span>);
+  <span class="kw">await</span> <span class="fn">dismissOnboarding</span>(page);
+
+  <span class="cm">// Save cookies + localStorage to a JSON file</span>
+  <span class="kw">await</span> page.<span class="fn">context</span>().<span class="fn">storageState</span>({ path: AUTH_FILE });
+});</div>
+          <div class="code-explain"><strong>storageState</strong> serializes all cookies, localStorage, and sessionStorage to a JSON file. Subsequent test projects load this file and start already authenticated — no login page, no waiting. This setup runs ONCE, and all 100+ tests benefit. The <code>dependencies: ['setup']</code> in config ensures this runs first.</div>
+        </div>
+        <div class="file-tags">
+          <span class="file-tag">fixtures/test.ts</span>
+          <span class="file-tag">tests/setup/auth.setup.ts</span>
+          <span class="file-tag">playwright.config.ts</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 22 -->
+    <div class="module" data-open="false">
+      <button class="module-toggle" aria-expanded="false" onclick="toggle(this)">
+        <span class="module-num">22</span>
+        <span class="module-title">Handling Complex Scenarios</span>
+        <span class="badge">YES</span>
+        <span class="arrow">&#9654;</span>
+      </button>
+      <div class="module-body">
+        <div class="analogy">
+          <div class="analogy-label">Real-world analogy</div>
+          Juggling. <strong>Multiple tabs</strong> = keeping two balls in the air. <strong>Iframes</strong> = a picture frame within a picture frame. <strong>Dialogs</strong> = surprise phone calls. <strong>addLocatorHandler</strong> = a secretary who auto-answers certain callers. <strong>Cookies</strong> = your keycard.
+        </div>
+        <div class="theory">
+          <h4>What it means</h4>
+          <p>Real apps have complexity that simple page→click→assert can't handle. <strong>Multiple tabs</strong> require managing separate Page objects — each tab is independent. <strong>Iframes</strong> are pages embedded inside pages — you must "reach inside" with <code>frameLocator()</code>. <strong>Dialogs</strong> are native browser popups that block everything until dismissed. <strong>addLocatorHandler</strong> auto-dismisses unpredictable overlays (like onboarding wizards).</p>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">tests/e2e/iframes.spec.ts</span> — nested iframes via synthetic pages</div>
+          <div class="code-block"><span class="cm">// Create synthetic test pages via route interception</span>
+<span class="kw">await</span> page.<span class="fn">route</span>(<span class="str">'**/test-nest-parent'</span>, (r) =&gt;
+  r.<span class="fn">fulfill</span>({ contentType: <span class="str">'text/html'</span>, body: <span class="fn">wrap</span>(<span class="str">`
+    &lt;h1 id="top"&gt;Top Level&lt;/h1&gt;
+    &lt;iframe id="outer" src="/test-nest-outer"&gt;&lt;/iframe&gt;
+  `</span>) })
+);
+
+<span class="cm">// Drill into nested frames: parent → outer → inner</span>
+<span class="kw">const</span> outer = page.<span class="fn">frameLocator</span>(<span class="str">'#outer'</span>);
+<span class="kw">await</span> <span class="fn">expect</span>(outer.<span class="fn">locator</span>(<span class="str">'#mid'</span>)).<span class="fn">toHaveText</span>(<span class="str">'Middle Level'</span>);
+
+<span class="kw">const</span> inner = outer.<span class="fn">frameLocator</span>(<span class="str">'#inner'</span>);
+<span class="kw">await</span> inner.<span class="fn">locator</span>(<span class="str">'#deep-btn'</span>).<span class="fn">click</span>();
+<span class="kw">await</span> <span class="fn">expect</span>(inner.<span class="fn">locator</span>(<span class="str">'#deep'</span>)).<span class="fn">toHaveText</span>(<span class="str">'Deep Clicked!'</span>);</div>
+          <div class="code-explain"><strong>page.route()</strong> intercepts URL requests and returns synthetic HTML — we create entire test pages from within our test code. No external server needed. <strong>frameLocator()</strong> reaches inside an iframe. <strong>Chaining frameLocators</strong> handles nesting: <code>outer.frameLocator('#inner')</code> reaches a frame inside a frame inside a frame. Each layer is fully interactive.</div>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">tests/e2e/dialogs.spec.ts</span> — handling native browser dialogs</div>
+          <div class="code-block"><span class="cm">// Listen for dialog event BEFORE it's triggered</span>
+page.<span class="fn">once</span>(<span class="str">'dialog'</span>, <span class="kw">async</span> (dialog) =&gt; {
+  <span class="fn">expect</span>(dialog.<span class="fn">type</span>()).<span class="fn">toBe</span>(<span class="str">'prompt'</span>);
+  <span class="fn">expect</span>(dialog.<span class="fn">message</span>()).<span class="fn">toBe</span>(<span class="str">'Enter your name:'</span>);
+  <span class="kw">await</span> dialog.<span class="fn">accept</span>(<span class="str">'Naveen'</span>);
+});
+
+<span class="kw">const</span> result = <span class="kw">await</span> page.<span class="fn">evaluate</span>(() =&gt; window.<span class="fn">prompt</span>(<span class="str">'Enter your name:'</span>));
+<span class="fn">expect</span>(result).<span class="fn">toBe</span>(<span class="str">'Naveen'</span>);</div>
+          <div class="code-explain"><strong>page.once('dialog')</strong> registers a one-time handler. When a native <code>prompt()</code> appears, the handler verifies it's a prompt, checks the message, and enters "Naveen" before accepting. The test then verifies the prompt returned "Naveen". <strong>.once()</strong> vs <strong>.on()</strong>: once = handles one dialog then unregisters. on = handles every dialog until removed.</div>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">utils/onboarding.helper.ts</span> — addLocatorHandler auto-dismiss</div>
+          <div class="code-block"><span class="kw">await</span> page.<span class="fn">addLocatorHandler</span>(
+  page.<span class="fn">getByTestId</span>(<span class="str">'user-onboarding-dialog'</span>),
+  <span class="kw">async</span> () =&gt; {
+    <span class="kw">const</span> nextBtn = page.<span class="fn">getByTestId</span>(<span class="str">'user-onboarding-next'</span>);
+    <span class="kw">if</span> (<span class="kw">await</span> nextBtn.<span class="fn">isVisible</span>({ timeout: <span class="num">1_000</span> }).<span class="fn">catch</span>(() =&gt; <span class="num">false</span>))
+      <span class="kw">await</span> nextBtn.<span class="fn">click</span>();
+    <span class="cm">// ... fill bank form, click Done</span>
+  },
+);</div>
+          <div class="code-explain"><strong>addLocatorHandler</strong> watches for a trigger element and runs a callback whenever it appears. The onboarding wizard can pop up on any page at any time — instead of handling it in every test, we register this handler once. When the dialog appears, it automatically clicks through all steps and dismisses it. Tests never even know it happened.</div>
+        </div>
+        <div class="file-tags">
+          <span class="file-tag">tests/e2e/multi-tab.spec.ts</span>
+          <span class="file-tag">tests/e2e/iframes.spec.ts</span>
+          <span class="file-tag">tests/e2e/dialogs.spec.ts</span>
+          <span class="file-tag">tests/e2e/cookies-storage.spec.ts</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 23 -->
+    <div class="module" data-open="false">
+      <button class="module-toggle" aria-expanded="false" onclick="toggle(this)">
+        <span class="module-num">23</span>
+        <span class="module-title">API Testing</span>
+        <span class="badge">YES</span>
+        <span class="arrow">&#9654;</span>
+      </button>
+      <div class="module-body">
+        <div class="analogy">
+          <div class="analogy-label">Real-world analogy</div>
+          Testing the kitchen directly, not just the dining room. The waiter (UI) says "order placed!" — but API testing goes straight to the kitchen to check the order ticket, the ingredients, and the receipt.
+        </div>
+        <div class="theory">
+          <h4>What it means</h4>
+          <p>API tests send HTTP requests directly — no browser needed, so they're <strong>10x faster</strong> than UI tests. You test the backend independently: does <code>GET /users</code> return the right data? Does <code>POST /login</code> reject bad passwords? The <strong>integration test</strong> combines all three layers: create via UI → verify via API → confirm in database.</p>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">tests/api/users.api.spec.ts</span> — typed API tests</div>
+          <div class="code-block"><span class="fn">test</span>(<span class="str">'GET /users/profile returns public profile'</span>, <span class="kw">async</span> ({ authedApi }) =&gt; {
+  <span class="kw">const</span> data = <span class="kw">await</span> authedApi.<span class="fn">get</span>&lt;{
+    user: { firstName: <span class="tp">string</span>; lastName: <span class="tp">string</span> }
+  }&gt;(<span class="str">`/users/profile/${</span>ENV.user.username<span class="str">}`</span>);
+
+  <span class="fn">expect</span>(data.user.firstName).<span class="fn">toBe</span>(TestUsers.default.firstName);
+  <span class="fn">expect</span>(data.user).<span class="fn">not</span>.<span class="fn">toHaveProperty</span>(<span class="str">'balance'</span>);
+});
+
+<span class="fn">test</span>(<span class="str">'POST /login rejects invalid credentials'</span>, <span class="kw">async</span> ({ api }) =&gt; {
+  <span class="kw">const</span> res = <span class="kw">await</span> api.<span class="fn">postRaw</span>(<span class="str">'/login'</span>, {
+    username: ENV.user.username, password: <span class="str">'wrong'</span>,
+  });
+  <span class="fn">expect</span>(res.<span class="fn">status</span>()).<span class="fn">toBe</span>(<span class="num">401</span>);
+});</div>
+          <div class="code-explain"><strong>authedApi</strong> is a fixture that pre-logs-in (has cookies). <strong>api</strong> is unauthenticated. The generic <code>&lt;{ user: ... }&gt;</code> tells TypeScript exactly what the response looks like — you get autocomplete for <code>data.user.firstName</code>. The second test verifies the API correctly rejects bad passwords with HTTP 401. Notice <code>.not.toHaveProperty('balance')</code> — the public profile should NOT expose private financial data.</div>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">tests/integration/transaction.integration.spec.ts</span> — three-layer test</div>
+          <div class="code-block"><span class="cm">// LAYER 1: Create payment via browser UI</span>
+<span class="kw">await</span> transactionPage.<span class="fn">pay</span>(<span class="str">'5'</span>, description);
+<span class="kw">await</span> <span class="fn">expect</span>(transactionPage.alertSuccess).<span class="fn">toBeVisible</span>();
+
+<span class="cm">// LAYER 2: Verify via API — the server confirms it</span>
+<span class="kw">const</span> data = <span class="kw">await</span> authedApi.<span class="fn">get</span>(<span class="str">'/transactions'</span>);
+<span class="fn">expect</span>(data.results.<span class="fn">find</span>(t =&gt; t.description === description)).<span class="fn">toBeDefined</span>();
+
+<span class="cm">// LAYER 3: Verify in database — it persisted</span>
+<span class="kw">const</span> match = db.<span class="fn">transactionsForUser</span>(sender.id)
+  .<span class="fn">find</span>(t =&gt; t.description === description);
+<span class="fn">expect</span>(match.status).<span class="fn">toBe</span>(<span class="str">'complete'</span>);
+<span class="fn">expect</span>(match.senderId).<span class="fn">toBe</span>(sender.id);</div>
+          <div class="code-explain">The ultimate confidence test: <strong>UI → API → DB</strong>. If the UI shows success but the API doesn't have it, there's a frontend bug. If the API has it but the DB doesn't, there's a persistence bug. Only when all three layers agree do we know the feature truly works end-to-end.</div>
+        </div>
+        <div class="file-tags">
+          <span class="file-tag">utils/api.client.ts</span>
+          <span class="file-tag">tests/api/*.spec.ts</span>
+          <span class="file-tag">tests/integration/</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 24 -->
+    <div class="module" data-open="false">
+      <button class="module-toggle" aria-expanded="false" onclick="toggle(this)">
+        <span class="module-num">24</span>
+        <span class="module-title">Network &amp; Mocking</span>
+        <span class="badge">YES</span>
+        <span class="arrow">&#9654;</span>
+      </button>
+      <div class="module-body">
+        <div class="analogy">
+          <div class="analogy-label">Real-world analogy</div>
+          A mail room sorting machine. You can intercept any letter (request) and: deliver it as-is (continue), rewrite it (modify headers), replace it with a fake (fulfill), or shred it (abort). The sender and receiver never know.
+        </div>
+        <div class="theory">
+          <h4>What it means</h4>
+          <p><strong>page.route()</strong> intercepts network requests matching a pattern. Four options: <strong>abort</strong> (block it), <strong>continue</strong> (pass through, optionally modify headers), <strong>fulfill</strong> (return fake data — the server is never contacted), <strong>fetch + modify</strong> (get the real response, change it, then forward it). This lets you test edge cases without modifying the server.</p>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">tests/practice/network-mocking.spec.ts</span> — all four interception modes</div>
+          <div class="code-block"><span class="cm">// ABORT — block all images</span>
+<span class="kw">await</span> page.<span class="fn">route</span>(<span class="str">'**/*'</span>, <span class="kw">async</span> (route) =&gt; {
+  <span class="kw">if</span> (route.<span class="fn">request</span>().<span class="fn">resourceType</span>() === <span class="str">'image'</span>)
+    <span class="kw">await</span> route.<span class="fn">abort</span>();
+  <span class="kw">else</span>
+    <span class="kw">await</span> route.<span class="fn">continue</span>();
+});
+
+<span class="cm">// CONTINUE — add custom headers to a request</span>
+<span class="kw">await</span> page.<span class="fn">route</span>(<span class="str">'**/todos/2'</span>, <span class="kw">async</span> (route) =&gt; {
+  <span class="kw">const</span> headers = {
+    ...route.<span class="fn">request</span>().<span class="fn">headers</span>(),
+    <span class="str">'x-custom-header'</span>: <span class="str">'added-by-playwright'</span>,
+  };
+  <span class="kw">await</span> route.<span class="fn">continue</span>({ headers });
+});
+
+<span class="cm">// FULFILL — return fake data (server never contacted)</span>
+<span class="kw">await</span> page.<span class="fn">route</span>(<span class="str">'**/api/mock-data'</span>, (route) =&gt;
+  route.<span class="fn">fulfill</span>({
+    status: <span class="num">200</span>,
+    contentType: <span class="str">'application/json'</span>,
+    body: JSON.<span class="fn">stringify</span>({ items: [<span class="str">'alpha'</span>, <span class="str">'beta'</span>] }),
+  }),
+);
+
+<span class="cm">// FETCH + MODIFY — get real response, change it</span>
+<span class="kw">await</span> page.<span class="fn">route</span>(<span class="str">'**/todos/1'</span>, <span class="kw">async</span> (route) =&gt; {
+  <span class="kw">const</span> response = <span class="kw">await</span> route.<span class="fn">fetch</span>();
+  <span class="kw">const</span> json = <span class="kw">await</span> response.<span class="fn">json</span>();
+  json.title = <span class="str">'INTERCEPTED BY PLAYWRIGHT'</span>;
+  <span class="kw">await</span> route.<span class="fn">fulfill</span>({ response, body: JSON.<span class="fn">stringify</span>(json) });
+});</div>
+          <div class="code-explain">Four superpowers: <strong>abort</strong> tests how the app handles failed image loads. <strong>continue</strong> with modified headers tests auth token injection. <strong>fulfill</strong> returns completely fake data — test empty states, error states, anything, without touching the server. <strong>fetch + modify</strong> is the most powerful: get the real response, change one field, and forward it — test how the UI handles unexpected data in an otherwise real response.</div>
+        </div>
+        <div class="file-tags">
+          <span class="file-tag">tests/practice/network-mocking.spec.ts</span>
+          <span class="file-tag">tests/e2e/iframes.spec.ts (14 route calls)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ PART 5 ══════════════════════════════════════════════ -->
+  <div class="part">
+    <div class="part-header">
+      <span class="part-number">Part 5</span>
+      <span class="part-title">Production Readiness</span>
+    </div>
+
+    <!-- MODULE 25 -->
+    <div class="module" data-open="false">
+      <button class="module-toggle" aria-expanded="false" onclick="toggle(this)">
+        <span class="module-num">25</span>
+        <span class="module-title">Debugging &amp; Troubleshooting</span>
+        <span class="badge">YES</span>
+        <span class="arrow">&#9654;</span>
+      </button>
+      <div class="module-body">
+        <div class="analogy">
+          <div class="analogy-label">Real-world analogy</div>
+          A car's black box recorder. <strong>Traces</strong> = step-by-step replay. <strong>Screenshots</strong> = crash scene photos. <strong>Video</strong> = dashcam footage. <strong>Debug mode</strong> = having a mechanic sit in the passenger seat.
+        </div>
+        <div class="theory">
+          <h4>What it means</h4>
+          <p>When tests fail, you need to understand WHY. <strong>Traces</strong> record every action, network request, and DOM snapshot — replay them in Playwright's Trace Viewer. <strong>Screenshots</strong> capture the exact page state at failure. <strong>Videos</strong> record the entire test. All three are configured to only capture on failure — no noise for passing tests.</p>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">playwright.config.ts</span> — debugging artifacts config</div>
+          <div class="code-block">use: {
+  trace:      <span class="str">'on-first-retry'</span>,    <span class="cm">// Record trace when test fails and retries</span>
+  screenshot: <span class="str">'only-on-failure'</span>,   <span class="cm">// Capture page screenshot on failure</span>
+  video:      <span class="str">'retain-on-failure'</span>,  <span class="cm">// Keep video recording only if test fails</span>
+  actionTimeout:     <span class="num">15_000</span>,        <span class="cm">// Max wait per action (click, fill)</span>
+  navigationTimeout: <span class="num">30_000</span>,        <span class="cm">// Max wait for page navigation</span>
+},
+timeout: <span class="num">60_000</span>,                     <span class="cm">// Max per test</span>
+expect: { timeout: <span class="num">10_000</span> },          <span class="cm">// Max per assertion</span></div>
+          <div class="code-explain"><strong>'on-first-retry'</strong> means the trace is only captured when a test fails and retries — the retry has the trace recording. This balances debugging power (full traces) with performance (no recording overhead on passing tests). Four timeout levels give granular control: a click should complete in 15s, navigation in 30s, the whole test in 60s, each assertion in 10s.</div>
+        </div>
+        <div class="file-tags">
+          <span class="file-tag">playwright.config.ts</span>
+          <span class="file-tag">package.json (test:debug, test:ui, report)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 26 -->
+    <div class="module" data-open="false">
+      <button class="module-toggle" aria-expanded="false" onclick="toggle(this)">
+        <span class="module-num">26</span>
+        <span class="module-title">Reporting</span>
+        <span class="badge">YES</span>
+        <span class="arrow">&#9654;</span>
+      </button>
+      <div class="module-body">
+        <div class="analogy">
+          <div class="analogy-label">Real-world analogy</div>
+          Different report formats for different audiences. <strong>List</strong> = quick summary for developers. <strong>HTML</strong> = polished presentation for managers. <strong>JSON</strong> = raw data for dashboards. <strong>JUnit XML</strong> = the universal format every CI system understands.
+        </div>
+        <div class="theory">
+          <h4>What it means</h4>
+          <p>Playwright runs multiple <strong>reporters</strong> simultaneously. Each produces results in a different format for a different consumer. The <strong>list</strong> reporter shows real-time terminal output. The <strong>HTML</strong> reporter generates an interactive web page. <strong>JSON</strong> outputs machine-readable data for custom dashboards. <strong>JUnit</strong> produces XML that CI tools (Jenkins, GitHub Actions) natively parse.</p>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">playwright.config.ts</span> — four reporters running simultaneously</div>
+          <div class="code-block">reporter: [
+  [<span class="str">'list'</span>],                                         <span class="cm">// Terminal: real-time progress</span>
+  [<span class="str">'html'</span>, { open: <span class="str">'never'</span> }],                       <span class="cm">// Interactive web report</span>
+  [<span class="str">'json'</span>, { outputFile: <span class="str">'test-results/results.json'</span> }], <span class="cm">// Machine-readable</span>
+  [<span class="str">'junit'</span>, { outputFile: <span class="str">'test-results/results.xml'</span> }], <span class="cm">// CI-compatible XML</span>
+],</div>
+          <div class="code-explain">All four run at the same time. <strong>list</strong> prints to your terminal as tests run. <strong>html</strong> generates a browsable report with screenshots and trace attachments (<code>npm run report</code> opens it). <strong>json</strong> outputs structured data you can feed to dashboards or trend analysis. <strong>junit</strong> produces the standard XML format that GitHub Actions, Jenkins, and Azure DevOps natively understand for test result summaries in PRs.</div>
+        </div>
+        <div class="file-tags">
+          <span class="file-tag">playwright.config.ts</span>
+          <span class="file-tag">.github/workflows/e2e.yml</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 27 -->
+    <div class="module" data-open="false">
+      <button class="module-toggle" aria-expanded="false" onclick="toggle(this)">
+        <span class="module-num">27</span>
+        <span class="module-title">Best Practices</span>
+        <span class="badge">YES</span>
+        <span class="arrow">&#9654;</span>
+      </button>
+      <div class="module-body">
+        <div class="analogy">
+          <div class="analogy-label">Real-world analogy</div>
+          The difference between a home cook and a professional chef. Both make pasta, but the chef has a clean station, labeled ingredients, consistent portions, and a system that works even when they're not there.
+        </div>
+        <div class="theory">
+          <h4>What it means</h4>
+          <p>Best practices are the habits that make a test suite professional-grade: <strong>dynamic test data</strong> (Faker generates unique values every run — no collisions), <strong>granular timeouts</strong> (each layer has its own limit), <strong>forbidOnly</strong> (prevents accidental <code>.only()</code> from reaching CI), and <strong>strict TypeScript</strong> (compiler catches bugs before tests run).</p>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">data/test-data.ts</span> — Faker-powered dynamic test data</div>
+          <div class="code-block"><span class="kw">import</span> { faker } <span class="kw">from</span> <span class="str">'@faker-js/faker'</span>;
+
+<span class="kw">export const</span> SignupData = {
+  <span class="fn">newUser</span>: () =&gt; ({
+    firstName: faker.person.<span class="fn">firstName</span>(),
+    lastName:  faker.person.<span class="fn">lastName</span>(),
+    username:  faker.internet.<span class="fn">username</span>().<span class="fn">toLowerCase</span>()
+      .<span class="fn">replace</span>(<span class="str">/[^a-z0-9_]/g</span>, <span class="str">'_'</span>),
+    password:  faker.internet.<span class="fn">password</span>({ length: <span class="num">12</span> }),
+  }),
+};</div>
+          <div class="code-explain"><strong>Faker</strong> generates realistic but random data every run. This prevents the "worked yesterday, fails today" problem caused by hardcoded test data colliding with previous runs. <code>newUser()</code> is a function (not a static object) — every call generates a fresh set of values. The <code>.replace()</code> sanitizes the username to only allow valid characters.</div>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">playwright.config.ts</span> — CI safety guards</div>
+          <div class="code-block">retries:    process.env.CI ? <span class="num">2</span> : <span class="num">0</span>,  <span class="cm">// Retry flaky tests in CI only</span>
+forbidOnly: !!process.env.CI,         <span class="cm">// Block .only() from CI pipeline</span></div>
+          <div class="code-explain"><strong>retries: 2 in CI</strong> means if a test fails, it gets two more chances. This handles genuine flakiness (network glitches, timing issues) without marking the whole run red. Locally, retries are 0 — you want to see failures immediately. <strong>forbidOnly</strong> prevents a developer from accidentally committing <code>test.only()</code> which would run just one test and skip the rest of the suite — a silent disaster in CI.</div>
+        </div>
+        <div class="file-tags">
+          <span class="file-tag">data/test-data.ts</span>
+          <span class="file-tag">playwright.config.ts</span>
+          <span class="file-tag">tsconfig.json</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 28 -->
+    <div class="module" data-open="false">
+      <button class="module-toggle" aria-expanded="false" onclick="toggle(this)">
+        <span class="module-num">28</span>
+        <span class="module-title">Parallelization &amp; Sharding</span>
+        <span class="badge">YES</span>
+        <span class="arrow">&#9654;</span>
+      </button>
+      <div class="module-body">
+        <div class="analogy">
+          <div class="analogy-label">Real-world analogy</div>
+          Packing grocery bags. <strong>Parallelization</strong> = opening more checkout lanes. <strong>Sharding</strong> = splitting the cart across different stores entirely — each processes a portion, and you combine the receipts.
+        </div>
+        <div class="theory">
+          <h4>What it means</h4>
+          <p><strong>Workers</strong> are parallel processes running tests simultaneously. <strong>Cross-browser</strong> runs the same tests on Chromium, Firefox, and WebKit. <strong>Sharding</strong> splits the test suite across multiple CI machines: machine 1 runs tests 1-28, machine 2 runs 29-56, etc. Total time = slowest shard, not sum of all tests.</p>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">playwright.config.ts</span> — browser projects</div>
+          <div class="code-block">projects: [
+  { name: <span class="str">'api'</span>, testMatch: <span class="str">/api\/.*\.spec\.ts/</span> },
+  { name: <span class="str">'setup'</span>, testMatch: <span class="str">/setup\/auth\.setup\.ts/</span> },
+  {
+    name: <span class="str">'chromium'</span>,
+    dependencies: [<span class="str">'setup'</span>],
+    use: { ...devices[<span class="str">'Desktop Chrome'</span>] },
+  },
+  {
+    name: <span class="str">'firefox'</span>,
+    dependencies: [<span class="str">'setup'</span>],
+    use: { ...devices[<span class="str">'Desktop Firefox'</span>] },
+  },
+  {
+    name: <span class="str">'webkit'</span>,
+    dependencies: [<span class="str">'setup'</span>],
+    use: { ...devices[<span class="str">'Desktop Safari'</span>] },
+  },
+],</div>
+          <div class="code-explain"><strong>dependencies: ['setup']</strong> means Chromium/Firefox/WebKit projects wait for the setup project (login + storageState) to complete first. <strong>api</strong> project has no dependencies — API tests don't need a browser and run instantly. When you run <code>npm run test:cross</code>, all three browsers run the same test suite — catching browser-specific bugs automatically.</div>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">.github/workflows/e2e.yml</span> — 4-way CI sharding</div>
+          <div class="code-block">strategy:
+  fail-fast: <span class="num">false</span>
+  matrix:
+    shard: [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>]
+steps:
+  - run: npx playwright test --shard=${{ matrix.shard }}/<span class="num">4</span></div>
+          <div class="code-explain"><strong>Sharding</strong> splits tests across 4 CI machines. <code>--shard=1/4</code> runs the first quarter, <code>--shard=2/4</code> the second, etc. <strong>fail-fast: false</strong> means if shard 1 fails, shards 2-4 still complete — you see ALL failures at once, not just the first shard's. Each shard uploads its own report artifact.</div>
+        </div>
+        <div class="file-tags">
+          <span class="file-tag">playwright.config.ts</span>
+          <span class="file-tag">.github/workflows/e2e.yml</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 29 -->
+    <div class="module" data-open="false">
+      <button class="module-toggle" aria-expanded="false" onclick="toggle(this)">
+        <span class="module-num">29</span>
+        <span class="module-title">CI/CD Integration</span>
+        <span class="badge">YES</span>
+        <span class="arrow">&#9654;</span>
+      </button>
+      <div class="module-body">
+        <div class="analogy">
+          <div class="analogy-label">Real-world analogy</div>
+          An assembly line with quality gates. Every time someone pushes new code, automated inspectors check for defects. <strong>Smoke tests</strong> = "does it catch fire?" <strong>Regression</strong> = "does every feature still work?"
+        </div>
+        <div class="theory">
+          <h4>What it means</h4>
+          <p><strong>CI/CD</strong> (Continuous Integration / Continuous Delivery) runs tests automatically on every code change. Our pipeline has two jobs: <strong>smoke</strong> (fast, runs on every PR — blocks merge if broken) and <strong>regression</strong> (full suite, runs nightly with sharding). Quality gates (typecheck + lint) run BEFORE tests — fast failures save time.</p>
+        </div>
+        <div class="code-section">
+          <div class="code-label"><span class="code-file">.github/workflows/e2e.yml</span> — complete CI pipeline</div>
+          <div class="code-block">name: E2E Tests
+on:
+  pull_request:                    <span class="cm"># Every PR gets smoke tests</span>
+  schedule:
+    - cron: <span class="str">'0 2 * * *'</span>            <span class="cm"># Nightly regression at 2am UTC</span>
+  workflow_dispatch:               <span class="cm"># Manual re-run button</span>
+
+jobs:
+  smoke:                           <span class="cm"># PR gate — must pass to merge</span>
+    <span class="kw">if</span>: github.event_name == <span class="str">'pull_request'</span>
+    steps:
+      - run: npx tsc --noEmit      <span class="cm"># Type gate — fails fast</span>
+      - run: npx eslint .           <span class="cm"># Lint gate — fails fast</span>
+      - run: npx playwright test --grep @smoke  <span class="cm"># Only smoke-tagged tests</span>
+      - uses: actions/upload-artifact@v4        <span class="cm"># Upload report on failure</span>
+
+  regression:                      <span class="cm"># Nightly — full suite, sharded</span>
+    <span class="kw">if</span>: github.event_name != <span class="str">'pull_request'</span>
+    strategy:
+      matrix:
+        shard: [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>]
+    steps:
+      - run: npx playwright test --shard=${{ matrix.shard }}/<span class="num">4</span>
+        env:
+          QA_USER: ${{ secrets.QA_USER }}
+          QA_PASSWORD: ${{ secrets.QA_PASSWORD }}</div>
+          <div class="code-explain">Three triggers: <strong>pull_request</strong> (automatic on every PR), <strong>schedule</strong> (nightly at 2am), <strong>workflow_dispatch</strong> (manual button for ad-hoc runs). Smoke runs typecheck and lint as fast gates — if types are broken, there's no point running the browser. <strong>secrets.QA_USER</strong> keeps credentials out of the code. <strong>upload-artifact</strong> makes the HTML report downloadable from the GitHub Actions page even if the job fails.</div>
+        </div>
+        <div class="file-tags">
+          <span class="file-tag">.github/workflows/e2e.yml</span>
+          <span class="file-tag">package.json</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 30 -->
+    <div class="module" data-open="false">
+      <button class="module-toggle" aria-expanded="false" onclick="toggle(this)">
+        <span class="module-num">30</span>
+        <span class="module-title">Capstone Project</span>
+        <span class="badge">YES</span>
+        <span class="arrow">&#9654;</span>
+      </button>
+      <div class="module-body">
+        <div class="analogy">
+          <div class="analogy-label">Real-world analogy</div>
+          The final exam where you build a complete house using every skill learned — foundation (JS/TS), framing (POM/fixtures), plumbing (API testing), electrical (network mocking), interior design (reporting), and inspection (CI). This entire POC IS the capstone.
+        </div>
+        <div class="theory">
+          <h4>What it means</h4>
+          <p>A capstone integrates everything from modules 1-29 into a production-grade project. Not toy examples — a real banking application with real complexity. The Ryvan E2E POC demonstrates every concept with real-world patterns.</p>
+        </div>
+        <div class="code-section">
+          <div class="code-label">Everything integrated — project architecture</div>
+          <div class="code-block">ryvan-e2e/
+  config/env.ts            <span class="cm"># Environment config (Module 1)</span>
+  data/test-data.ts        <span class="cm"># Faker data factories (Module 27)</span>
+  fixtures/test.ts         <span class="cm"># Custom fixtures (Module 21)</span>
+  pages/
+    base.page.ts           <span class="cm"># Abstract base (Module 12)</span>
+    signin.page.ts         <span class="cm"># Concrete POM (Module 20)</span>
+    home.page.ts           <span class="cm"># Locator strategies (Module 15)</span>
+    components/
+      sidenav.component.ts <span class="cm"># Component object (Module 20)</span>
+  tests/
+    setup/auth.setup.ts    <span class="cm"># storageState auth (Module 21)</span>
+    e2e/*.spec.ts          <span class="cm"># UI tests (Modules 14-22)</span>
+    api/*.spec.ts          <span class="cm"># API tests (Module 23)</span>
+    practice/*.spec.ts     <span class="cm"># Actions, mocking (Modules 16, 24)</span>
+    integration/*.spec.ts  <span class="cm"># UI + API + DB (Module 23)</span>
+  utils/
+    api.client.ts          <span class="cm"># Generic API client (Module 11)</span>
+    db.client.ts           <span class="cm"># Database access (Module 10)</span>
+    data.helpers.ts        <span class="cm"># Control flow utils (Module 3, 5)</span>
+  .github/workflows/       <span class="cm"># CI/CD pipeline (Module 29)</span>
+  playwright.config.ts     <span class="cm"># 4 reporters, 3 browsers (Module 26, 28)</span></div>
+          <div class="code-explain">Every file in the project maps to one or more curriculum modules. <strong>114 tests</strong> across 23 spec files. <strong>12 classes</strong> with abstract base, inheritance, generics, and composition. <strong>Zero raw locators</strong> in test files. <strong>Four reporters</strong>, <strong>three browsers</strong>, <strong>four CI shards</strong>. TypeScript strict mode throughout. Faker-powered dynamic data. Three-layer integration testing (UI + API + DB). <strong>30 modules — 30 YES.</strong></div>
+        </div>
+        <div class="file-tags">
+          <span class="file-tag">Entire project</span>
+          <span class="file-tag">114 tests</span>
+          <span class="file-tag">23 spec files</span>
+          <span class="file-tag">12 classes</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function toggle(btn) {
+    const card = btn.closest('.module');
+    const isOpen = card.getAttribute('data-open') === 'true';
+    card.setAttribute('data-open', String(!isOpen));
+    btn.setAttribute('aria-expanded', String(!isOpen));
+  }
+
+  function toggleAll(open) {
+    document.querySelectorAll('.module').forEach(card => {
+      card.setAttribute('data-open', String(open));
+      card.querySelector('.module-toggle').setAttribute('aria-expanded', String(open));
+    });
+  }
+</script>

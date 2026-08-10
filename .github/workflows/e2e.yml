@@ -1,0 +1,147 @@
+name: E2E Tests
+
+on:
+  pull_request:
+  schedule:
+    - cron: '0 2 * * *' # nightly 02:00 UTC
+  workflow_dispatch: # manual re-run button
+
+env:
+  QA_USER: ${{ secrets.QA_USER }}
+  QA_PASSWORD: ${{ secrets.QA_PASSWORD }}
+  BASE_URL: http://localhost:3000
+  API_URL: http://localhost:3001
+
+jobs:
+  # ── PR GATE ──────────────────────────────────────────────────────────────
+  # Type + lint + the @smoke slice on Chromium. Must stay under ~10 minutes.
+  smoke:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # ── Start the RWA app ──
+      - name: Clone Cypress Real World App
+        run: git clone --depth 1 https://github.com/cypress-io/cypress-realworld-app.git rwa-app-ci
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install RWA dependencies
+        working-directory: rwa-app-ci
+        run: yarn install --frozen-lockfile
+
+      - name: Seed RWA database
+        working-directory: rwa-app-ci
+        run: yarn db:seed
+
+      - name: Start RWA app in background
+        working-directory: rwa-app-ci
+        run: yarn start:ci &
+
+      - name: Wait for RWA app to be ready
+        run: npx wait-on http://localhost:3000 --timeout 60000
+
+      # ── Run the test framework ──
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+
+      - name: Type gate
+        run: npx tsc --noEmit
+      - name: Lint gate
+        run: npx eslint .
+
+      - name: API + integration tests
+        run: npx playwright test --project=api
+
+      - name: UI smoke tests
+        run: npx playwright test --grep @smoke --project=setup --project=chromium
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-smoke
+          path: |
+            playwright-report/
+            test-results/
+
+  # ── NIGHTLY REGRESSION ───────────────────────────────────────────────────
+  # Full regression across 4 shards with all browser engines.
+  regression:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@v4
+
+      # ── Start the RWA app ──
+      - name: Clone Cypress Real World App
+        run: git clone --depth 1 https://github.com/cypress-io/cypress-realworld-app.git rwa-app-ci
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install RWA dependencies
+        working-directory: rwa-app-ci
+        run: yarn install --frozen-lockfile
+
+      - name: Seed RWA database
+        working-directory: rwa-app-ci
+        run: yarn db:seed
+
+      - name: Start RWA app in background
+        working-directory: rwa-app-ci
+        run: yarn start:ci &
+
+      - name: Wait for RWA app to be ready
+        run: npx wait-on http://localhost:3000 --timeout 60000
+
+      # ── Run the test framework ──
+      - run: npm ci
+      - run: npx playwright install --with-deps
+
+      - name: Run tests (shard ${{ matrix.shard }}/4)
+        run: npx playwright test --shard=${{ matrix.shard }}/4
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-shard-${{ matrix.shard }}
+          path: |
+            playwright-report/
+            test-results/
+
+  # ── MERGE REPORTS (nightly only) ─────────────────────────────────────────
+  merge-reports:
+    if: github.event_name != 'pull_request'
+    needs: regression
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+
+      - name: Download all shard reports
+        uses: actions/download-artifact@v4
+        with:
+          path: all-reports
+          pattern: playwright-report-shard-*
+
+      - name: Merge HTML reports
+        run: npx playwright merge-reports --reporter=html all-reports
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-merged
+          path: playwright-report/
+          retention-days: 30

@@ -1,0 +1,10 @@
+node_modules/
+test-results/
+playwright-report/
+playwright/.auth/
+.env
+*.log
+demo-app/shop.db
+rwa-app/
+rwa-app-ci/
+.claude/
