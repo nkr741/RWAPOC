@@ -27,7 +27,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'npm'
 
       - name: Install RWA dependencies
@@ -40,8 +40,6 @@ jobs:
 
       - name: Start RWA app in background
         working-directory: rwa-app-ci
-        env:
-          NODE_OPTIONS: '--openssl-legacy-provider'
         run: yarn start:ci > ../rwa-app.log 2>&1 &
 
       - name: Wait for RWA app to be ready
@@ -92,7 +90,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'npm'
 
       - name: Install RWA dependencies
@@ -105,8 +103,6 @@ jobs:
 
       - name: Start RWA app in background
         working-directory: rwa-app-ci
-        env:
-          NODE_OPTIONS: '--openssl-legacy-provider'
         run: yarn start:ci > ../rwa-app.log 2>&1 &
 
       - name: Wait for RWA app to be ready
@@ -140,7 +136,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
       - run: npm ci
 
       - name: Download all shard reports
