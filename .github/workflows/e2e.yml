@@ -41,12 +41,30 @@ jobs:
         working-directory: rwa-app-ci
         run: yarn db:seed
 
+      - name: Debug seeded users
+        working-directory: rwa-app-ci
+        run: node -e "const d=require('./data/database.json');d.users.slice(0,5).forEach(u=>console.log(u.username));console.log('Total users:',d.users.length)"
+
       - name: Start RWA app in background
         working-directory: rwa-app-ci
         run: yarn start:ci > ../rwa-app.log 2>&1 &
 
       - name: Wait for RWA app to be ready
         run: npx wait-on http-get://localhost:3000 --timeout 120000
+
+      - name: Debug login API
+        run: |
+          echo "QA_USER length: ${#QA_USER}"
+          echo "QA_PASSWORD length: ${#QA_PASSWORD}"
+          echo "Testing login with first seeded user..."
+          FIRST_USER=$(cd rwa-app-ci && node -e "console.log(require('./data/database.json').users[0].username)")
+          echo "First seeded user: $FIRST_USER"
+          echo "Login response with seeded user:"
+          curl -s -X POST http://localhost:3001/login -H "Content-Type: application/json" -d "{\"username\":\"$FIRST_USER\",\"password\":\"s3cret\"}" | head -c 200
+          echo ""
+          echo "Login response with QA_USER secret:"
+          curl -s -o /dev/null -w "HTTP %{http_code}" -X POST http://localhost:3001/login -H "Content-Type: application/json" -d "{\"username\":\"$QA_USER\",\"password\":\"$QA_PASSWORD\"}"
+          echo ""
 
       - name: Show RWA logs on failure
         if: failure()
@@ -107,12 +125,30 @@ jobs:
         working-directory: rwa-app-ci
         run: yarn db:seed
 
+      - name: Debug seeded users
+        working-directory: rwa-app-ci
+        run: node -e "const d=require('./data/database.json');d.users.slice(0,5).forEach(u=>console.log(u.username));console.log('Total users:',d.users.length)"
+
       - name: Start RWA app in background
         working-directory: rwa-app-ci
         run: yarn start:ci > ../rwa-app.log 2>&1 &
 
       - name: Wait for RWA app to be ready
         run: npx wait-on http-get://localhost:3000 --timeout 120000
+
+      - name: Debug login API
+        run: |
+          echo "QA_USER length: ${#QA_USER}"
+          echo "QA_PASSWORD length: ${#QA_PASSWORD}"
+          echo "Testing login with first seeded user..."
+          FIRST_USER=$(cd rwa-app-ci && node -e "console.log(require('./data/database.json').users[0].username)")
+          echo "First seeded user: $FIRST_USER"
+          echo "Login response with seeded user:"
+          curl -s -X POST http://localhost:3001/login -H "Content-Type: application/json" -d "{\"username\":\"$FIRST_USER\",\"password\":\"s3cret\"}" | head -c 200
+          echo ""
+          echo "Login response with QA_USER secret:"
+          curl -s -o /dev/null -w "HTTP %{http_code}" -X POST http://localhost:3001/login -H "Content-Type: application/json" -d "{\"username\":\"$QA_USER\",\"password\":\"$QA_PASSWORD\"}"
+          echo ""
 
       - name: Show RWA logs on failure
         if: failure()
