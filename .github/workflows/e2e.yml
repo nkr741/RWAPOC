@@ -139,19 +139,23 @@ jobs:
       - run: npx playwright install --with-deps
 
       - name: Run tests (shard ${{ matrix.shard }}/4)
-        run: npx playwright test --shard=${{ matrix.shard }}/4
+        run: npx playwright test --shard=${{ matrix.shard }}/4 --reporter=blob
 
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-report-shard-${{ matrix.shard }}
-          path: |
-            playwright-report/
-            test-results/
+          name: blob-report-shard-${{ matrix.shard }}
+          path: blob-report/
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-shard-${{ matrix.shard }}
+          path: test-results/
 
   # ── MERGE REPORTS (nightly only) ─────────────────────────────────────────
   merge-reports:
-    if: github.event_name != 'pull_request'
+    if: github.event_name != 'pull_request' && !cancelled()
     needs: regression
     runs-on: ubuntu-latest
     steps:
@@ -161,14 +165,15 @@ jobs:
           node-version: 22
       - run: npm ci
 
-      - name: Download all shard reports
+      - name: Download all blob reports
         uses: actions/download-artifact@v4
         with:
-          path: all-reports
-          pattern: playwright-report-shard-*
+          path: all-blob-reports
+          pattern: blob-report-shard-*
+          merge-multiple: true
 
-      - name: Merge HTML reports
-        run: npx playwright merge-reports --reporter=html all-reports
+      - name: Merge into HTML report
+        run: npx playwright merge-reports --reporter=html all-blob-reports
 
       - uses: actions/upload-artifact@v4
         with:
