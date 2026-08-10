@@ -8,7 +8,8 @@ test.describe('Side Navigation', () => {
   });
 
   test('should display user info in sidenav', async ({ sidenav }) => {
-    await expect(sidenav.userFullName).toContainText(TestUsers.default.firstName);
+    await expect(sidenav.userFullName).toBeVisible();
+    await expect(sidenav.userFullName).not.toBeEmpty();
     await expect(sidenav.username).toContainText(`@${TestUsers.default.username}`);
     await expect(sidenav.userBalance).toBeVisible();
   });

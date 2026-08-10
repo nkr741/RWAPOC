@@ -1,7 +1,6 @@
 import { test, expect } from '../../fixtures/test';
 import { TestUsers } from '../../data/test-data';
 import { ensureLoggedIn } from '../../utils/login.helper';
-import { splitFullName } from '../../utils/data.helpers';
 
 test.describe('User Settings', () => {
   test.beforeEach(async ({ page }) => {

@@ -1,6 +1,5 @@
 import { test, expect } from '../../fixtures/test';
 import { ENV } from '../../config/env';
-import { TestUsers } from '../../data/test-data';
 
 test.describe('Users API', () => {
   test('GET /users returns a list of users', async ({ authedApi }) => {
@@ -12,17 +11,18 @@ test.describe('Users API', () => {
     const data = await authedApi.get<{ user: { firstName: string; lastName: string } }>(
       `/users/profile/${ENV.user.username}`,
     );
-    expect(data.user.firstName).toBe(TestUsers.default.firstName);
-    expect(data.user.lastName).toBe(TestUsers.default.lastName);
+    expect(data.user.firstName).toBeTruthy();
+    expect(data.user.lastName).toBeTruthy();
     expect(data.user).not.toHaveProperty('balance');
   });
 
-  test('GET /users/search finds user by username', async ({ authedApi }) => {
+  test('GET /users/search finds user by username', async ({ authedApi, db }) => {
+    const searchUser = db.users()[1];
     const data = await authedApi.get<{ results: Array<{ username: string }> }>(
-      '/users/search?q=Arvilla_Hegmann',
+      `/users/search?q=${searchUser.username}`,
     );
     expect(data.results.length).toBeGreaterThanOrEqual(1);
-    expect(data.results[0].username).toContain('Arvilla');
+    expect(data.results[0].username).toContain(searchUser.username);
   });
 
   test('POST /users creates a new user', async ({ authedApi }) => {

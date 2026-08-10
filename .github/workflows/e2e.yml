@@ -45,6 +45,7 @@ jobs:
           SEEDED_USER=$(node -e "console.log(require('./data/database.json').users[0].username)")
           echo "QA_USER=$SEEDED_USER" >> $GITHUB_ENV
           echo "QA_PASSWORD=s3cret" >> $GITHUB_ENV
+          echo "RWA_DB_PATH=$(pwd)/data/database.json" >> $GITHUB_ENV
           echo "Using seeded user: $SEEDED_USER"
 
       - name: Start RWA app in background
@@ -119,6 +120,7 @@ jobs:
           SEEDED_USER=$(node -e "console.log(require('./data/database.json').users[0].username)")
           echo "QA_USER=$SEEDED_USER" >> $GITHUB_ENV
           echo "QA_PASSWORD=s3cret" >> $GITHUB_ENV
+          echo "RWA_DB_PATH=$(pwd)/data/database.json" >> $GITHUB_ENV
           echo "Using seeded user: $SEEDED_USER"
 
       - name: Start RWA app in background
