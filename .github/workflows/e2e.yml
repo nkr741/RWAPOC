@@ -14,14 +14,13 @@ env:
 
 jobs:
   # ── PR GATE ──────────────────────────────────────────────────────────────
-  # Type + lint + the @smoke slice on Chromium. Must stay under ~10 minutes.
   smoke:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      # ── Start the RWA app ──
+      # ── Build & start the RWA app ──
       - name: Clone Cypress Real World App
         run: git clone --depth 1 https://github.com/cypress-io/cypress-realworld-app.git rwa-app-ci
 
@@ -34,6 +33,10 @@ jobs:
         working-directory: rwa-app-ci
         run: yarn install --frozen-lockfile
 
+      - name: Build RWA frontend
+        working-directory: rwa-app-ci
+        run: yarn build
+
       - name: Seed RWA database
         working-directory: rwa-app-ci
         run: yarn db:seed
@@ -43,7 +46,7 @@ jobs:
         run: yarn start:ci > ../rwa-app.log 2>&1 &
 
       - name: Wait for RWA app to be ready
-        run: npx wait-on http://localhost:3000 --timeout 120000
+        run: npx wait-on http-get://localhost:3000 --timeout 120000
 
       - name: Show RWA logs on failure
         if: failure()
@@ -73,7 +76,6 @@ jobs:
             test-results/
 
   # ── NIGHTLY REGRESSION ───────────────────────────────────────────────────
-  # Full regression across 4 shards with all browser engines.
   regression:
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
@@ -84,7 +86,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # ── Start the RWA app ──
+      # ── Build & start the RWA app ──
       - name: Clone Cypress Real World App
         run: git clone --depth 1 https://github.com/cypress-io/cypress-realworld-app.git rwa-app-ci
 
@@ -97,6 +99,10 @@ jobs:
         working-directory: rwa-app-ci
         run: yarn install --frozen-lockfile
 
+      - name: Build RWA frontend
+        working-directory: rwa-app-ci
+        run: yarn build
+
       - name: Seed RWA database
         working-directory: rwa-app-ci
         run: yarn db:seed
@@ -106,7 +112,7 @@ jobs:
         run: yarn start:ci > ../rwa-app.log 2>&1 &
 
       - name: Wait for RWA app to be ready
-        run: npx wait-on http://localhost:3000 --timeout 120000
+        run: npx wait-on http-get://localhost:3000 --timeout 120000
 
       - name: Show RWA logs on failure
         if: failure()
