@@ -1,5 +1,7 @@
 # Ryvan E2E — Hybrid + POM Playwright Framework
 
+![E2E Tests](https://github.com/nkr741/RWAPOC/actions/workflows/e2e.yml/badge.svg)
+
 Enterprise-grade Playwright + TypeScript test automation framework built against the
 **Cypress Real World App (RWA)** — a full-stack React + Express application with real
 authentication, transactions, bank accounts, notifications, and user management.

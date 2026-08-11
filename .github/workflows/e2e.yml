@@ -180,3 +180,82 @@ jobs:
           name: playwright-report-merged
           path: playwright-report/
           retention-days: 30
+
+  # ── NOTIFICATIONS ────────────────────────────────────────────────────────
+  notify:
+    if: github.event_name != 'pull_request' && !cancelled()
+    needs: [regression, merge-reports]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Determine result
+        id: result
+        run: |
+          if [ "${{ needs.regression.result }}" = "success" ]; then
+            echo "status=PASSED ✅" >> $GITHUB_OUTPUT
+            echo "color=28a745" >> $GITHUB_OUTPUT
+          else
+            echo "status=FAILED ❌" >> $GITHUB_OUTPUT
+            echo "color=dc3545" >> $GITHUB_OUTPUT
+          fi
+          echo "run_url=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_OUTPUT
+
+      - name: Notify Slack
+        if: env.SLACK_WEBHOOK_URL != ''
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          curl -X POST "$SLACK_WEBHOOK_URL" \
+            -H 'Content-Type: application/json' \
+            -d '{
+              "text": "E2E Nightly: ${{ steps.result.outputs.status }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*E2E Nightly Run: ${{ steps.result.outputs.status }}*\nBranch: `${{ github.ref_name }}`\n<${{ steps.result.outputs.run_url }}|View Run>"
+                  }
+                }
+              ]
+            }'
+
+      - name: Notify Teams
+        if: env.TEAMS_WEBHOOK_URL != ''
+        env:
+          TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
+        run: |
+          curl -X POST "$TEAMS_WEBHOOK_URL" \
+            -H 'Content-Type: application/json' \
+            -d '{
+              "type": "message",
+              "attachments": [
+                {
+                  "contentType": "application/vnd.microsoft.card.adaptive",
+                  "content": {
+                    "type": "AdaptiveCard",
+                    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                    "version": "1.4",
+                    "body": [
+                      {
+                        "type": "TextBlock",
+                        "text": "E2E Nightly: ${{ steps.result.outputs.status }}",
+                        "weight": "Bolder",
+                        "size": "Medium"
+                      },
+                      {
+                        "type": "TextBlock",
+                        "text": "Branch: ${{ github.ref_name }}",
+                        "spacing": "None"
+                      }
+                    ],
+                    "actions": [
+                      {
+                        "type": "Action.OpenUrl",
+                        "title": "View Run",
+                        "url": "${{ steps.result.outputs.run_url }}"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }'
