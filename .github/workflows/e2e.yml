@@ -16,13 +16,13 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # ── Build & start the RWA app ──
       - name: Clone Cypress Real World App
         run: git clone --depth 1 https://github.com/cypress-io/cypress-realworld-app.git rwa-app-ci
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: 'npm'
@@ -35,9 +35,13 @@ jobs:
         working-directory: rwa-app-ci
         run: yarn build
 
+      # db:seed regenerates the dataset with ts-node + faker on every shard.
+      # It is slow and it fails intermittently (shard 2 of run #38). RWA already
+      # ships data/database-seed.json, and db:seed:dev just copies it — so the
+      # data is identical across shards and there is nothing left to flake.
       - name: Seed RWA database
         working-directory: rwa-app-ci
-        run: yarn db:seed
+        run: yarn db:seed:dev
 
       - name: Set test credentials from seeded data
         working-directory: rwa-app-ci
@@ -74,7 +78,7 @@ jobs:
       - name: UI smoke tests
         run: npx playwright test --grep @smoke --project=setup --project=chromium
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         if: always()
         with:
           name: playwright-report-smoke
@@ -91,13 +95,13 @@ jobs:
       matrix:
         shard: [1, 2, 3, 4]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # ── Build & start the RWA app ──
       - name: Clone Cypress Real World App
         run: git clone --depth 1 https://github.com/cypress-io/cypress-realworld-app.git rwa-app-ci
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: 'npm'
@@ -110,9 +114,13 @@ jobs:
         working-directory: rwa-app-ci
         run: yarn build
 
+      # db:seed regenerates the dataset with ts-node + faker on every shard.
+      # It is slow and it fails intermittently (shard 2 of run #38). RWA already
+      # ships data/database-seed.json, and db:seed:dev just copies it — so the
+      # data is identical across shards and there is nothing left to flake.
       - name: Seed RWA database
         working-directory: rwa-app-ci
-        run: yarn db:seed
+        run: yarn db:seed:dev
 
       - name: Set test credentials from seeded data
         working-directory: rwa-app-ci
@@ -141,17 +149,20 @@ jobs:
       - name: Run tests (shard ${{ matrix.shard }}/4)
         run: npx playwright test --shard=${{ matrix.shard }}/4 --reporter=blob
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         if: always()
         with:
           name: blob-report-shard-${{ matrix.shard }}
           path: blob-report/
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         if: always()
         with:
           name: test-results-shard-${{ matrix.shard }}
           path: test-results/
+          # Empty on a fully-passing shard: --reporter=blob replaces the json/junit
+          # reporters, so nothing lands here unless a test actually failed.
+          if-no-files-found: ignore
 
   # ── MERGE REPORTS (nightly only) ─────────────────────────────────────────
   merge-reports:
@@ -159,14 +170,14 @@ jobs:
     needs: regression
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
       - run: npm ci
 
       - name: Download all blob reports
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           path: all-blob-reports
           pattern: blob-report-shard-*
@@ -175,7 +186,7 @@ jobs:
       - name: Merge into HTML report
         run: npx playwright merge-reports --reporter=html all-blob-reports
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: playwright-report-merged
           path: playwright-report/
@@ -186,6 +197,12 @@ jobs:
     if: github.event_name != 'pull_request' && !cancelled()
     needs: [regression, merge-reports]
     runs-on: ubuntu-latest
+    # Declared at job level on purpose: a step's own `env:` is not visible to
+    # that same step's `if:`, so the guards below silently skipped and the job
+    # went green without ever sending anything.
+    env:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
     steps:
       - name: Determine result
         id: result
@@ -201,8 +218,6 @@ jobs:
 
       - name: Notify Slack
         if: env.SLACK_WEBHOOK_URL != ''
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
           curl -X POST "$SLACK_WEBHOOK_URL" \
             -H 'Content-Type: application/json' \
@@ -221,8 +236,6 @@ jobs:
 
       - name: Notify Teams
         if: env.TEAMS_WEBHOOK_URL != ''
-        env:
-          TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
         run: |
           curl -X POST "$TEAMS_WEBHOOK_URL" \
             -H 'Content-Type: application/json' \
