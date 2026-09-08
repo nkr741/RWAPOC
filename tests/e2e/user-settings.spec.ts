@@ -62,7 +62,7 @@ test.describe('User Settings', () => {
     });
   }
 
-  test('should update email notifications preference @regression', async () => {
-    test.skip(true, 'RWA does not implement notification preferences');
-  });
+  // No test for email notification preferences: RWA does not implement that UI,
+  // so there is nothing to drive and nothing to assert. A permanently-skipped
+  // placeholder would only trip `playwright/expect-expect` and add no coverage.
 });
