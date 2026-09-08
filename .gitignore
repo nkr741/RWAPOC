@@ -8,3 +8,6 @@ demo-app/shop.db
 rwa-app/
 rwa-app-ci/
 .claude/
+demo-projects/node_modules/
+demo-projects/test-results/
+demo-projects/playwright-report/

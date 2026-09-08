@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demo Banking App — Self-Healing Locator Demo</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--primary:#1a6b5a;--primary-hover:#135a4b;--danger:#dc2626;--bg:#f8f9fa;--card:#fff;--text:#1b1d19;--text2:#5a5e55;--border:#e2e3de;--shadow:0 2px 8px rgba(0,0,0,.08)}
+body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* Nav */
+.topbar{background:var(--primary);color:#fff;padding:.75rem 1.5rem;display:flex;justify-content:space-between;align-items:center}
+.topbar h1{font-size:1.1rem;font-weight:600}
+.topbar-actions{display:flex;gap:.75rem;align-items:center}
+.topbar-actions button{background:rgba(255,255,255,.15);color:#fff;border:none;padding:.4rem .8rem;border-radius:6px;cursor:pointer;font-size:.85rem}
+.topbar-actions button:hover{background:rgba(255,255,255,.25)}
+
+/* Layout */
+.layout{display:flex;min-height:calc(100vh - 52px)}
+.sidebar{width:220px;background:var(--card);border-right:1px solid var(--border);padding:1rem 0}
+.sidebar a{display:block;padding:.6rem 1.25rem;color:var(--text2);text-decoration:none;font-size:.9rem;border-left:3px solid transparent}
+.sidebar a:hover,.sidebar a.active{background:#f0faf6;color:var(--primary);border-left-color:var(--primary)}
+.main{flex:1;padding:1.5rem 2rem;max-width:800px}
+
+/* Cards */
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.25rem;margin-bottom:1rem;box-shadow:var(--shadow)}
+.card h2{font-size:1rem;font-weight:600;margin-bottom:.75rem}
+
+/* Forms */
+.form-group{margin-bottom:1rem}
+.form-group label{display:block;font-size:.85rem;color:var(--text2);margin-bottom:.3rem}
+.form-group input,.form-group select{width:100%;padding:.5rem .75rem;border:1px solid var(--border);border-radius:6px;font-size:.9rem}
+.form-group input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 2px rgba(26,107,90,.15)}
+.btn{background:var(--primary);color:#fff;border:none;padding:.55rem 1.25rem;border-radius:6px;cursor:pointer;font-size:.9rem;font-weight:500}
+.btn:hover{background:var(--primary-hover)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-danger{background:var(--danger)}
+
+/* Tables */
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:.6rem .75rem;border-bottom:1px solid var(--border);font-size:.88rem}
+th{font-weight:600;color:var(--text2);font-size:.8rem;text-transform:uppercase;letter-spacing:.03em}
+.amount-positive{color:#16a34a;font-weight:500}
+.amount-negative{color:var(--danger);font-weight:500}
+
+/* Balance cards */
+.balance-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem}
+.balance-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1rem;text-align:center;box-shadow:var(--shadow)}
+.balance-card .label{font-size:.8rem;color:var(--text2);margin-bottom:.25rem}
+.balance-card .value{font-size:1.3rem;font-weight:700;color:var(--primary)}
+
+/* Status */
+.status-badge{display:inline-block;padding:.2rem .5rem;border-radius:4px;font-size:.75rem;font-weight:500}
+.status-complete{background:#dcfce7;color:#166534}
+.status-pending{background:#fef3c7;color:#92400e}
+
+/* Alert */
+.alert{padding:.75rem 1rem;border-radius:6px;margin-bottom:1rem;font-size:.88rem}
+.alert-success{background:#dcfce7;color:#166534;border:1px solid #86efac}
+.alert-error{background:#fef2f2;color:#991b1b;border:1px solid #fca5a5}
+
+/* Break toggle */
+.break-toggle{position:fixed;bottom:1rem;right:1rem;background:#1e293b;color:#fff;padding:.6rem 1rem;border-radius:8px;font-size:.85rem;z-index:1000;display:flex;align-items:center;gap:.5rem;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.break-toggle input[type="checkbox"]{width:16px;height:16px;cursor:pointer}
+.break-toggle.broken{background:var(--danger)}
+
+/* Hide views */
+.view{display:none}
+.view.active{display:block}
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN VIEW ===== -->
+<div class="view active" id="login-view">
+  <div style="display:flex;justify-content:center;align-items:center;min-height:100vh;background:var(--bg)">
+    <div class="card" style="width:380px">
+      <h2 id="login-title" data-test="login-title" aria-label="Login to your account">Sign In</h2>
+      <p style="color:var(--text2);font-size:.85rem;margin-bottom:1.25rem" data-test="login-subtitle">Welcome back to Demo Bank</p>
+      <form id="login-form" data-test="login-form">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" data-test="signin-username" placeholder="Enter username" aria-label="Username" autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" data-test="signin-password" placeholder="Enter password" aria-label="Password" autocomplete="current-password">
+        </div>
+        <div id="login-error" class="alert alert-error" style="display:none" data-test="login-error"></div>
+        <button type="submit" class="btn" style="width:100%" data-test="signin-submit" id="signin-btn">Sign In</button>
+      </form>
+      <p style="text-align:center;margin-top:1rem;font-size:.85rem;color:var(--text2)">
+        Don't have an account? <a href="#" data-test="signup-link" id="signup-link">Sign Up</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== APP SHELL (after login) ===== -->
+<div class="view" id="app-view">
+  <div class="topbar" data-test="topbar">
+    <h1 data-test="app-title">Demo Bank</h1>
+    <div class="topbar-actions">
+      <button data-test="new-transaction-btn" id="new-tx-btn">New Transaction</button>
+      <button data-test="notifications-btn" id="notif-btn">Notifications</button>
+      <button data-test="logout-btn" id="logout-btn">Logout</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <nav class="sidebar" data-test="main-nav" id="main-nav" aria-label="Main navigation">
+      <a href="#dashboard" class="nav-link active" data-test="nav-dashboard" id="nav-dashboard">Dashboard</a>
+      <a href="#transactions" class="nav-link" data-test="nav-transactions" id="nav-transactions">Transactions</a>
+      <a href="#accounts" class="nav-link" data-test="nav-accounts" id="nav-accounts">Bank Accounts</a>
+      <a href="#profile" class="nav-link" data-test="nav-profile" id="nav-profile">My Profile</a>
+    </nav>
+
+    <div class="main">
+      <!-- Dashboard -->
+      <section class="page active" id="page-dashboard" data-test="page-dashboard">
+        <h1 data-test="user-greeting" id="user-greeting" aria-label="User greeting">Welcome, Demo User</h1>
+        <div class="balance-row" data-test="balance-section">
+          <div class="balance-card">
+            <div class="label">Total Balance</div>
+            <div class="value" data-test="account-balance" id="account-balance">$1,234.56</div>
+          </div>
+          <div class="balance-card">
+            <div class="label">Income</div>
+            <div class="value" data-test="income-amount" style="color:#16a34a">$3,200.00</div>
+          </div>
+          <div class="balance-card">
+            <div class="label">Expenses</div>
+            <div class="value" data-test="expense-amount" style="color:var(--danger)">$1,965.44</div>
+          </div>
+        </div>
+        <div class="card">
+          <h2 data-test="recent-title">Recent Transactions</h2>
+          <table data-test="recent-transactions-table">
+            <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Status</th></tr></thead>
+            <tbody data-test="recent-transactions-body">
+              <tr data-test="transaction-item-1"><td>Aug 15</td><td>Coffee Shop</td><td class="amount-negative">-$4.50</td><td><span class="status-badge status-complete">Complete</span></td></tr>
+              <tr data-test="transaction-item-2"><td>Aug 14</td><td>Salary Deposit</td><td class="amount-positive">+$3,200.00</td><td><span class="status-badge status-complete">Complete</span></td></tr>
+              <tr data-test="transaction-item-3"><td>Aug 13</td><td>Electric Bill</td><td class="amount-negative">-$142.30</td><td><span class="status-badge status-pending">Pending</span></td></tr>
+              <tr data-test="transaction-item-4"><td>Aug 12</td><td>Grocery Store</td><td class="amount-negative">-$67.89</td><td><span class="status-badge status-complete">Complete</span></td></tr>
+              <tr data-test="transaction-item-5"><td>Aug 11</td><td>Transfer from Savings</td><td class="amount-positive">+$500.00</td><td><span class="status-badge status-complete">Complete</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Transactions -->
+      <section class="page" id="page-transactions" data-test="page-transactions">
+        <h1 data-test="transactions-title">Transactions</h1>
+        <div style="display:flex;gap:.75rem;margin:1rem 0">
+          <input type="text" data-test="transaction-search" id="tx-search" placeholder="Search transactions..." style="flex:1;padding:.5rem .75rem;border:1px solid var(--border);border-radius:6px" aria-label="Search transactions">
+          <select data-test="transaction-filter" id="tx-filter" style="padding:.5rem;border:1px solid var(--border);border-radius:6px">
+            <option value="all">All</option>
+            <option value="income">Income</option>
+            <option value="expense">Expenses</option>
+          </select>
+        </div>
+        <div class="card">
+          <table data-test="transactions-table">
+            <thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Amount</th></tr></thead>
+            <tbody data-test="transactions-body" id="transactions-body">
+              <tr data-test="tx-row-1" data-type="expense"><td>Aug 15</td><td>Coffee Shop</td><td>Food & Drink</td><td class="amount-negative">-$4.50</td></tr>
+              <tr data-test="tx-row-2" data-type="income"><td>Aug 14</td><td>Salary Deposit</td><td>Income</td><td class="amount-positive">+$3,200.00</td></tr>
+              <tr data-test="tx-row-3" data-type="expense"><td>Aug 13</td><td>Electric Bill</td><td>Utilities</td><td class="amount-negative">-$142.30</td></tr>
+              <tr data-test="tx-row-4" data-type="expense"><td>Aug 12</td><td>Grocery Store</td><td>Food & Drink</td><td class="amount-negative">-$67.89</td></tr>
+              <tr data-test="tx-row-5" data-type="income"><td>Aug 11</td><td>Transfer from Savings</td><td>Transfer</td><td class="amount-positive">+$500.00</td></tr>
+              <tr data-test="tx-row-6" data-type="expense"><td>Aug 10</td><td>Netflix Subscription</td><td>Entertainment</td><td class="amount-negative">-$15.99</td></tr>
+              <tr data-test="tx-row-7" data-type="expense"><td>Aug 09</td><td>Gas Station</td><td>Transport</td><td class="amount-negative">-$45.20</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Bank Accounts -->
+      <section class="page" id="page-accounts" data-test="page-accounts">
+        <h1 data-test="accounts-title">Bank Accounts</h1>
+        <div id="accounts-list" data-test="accounts-list">
+          <div class="card" data-test="account-card-1">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <h2 data-test="account-name-1">Checking Account</h2>
+                <p style="color:var(--text2);font-size:.85rem" data-test="account-number-1">****4521</p>
+              </div>
+              <div style="text-align:right">
+                <div style="font-size:1.2rem;font-weight:700;color:var(--primary)" data-test="account-balance-1">$1,234.56</div>
+                <button class="btn btn-danger" style="font-size:.78rem;padding:.3rem .6rem;margin-top:.3rem" data-test="delete-account-1">Delete</button>
+              </div>
+            </div>
+          </div>
+          <div class="card" data-test="account-card-2">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <h2 data-test="account-name-2">Savings Account</h2>
+                <p style="color:var(--text2);font-size:.85rem" data-test="account-number-2">****7832</p>
+              </div>
+              <div style="text-align:right">
+                <div style="font-size:1.2rem;font-weight:700;color:var(--primary)" data-test="account-balance-2">$8,750.00</div>
+                <button class="btn btn-danger" style="font-size:.78rem;padding:.3rem .6rem;margin-top:.3rem" data-test="delete-account-2">Delete</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button class="btn" data-test="create-account-btn" id="create-account-btn" style="margin-top:.5rem">Create Account</button>
+      </section>
+
+      <!-- Profile -->
+      <section class="page" id="page-profile" data-test="page-profile">
+        <h1 data-test="profile-title">My Profile</h1>
+        <div class="card">
+          <form id="profile-form" data-test="profile-form">
+            <div class="form-group">
+              <label for="firstname">First Name</label>
+              <input type="text" id="firstname" data-test="user-firstname" value="Demo" aria-label="First name">
+            </div>
+            <div class="form-group">
+              <label for="lastname">Last Name</label>
+              <input type="text" id="lastname" data-test="user-lastname" value="User" aria-label="Last name">
+            </div>
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" data-test="user-email" value="demo@bank.com" aria-label="Email address">
+            </div>
+            <div class="form-group">
+              <label for="phone">Phone</label>
+              <input type="tel" id="phone" data-test="user-phone" value="555-0123" aria-label="Phone number">
+            </div>
+            <div id="profile-alert" class="alert alert-success" style="display:none" data-test="profile-success">Profile updated successfully</div>
+            <button type="submit" class="btn" data-test="save-profile" id="save-profile-btn">Save</button>
+          </form>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<!-- Break Locators Toggle -->
+<div class="break-toggle" id="break-toggle" data-test="break-toggle">
+  <input type="checkbox" id="break-checkbox">
+  <label for="break-checkbox" style="cursor:pointer;user-select:none">Break Locators</label>
+</div>
+
+<script>
+// ── Routing ──
+function showView(viewId) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(viewId)?.classList.add('active');
+}
+function showPage(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + pageId)?.classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(a => a.classList.remove('active'));
+  document.querySelector(`[data-test="nav-${pageId}"]`)?.classList.add('active');
+}
+
+// ── Login ──
+document.getElementById('login-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const user = document.getElementById('username').value;
+  const pass = document.getElementById('password').value;
+  const errEl = document.getElementById('login-error');
+  if (user === 'demo' && pass === 'password123') {
+    sessionStorage.setItem('auth', 'true');
+    sessionStorage.setItem('username', user);
+    errEl.style.display = 'none';
+    showView('app-view');
+    showPage('dashboard');
+  } else {
+    errEl.textContent = 'Invalid username or password';
+    errEl.style.display = 'block';
+  }
+});
+
+// ── Sidebar nav ──
+document.querySelectorAll('.nav-link').forEach(link => {
+  link.addEventListener('click', function(e) {
+    e.preventDefault();
+    const page = this.getAttribute('href').replace('#', '');
+    showPage(page);
+  });
+});
+
+// ── Profile save ──
+document.getElementById('profile-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const alert = document.getElementById('profile-alert');
+  alert.style.display = 'block';
+  setTimeout(() => alert.style.display = 'none', 3000);
+});
+
+// ── Logout ──
+document.getElementById('logout-btn').addEventListener('click', function() {
+  sessionStorage.clear();
+  showView('login-view');
+});
+
+// ── Transaction search ──
+document.getElementById('tx-search').addEventListener('input', function() {
+  const q = this.value.toLowerCase();
+  document.querySelectorAll('#transactions-body tr').forEach(row => {
+    row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+});
+
+// ── Transaction filter ──
+document.getElementById('tx-filter').addEventListener('change', function() {
+  const v = this.value;
+  document.querySelectorAll('#transactions-body tr').forEach(row => {
+    if (v === 'all') { row.style.display = ''; return; }
+    row.style.display = row.dataset.type === v ? '' : 'none';
+  });
+});
+
+// ── BREAK LOCATORS ──
+function breakLocators() {
+  // 1. Rename data-test → data-qa with different naming convention
+  document.querySelectorAll('[data-test]').forEach(el => {
+    const old = el.getAttribute('data-test');
+    el.removeAttribute('data-test');
+    el.setAttribute('data-qa', old.replace(/-/g, '_') + '_v2');
+  });
+  // 2. Change IDs (exempt structural IDs the app's own routing depends on)
+  const keepIds = new Set(['break-toggle','break-checkbox','login-view','app-view',
+    'page-dashboard','page-transactions','page-accounts','page-profile',
+    'login-form','profile-form','transactions-body','tx-search','tx-filter',
+    'username','password','login-error','profile-alert','logout-btn']);
+  document.querySelectorAll('[id]').forEach(el => {
+    if (keepIds.has(el.id)) return;
+    el.id = el.id + '-redesigned';
+  });
+  // 3. Swap class names
+  document.querySelectorAll('.btn').forEach(el => {
+    el.classList.remove('btn');
+    el.classList.add('button-primary');
+  });
+  document.querySelectorAll('.btn-danger').forEach(el => {
+    el.classList.remove('btn-danger');
+    el.classList.add('button-destructive');
+  });
+  document.querySelectorAll('.card').forEach(el => {
+    el.classList.remove('card');
+    el.classList.add('panel');
+  });
+  document.querySelectorAll('.nav-link').forEach(el => {
+    el.classList.remove('nav-link');
+    el.classList.add('sidebar-item');
+  });
+  // 4. Change button text
+  document.querySelectorAll('button, [type="submit"]').forEach(el => {
+    const map = { 'Sign In': 'Log In', 'Save': 'Update Profile', 'Logout': 'Sign Out',
+                  'New Transaction': 'Send Money', 'Notifications': 'Alerts',
+                  'Create Account': 'Add New Account', 'Delete': 'Remove' };
+    for (const [from, to] of Object.entries(map)) {
+      if (el.textContent.trim() === from) el.textContent = to;
+    }
+  });
+  // 5. Change heading text slightly
+  const greeting = document.querySelector('[data-qa="user_greeting_v2"]');
+  if (greeting) greeting.textContent = 'Hello, Demo User!';
+
+  // Mark broken state
+  document.body.dataset.broken = 'true';
+  const toggle = document.getElementById('break-toggle');
+  if (toggle) toggle.classList.add('broken');
+}
+
+function restoreLocators() {
+  location.reload();
+}
+
+// Toggle handler
+document.getElementById('break-checkbox').addEventListener('change', function() {
+  if (this.checked) breakLocators();
+  else restoreLocators();
+});
+
+// URL parameter: ?broken=true
+if (new URLSearchParams(location.search).has('broken')) {
+  document.getElementById('break-checkbox').checked = true;
+  breakLocators();
+}
+
+// Auto-login if session exists
+if (sessionStorage.getItem('auth') === 'true') {
+  showView('app-view');
+  showPage('dashboard');
+}
+</script>
+</body>
+</html>

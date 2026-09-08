@@ -3,7 +3,7 @@ import playwright from 'eslint-plugin-playwright';
 import prettier from 'eslint-config-prettier';
 
 export default tseslint.config(
-  { ignores: ['node_modules', 'test-results', 'playwright-report', 'playwright/.auth', 'eslint.config.mjs', 'rwa-app/**'] },
+  { ignores: ['node_modules', 'test-results', 'playwright-report', 'playwright/.auth', 'eslint.config.mjs', 'rwa-app/**', 'demo-projects/**'] },
   ...tseslint.configs.recommendedTypeChecked,
   {
     languageOptions: { parserOptions: { projectService: true, tsconfigRootDir: import.meta.dirname } },
