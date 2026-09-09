@@ -11,3 +11,7 @@ rwa-app-ci/
 demo-projects/node_modules/
 demo-projects/test-results/
 demo-projects/playwright-report/
+
+# Python (claude-agent demo)
+__pycache__/
+*.pyc
