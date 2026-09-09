@@ -13,7 +13,7 @@ client = anthropic.Anthropic()
 
 response = client.messages.create(
     model=MODEL,
-    max_tokens=1000,
+    max_tokens=2000,
     messages=[
         {
             "role": "user",
