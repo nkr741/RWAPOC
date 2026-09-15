@@ -31,6 +31,9 @@ the fix`. Say "None." if the diff is clean. Only report real defects, not style 
 
 ## Verdict
 One of **APPROVE**, **APPROVE WITH NITS**, or **REQUEST CHANGES**, followed by one sentence.
+
+Your reply is posted verbatim as the MR comment: the very first line must be `## Summary` —
+no preamble, no notes to yourself.
 EOF
 
 claude_text "$PROMPT

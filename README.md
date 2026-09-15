@@ -269,9 +269,12 @@ npx playwright test --shard=3/3   # Machine 3
 
 ## Claude-powered CI
 
-Every CI job that calls Claude runs the `claude` CLI headless (`claude -p --output-format json`)
-with `ANTHROPIC_API_KEY` from the platform's secret store. Claude can read the repo for context
-but cannot edit in that mode. Scripts live in `scripts/ci/`.
+The scripted jobs run the `claude` CLI headless (`claude -p --output-format json`) with
+`ANTHROPIC_API_KEY` from the platform's secret store; in that mode Claude can read the repo for
+context but cannot edit it. The one exception is the interactive `@claude` reviewer, which uses
+`claude-code-action` with `contents: write` and may push fixes to the PR branch when asked —
+which is why it only fires for repo owners, members, and collaborators. Scripts live in
+`scripts/ci/`.
 
 | What | Where | Trigger |
 |---|---|---|
