@@ -43,8 +43,9 @@ jobs:
           below under ### headings — Features, Fixes, Tests, CI/CD, Docs, Maintenance — and drop
           any heading with no entries. One bullet per change, written for a reader who did not
           see the commit; keep the short hash in backticks at the end of each bullet. Open the
-          touched files if a commit message is too terse to describe. Start with a two-sentence
-          summary. Output markdown only, no title line.
+          touched files if a commit message is too terse to describe. Your reply is published
+          verbatim as the release body: the very first line must be the start of a two-sentence
+          summary paragraph — no title, no heading, no notes to yourself before it.
 
           <commits>
           $(cat commits.txt)
