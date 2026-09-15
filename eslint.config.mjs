@@ -3,10 +3,25 @@ import playwright from 'eslint-plugin-playwright';
 import prettier from 'eslint-config-prettier';
 
 export default tseslint.config(
-  { ignores: ['node_modules', 'test-results', 'playwright-report', 'playwright/.auth', 'eslint.config.mjs', 'rwa-app/**', 'demo-projects/**'] },
+  // rwa-app-ci/ is where the CI job clones the RWA app before `eslint .` runs — without this
+  // entry the PR lint gate lints the entire Cypress RWA codebase (7k+ errors).
+  {
+    ignores: [
+      'node_modules',
+      'test-results',
+      'playwright-report',
+      'playwright/.auth',
+      'eslint.config.mjs',
+      'rwa-app/**',
+      'rwa-app-ci/**',
+      'demo-projects/**',
+    ],
+  },
   ...tseslint.configs.recommendedTypeChecked,
   {
-    languageOptions: { parserOptions: { projectService: true, tsconfigRootDir: import.meta.dirname } },
+    languageOptions: {
+      parserOptions: { projectService: true, tsconfigRootDir: import.meta.dirname },
+    },
     rules: {
       // THE flake killer: every un-awaited Playwright call becomes an error.
       // This is type-aware — it must know the expression is a Promise.
