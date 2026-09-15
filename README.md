@@ -267,6 +267,25 @@ npx playwright test --shard=3/3   # Machine 3
 
 ---
 
+## Claude-powered CI
+
+Every CI job that calls Claude runs the `claude` CLI headless (`claude -p --output-format json`)
+with `ANTHROPIC_API_KEY` from the platform's secret store. Claude can read the repo for context
+but cannot edit in that mode. Scripts live in `scripts/ci/`.
+
+| What | Where | Trigger |
+|---|---|---|
+| Interactive PR review | `.github/workflows/github-actions-review.yml` | Comment `@claude …` on a PR or issue (repo members only) |
+| Quality gate — fails on any **HIGH** finding | `scripts/ci/quality-gate.sh` via `quality-gate.yml` / `.gitlab-ci.yml` | Every PR / MR |
+| Release notes → GitHub Release | `.github/workflows/github-actions-release-notes.yml` | Push a `v*` tag |
+| Root-cause analysis of failed specs | `scripts/ci/test-failure-analysis.sh` from `e2e.yml` | Smoke failure (PR comment), nightly failure (job summary) |
+| MR review posted as a note | `scripts/ci/diff-review.sh` via `.gitlab-ci.yml` | Every merge request |
+
+Secrets: `ANTHROPIC_API_KEY` on both platforms; GitLab also needs `GITLAB_API_TOKEN` (`api` scope)
+to post the MR note. Leave GitLab variables **unprotected** — MR pipelines run on feature branches.
+
+---
+
 ## Dependencies
 
 | Package | Purpose |
