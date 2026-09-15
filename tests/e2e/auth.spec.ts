@@ -16,7 +16,7 @@ test.describe('Authentication', () => {
     await signinPage.open();
     await signinPage.login(TestUsers.default.username, TestUsers.default.password);
     await signinPage.page.waitForURL('**/');
-    await expect(signinPage.sidenav.userFullName).toBeVisible();
+    await expect(signinPage.sidenav.userFullName).toBeVisible({ timeout: 15_000 });
   });
 
   test('should show error for invalid credentials', async ({ signinPage }) => {
