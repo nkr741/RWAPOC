@@ -1,0 +1,36 @@
+name: Claude Quality Gate
+
+# Blocking review on every PR: Claude reviews the diff and the job fails on any HIGH finding.
+# Make this a required status check in branch protection to actually block the merge.
+
+on:
+  pull_request:
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Install Claude Code CLI
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Run quality gate
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: bash scripts/ci/quality-gate.sh origin/${{ github.base_ref }}
+
+      - uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: quality-gate-findings
+          path: quality-gate.json
+          if-no-files-found: ignore

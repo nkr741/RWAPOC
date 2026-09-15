@@ -15,6 +15,9 @@ jobs:
   smoke:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write # Claude failure analysis posts a PR comment
     steps:
       - uses: actions/checkout@v5
 
@@ -77,6 +80,23 @@ jobs:
 
       - name: UI smoke tests
         run: npx playwright test --grep @smoke --project=setup --project=chromium
+
+      # ── Claude root-cause analysis (only when something failed) ──
+      - name: Install Claude Code CLI
+        if: failure()
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Analyse failures with Claude
+        if: failure()
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: bash scripts/ci/test-failure-analysis.sh
+
+      - name: Post analysis on the PR
+        if: failure() && hashFiles('test-failure-analysis.md') != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh pr comment ${{ github.event.pull_request.number }} --body-file test-failure-analysis.md
 
       - uses: actions/upload-artifact@v5
         if: always()
@@ -191,6 +211,30 @@ jobs:
           name: playwright-report-merged
           path: playwright-report/
           retention-days: 30
+
+      # ── Claude root-cause analysis across all shards (only when something failed) ──
+      - name: Merge into JSON for analysis
+        if: needs.regression.result != 'success'
+        run: |
+          mkdir -p test-results
+          npx playwright merge-reports --reporter=json all-blob-reports > test-results/results.json
+
+      - name: Install Claude Code CLI
+        if: needs.regression.result != 'success'
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Analyse failures with Claude
+        if: needs.regression.result != 'success'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: bash scripts/ci/test-failure-analysis.sh
+
+      - uses: actions/upload-artifact@v5
+        if: needs.regression.result != 'success'
+        with:
+          name: test-failure-analysis
+          path: test-failure-analysis.md
+          if-no-files-found: ignore
 
   # ── NOTIFICATIONS ────────────────────────────────────────────────────────
   notify:

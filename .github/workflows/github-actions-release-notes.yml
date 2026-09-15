@@ -1,0 +1,57 @@
+name: Release Notes
+
+# Push a tag like v1.2.0 and Claude turns the commits since the previous tag into release
+# notes, then publishes a GitHub Release with them.
+
+on:
+  push:
+    tags: ['v*']
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write        # gh release create
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Install Claude Code CLI
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Collect commits since previous tag
+        id: commits
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          PREV=$(git describe --tags --abbrev=0 "${TAG}^" 2>/dev/null || echo "")
+          if [ -n "$PREV" ]; then RANGE="${PREV}..${TAG}"; else RANGE="${TAG}"; fi
+          echo "prev=${PREV:-<none>}" >> "$GITHUB_OUTPUT"
+          git log "$RANGE" --no-merges --pretty='- %h %s (%an)' > commits.txt
+          echo "$(wc -l < commits.txt) commits in $RANGE"
+
+      - name: Draft release notes with Claude
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          claude -p "Write GitHub release notes for tag ${GITHUB_REF_NAME} of a Playwright E2E
+          test framework (previous tag: ${{ steps.commits.outputs.prev }}). Group the commits
+          below under ### headings — Features, Fixes, Tests, CI/CD, Docs, Maintenance — and drop
+          any heading with no entries. One bullet per change, written for a reader who did not
+          see the commit; keep the short hash in backticks at the end of each bullet. Open the
+          touched files if a commit message is too terse to describe. Start with a two-sentence
+          summary. Output markdown only, no title line.
+
+          <commits>
+          $(cat commits.txt)
+          </commits>" --model claude-sonnet-5 --output-format json | jq -r '.result' > notes.md
+          cat notes.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --notes-file notes.md --verify-tag

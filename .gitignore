@@ -15,3 +15,7 @@ demo-projects/playwright-report/
 # Python (claude-agent demo)
 __pycache__/
 *.pyc
+
+# PromptLens / SDLC observer — local-only setup notes and artifacts
+docs/promptlens-setup.md
+*.whl

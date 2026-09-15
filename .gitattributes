@@ -1,0 +1,2 @@
+# CI shell scripts must stay LF — CRLF breaks `#!/usr/bin/env bash` on Linux runners.
+*.sh text eol=lf
