@@ -10,7 +10,7 @@ test.describe('Transactions', () => {
 
   test('should display public transaction feed on home page @smoke', async ({ homePage }) => {
     await homePage.open();
-    await expect(homePage.publicTab).toBeVisible();
+    await expect(homePage.page.getByTestId('nav-publc-tab')).toBeVisible(); // DEMO: deliberate typo, do not merge
     await expect(homePage.transactionItems.first()).toBeVisible();
   });
 
@@ -59,19 +59,29 @@ test.describe('Transactions', () => {
 
     await transactionPage.open();
     await transactionPage.selectUser(recipient.firstName);
-    await transactionPage.request(TransactionData.request.amount, TransactionData.request.description);
+    await transactionPage.request(
+      TransactionData.request.amount,
+      TransactionData.request.description,
+    );
 
     await expect(transactionPage.alertSuccess).toBeVisible();
     await expect(transactionPage.alertSuccess).toContainText('Transaction Submitted!');
   });
 
-  test('should return to transactions after creating payment', async ({ page, transactionPage, db }) => {
+  test('should return to transactions after creating payment', async ({
+    page,
+    transactionPage,
+    db,
+  }) => {
     const users = db.users();
     const recipient = users.find((u) => u.username !== ENV.user.username)!;
 
     await transactionPage.open();
     await transactionPage.selectUser(recipient.firstName);
-    await transactionPage.pay(TransactionData.quickPay.amount, TransactionData.quickPay.description);
+    await transactionPage.pay(
+      TransactionData.quickPay.amount,
+      TransactionData.quickPay.description,
+    );
     await transactionPage.returnToTransactions.click();
     await expect(page).toHaveURL(/\/$/);
   });
