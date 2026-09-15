@@ -9,9 +9,9 @@
 # failing spec and page objects for context; it cannot edit anything in -p mode.
 # Appends to $GITHUB_STEP_SUMMARY when set. Exit 0 when there is nothing to analyse.
 set -euo pipefail
+. "$(dirname "$0")/lib.sh"
 
 RESULTS="${1:-test-results/results.json}"
-MODEL="${CLAUDE_MODEL:-claude-sonnet-5}"
 OUT="test-failure-analysis.md"
 
 if [ ! -f "$RESULTS" ]; then
@@ -60,11 +60,11 @@ EOF
 # Write via a temp file so a failed Claude call leaves no empty $OUT behind for a later
 # `gh pr comment --body-file` to trip over.
 TMP=$(mktemp)
-claude -p "$PROMPT
+claude_text "$PROMPT
 
 <failures>
 $FAILURES
-</failures>" --model "$MODEL" --output-format json | jq -r '.result' > "$TMP"
+</failures>" > "$TMP"
 if [ ! -s "$TMP" ]; then
   echo "::error::Claude returned no analysis."
   rm -f "$TMP"

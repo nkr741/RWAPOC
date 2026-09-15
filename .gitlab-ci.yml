@@ -39,6 +39,7 @@ review:
         --data-urlencode "body@review.md" \
         "$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID/notes" > /dev/null
   artifacts:
+    when: always
     paths: [review.md]
     expire_in: 1 week
   allow_failure: true

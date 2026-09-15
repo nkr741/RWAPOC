@@ -6,14 +6,15 @@
 # Needs: ANTHROPIC_API_KEY, `claude` CLI (npm i -g @anthropic-ai/claude-code), jq, git.
 # Writes quality-gate.json next to cwd and a markdown table to $GITHUB_STEP_SUMMARY when set.
 set -euo pipefail
+. "$(dirname "$0")/lib.sh"
 
 BASE="${1:-origin/main}"
-MODEL="${CLAUDE_MODEL:-claude-sonnet-5}"
 OUT="quality-gate.json"
 
 DIFF=$(git diff "$BASE...HEAD" -- . ':!package-lock.json' ':!*.png' ':!*.snap' ':!*.md')
 if [ -z "$DIFF" ]; then
   echo "No reviewable changes vs $BASE — gate passes."
+  echo '{"findings":[]}' > "$OUT"
   exit 0
 fi
 
@@ -35,14 +36,12 @@ Respond with ONLY this JSON object — no prose, no markdown fences:
 Use an empty findings array when the diff is clean.
 EOF
 
-claude -p "$PROMPT
+# Tolerate a stray ``` fence, then validate it parses.
+claude_text "$PROMPT
 
 <diff>
 $DIFF
-</diff>" --model "$MODEL" --output-format json > claude-raw.json
-
-# .result is the model's text; tolerate a stray ``` fence, then validate it parses.
-jq -r '.result' claude-raw.json | sed -e '/^```/d' > "$OUT"
+</diff>" | sed -e '/^```/d' > "$OUT"
 if ! jq -e '.findings' "$OUT" >/dev/null 2>&1; then
   echo "::error::Claude did not return parseable findings JSON:"
   cat "$OUT"

@@ -4,9 +4,9 @@
 #
 #   scripts/ci/diff-review.sh [base-ref]        default base: origin/main
 set -euo pipefail
+. "$(dirname "$0")/lib.sh"
 
 BASE="${1:-origin/main}"
-MODEL="${CLAUDE_MODEL:-claude-sonnet-5}"
 
 DIFF=$(git diff "$BASE...HEAD" -- . ':!package-lock.json' ':!*.png' ':!*.snap')
 if [ -z "$DIFF" ]; then
@@ -33,8 +33,8 @@ the fix`. Say "None." if the diff is clean. Only report real defects, not style 
 One of **APPROVE**, **APPROVE WITH NITS**, or **REQUEST CHANGES**, followed by one sentence.
 EOF
 
-claude -p "$PROMPT
+claude_text "$PROMPT
 
 <diff>
 $DIFF
-</diff>" --model "$MODEL" --output-format json | jq -r '.result'
+</diff>"
