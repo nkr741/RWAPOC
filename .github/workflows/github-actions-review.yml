@@ -16,11 +16,16 @@ on:
 
 jobs:
   claude:
+    # Trigger phrase AND the author must be a repo owner/member/collaborator — this job has
+    # write permissions, so a drive-by comment on a public repo must not be able to start it.
     if: |
-      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
-      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
-      (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude')) ||
-      (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
+      (
+        (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
+        (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
+        (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude')) ||
+        (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
+      ) && contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'),
+                    github.event.comment.author_association || github.event.review.author_association || github.event.issue.author_association)
     runs-on: ubuntu-latest
     permissions:
       contents: write        # let Claude push fixes to the PR branch when asked

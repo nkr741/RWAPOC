@@ -19,12 +19,14 @@ if [ ! -f "$RESULTS" ]; then
   exit 0
 fi
 
-# Every spec with ok=false, flattened to what Claude needs: file:line, title, project, error.
-FAILURES=$(jq '[.. | objects | select(has("specs")) | .specs[] | select(.ok == false)
-  | {file, line, title,
-     runs: [.tests[] | {project: .projectName, results: [.results[]
-       | select(.status != "passed" and .status != "skipped")
-       | {status, error: (.error.message // ""), retry}]}]}]' "$RESULTS")
+# Every spec with at least one failed/timed-out attempt — including ones that passed on retry
+# (ok=true), otherwise flakes never reach Claude. Every attempt is kept so a fail→pass sequence
+# is visible; error text is only present on the failed ones.
+FAILURES=$(jq '[.. | objects | select(has("specs")) | .specs[]
+  | select([.tests[].results[] | select(.status == "failed" or .status == "timedOut")] | length > 0)
+  | {file, line, title, passed_after_retry: .ok,
+     runs: [.tests[] | {project: .projectName, attempts: [.results[]
+       | {retry, status, error: (.error.message // empty)}]}]}]' "$RESULTS")
 
 COUNT=$(jq 'length' <<<"$FAILURES")
 if [ "$COUNT" -eq 0 ]; then
@@ -47,17 +49,28 @@ For EACH failure, open the spec file and any page object it uses, then write:
 - **Fix:** the concrete change — file, what to edit, and why it resolves the cause. A code
   snippet if it is under ten lines.
 
-Rules: a retry that passed after a failure is FLAKY unless the error is clearly deterministic.
+Rules: `passed_after_retry: true` (a failed attempt followed by a passing one) is FLAKY unless
+the failing attempt's error is clearly deterministic. `passed_after_retry: false` with the same
+error on every attempt is deterministic — never FLAKY.
 Timeouts on navigation with no app error are ENV. Never suggest waitForTimeout or force clicks
 — this repo lints them as errors. Output markdown only, starting with a one-line summary
 `**N failures: X APP_BUG, Y TEST_BUG, Z FLAKY, W ENV**`.
 EOF
 
+# Write via a temp file so a failed Claude call leaves no empty $OUT behind for a later
+# `gh pr comment --body-file` to trip over.
+TMP=$(mktemp)
 claude -p "$PROMPT
 
 <failures>
 $FAILURES
-</failures>" --model "$MODEL" --output-format json | jq -r '.result' > "$OUT"
+</failures>" --model "$MODEL" --output-format json | jq -r '.result' > "$TMP"
+if [ ! -s "$TMP" ]; then
+  echo "::error::Claude returned no analysis."
+  rm -f "$TMP"
+  exit 2
+fi
+mv "$TMP" "$OUT"
 
 {
   echo "## Claude test-failure analysis"

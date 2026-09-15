@@ -93,10 +93,17 @@ jobs:
         run: bash scripts/ci/test-failure-analysis.sh
 
       - name: Post analysis on the PR
-        if: failure() && hashFiles('test-failure-analysis.md') != ''
+        if: failure()
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh pr comment ${{ github.event.pull_request.number }} --body-file test-failure-analysis.md
+        # -s: only when the analysis file exists AND is non-empty (the script never leaves an
+        # empty one behind, but the earlier install/analyse steps can themselves fail).
+        run: |
+          if [ -s test-failure-analysis.md ]; then
+            gh pr comment ${{ github.event.pull_request.number }} --body-file test-failure-analysis.md
+          else
+            echo "No analysis produced — skipping PR comment."
+          fi
 
       - uses: actions/upload-artifact@v5
         if: always()
