@@ -1,0 +1,25 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit",
+        "command": "echo '[Hook] File edited: check for waitForTimeout or force:true anti-patterns'"
+      }
+    ],
+    "PostNotification": [
+      {
+        "matcher": "",
+        "command": "echo '[Hook] Notification received — check test results'"
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Edit",
+      "Write"
+    ]
+  }
+}
