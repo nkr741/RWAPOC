@@ -1,6 +1,6 @@
 # Terminal configuration · Dev containers · Voice dictation
 
-The three "small" pages from the Lesson 5 doc list. Verified against code.claude.com on
+The three "small" pages from the Lesson 7 doc list. Verified against code.claude.com on
 2026-09-21. Each section says what it is, what we built, what ran, and the one-liner to say.
 
 ---
