@@ -4,12 +4,12 @@
 
 One repository, four things:
 
-| Area | What it is | Where |
-|---|---|---|
-| **E2E framework** | Playwright + TypeScript suite against the Cypress Real World App (RWA): POM + fixtures, UI / API / integration / practice tests, cross-browser | `tests/`, `pages/`, `fixtures/`, `utils/` |
-| **Claude-powered CI** | PR review, quality gate, release notes, failure root-cause analysis, GitLab MR review | `.github/workflows/`, `.gitlab-ci.yml`, `scripts/ci/` |
-| **Claude Code configuration** | Settings hierarchy, env vars, proxy/TLS, providers, cost, dev container, policy | `.claude/`, `claude-config/`, `.devcontainer/` |
-| **Training demos** | Self-healing locators, Claude Platform concepts, Python agent loop | `demo-projects/`, `claude-agent/` |
+| Area                          | What it is                                                                                                                                     | Where                                                 |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| **E2E framework**             | Playwright + TypeScript suite against the Cypress Real World App (RWA): POM + fixtures, UI / API / integration / practice tests, cross-browser | `tests/`, `pages/`, `fixtures/`, `utils/`             |
+| **Claude-powered CI**         | PR review, quality gate, release notes, failure root-cause analysis, GitLab MR review                                                          | `.github/workflows/`, `.gitlab-ci.yml`, `scripts/ci/` |
+| **Claude Code configuration** | Settings hierarchy, env vars, proxy/TLS, providers, cost, dev container, policy                                                                | `.claude/`, `claude-config/`, `.devcontainer/`        |
+| **Training demos**            | Self-healing locators, Claude Platform concepts, Python agent loop                                                                             | `demo-projects/`, `claude-agent/`                     |
 
 Requires **Node ≥ 22.5**, and **Python 3.12** for the Claude Code demos.
 
@@ -71,13 +71,13 @@ Every job runs the Claude Code CLI headless (`claude -p --output-format json`) w
 cannot edit in that mode. Shared scripts in `scripts/ci/`; `lib.sh` wraps the CLI so a failed
 call surfaces its real error instead of an empty log.
 
-| What | Trigger | Where |
-|---|---|---|
-| Interactive PR review — comment `@claude …` (repo members only; can push fixes) | comment / review / issue | `.github/workflows/github-actions-review.yml` |
-| Quality gate — **exit 1 on any HIGH finding** | every PR / MR | `scripts/ci/quality-gate.sh` via `quality-gate.yml`, `.gitlab-ci.yml` |
-| Release notes → GitHub Release | push a `v*` tag | `.github/workflows/github-actions-release-notes.yml` |
-| Root-cause analysis of failed specs (APP_BUG / TEST_BUG / FLAKY / ENV) → PR comment | smoke failure; nightly summary | `scripts/ci/test-failure-analysis.sh` from `e2e.yml` |
-| MR review posted as a note | every merge request | `scripts/ci/diff-review.sh` via `.gitlab-ci.yml` |
+| What                                                                                | Trigger                        | Where                                                                 |
+| ----------------------------------------------------------------------------------- | ------------------------------ | --------------------------------------------------------------------- |
+| Interactive PR review — comment `@claude …` (repo members only; can push fixes)     | comment / review / issue       | `.github/workflows/github-actions-review.yml`                         |
+| Quality gate — **exit 1 on any HIGH finding**                                       | every PR / MR                  | `scripts/ci/quality-gate.sh` via `quality-gate.yml`, `.gitlab-ci.yml` |
+| Release notes → GitHub Release                                                      | push a `v*` tag                | `.github/workflows/github-actions-release-notes.yml`                  |
+| Root-cause analysis of failed specs (APP_BUG / TEST_BUG / FLAKY / ENV) → PR comment | smoke failure; nightly summary | `scripts/ci/test-failure-analysis.sh` from `e2e.yml`                  |
+| MR review posted as a note                                                          | every merge request            | `scripts/ci/diff-review.sh` via `.gitlab-ci.yml`                      |
 
 The base pipeline (`e2e.yml`): PR gate = typecheck + lint + API + smoke on Chromium; nightly =
 full suite, 4 shards, all browsers, merged report, Slack/Teams notify.
@@ -116,27 +116,27 @@ Windows managed path: `C:\Program Files\ClaudeCode\managed-settings.json` (macOS
 python -m venv .venv && .venv/Scripts/pip install -r claude-config/requirements.txt
 ```
 
-| Script | Shows |
-|---|---|
-| `show_settings.py` | Every settings file, then the merged result with the winning source per key |
-| `env_audit.py` | 40 documented env vars (auth, model routing, providers, network, flags). `--live`: SDK call proving the key. `--claude`: headless CLI proving `ANTHROPIC_MODEL` routing from `modelUsage` |
-| `proxy_demo.py` + `proxy_addon.py` | mitmproxy as a TLS-inspecting corporate proxy: handshake rejected without the CA, works with `NODE_EXTRA_CA_CERTS`, every host Claude Code contacts logged. `--hosts` for phase 2 only |
-| `cost_report.py` | Spend at list price from `~/.claude/projects/**/*.jsonl` by day / session / model / project; dedups streamed messages, prices cache tokens correctly |
-| `statusline.py` | Status bar: model · context % · $ · cache · plan window · branch. Wire with `"statusLine": {"type":"command","command":"python .../statusline.py"}` |
-| `providers_sdk.py` | Same prompt through `Anthropic()`, `AnthropicBedrockMantle()`, `AnthropicVertex()` — runs whichever has credentials |
-| `hooks/format_on_write.py` | The PostToolUse hook |
-| `managed-settings.example.json`, `keybindings.example.json` | Org policy and key remap examples |
+| Script                                                      | Shows                                                                                                                                                                                     |
+| ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `show_settings.py`                                          | Every settings file, then the merged result with the winning source per key                                                                                                               |
+| `env_audit.py`                                              | 40 documented env vars (auth, model routing, providers, network, flags). `--live`: SDK call proving the key. `--claude`: headless CLI proving `ANTHROPIC_MODEL` routing from `modelUsage` |
+| `proxy_demo.py` + `proxy_addon.py`                          | mitmproxy as a TLS-inspecting corporate proxy: handshake rejected without the CA, works with `NODE_EXTRA_CA_CERTS`, every host Claude Code contacts logged. `--hosts` for phase 2 only    |
+| `cost_report.py`                                            | Spend at list price from `~/.claude/projects/**/*.jsonl` by day / session / model / project; dedups streamed messages, prices cache tokens correctly                                      |
+| `statusline.py`                                             | Status bar: model · context % · $ · cache · plan window · branch. Wire with `"statusLine": {"type":"command","command":"python .../statusline.py"}`                                       |
+| `providers_sdk.py`                                          | Same prompt through `Anthropic()`, `AnthropicBedrockMantle()`, `AnthropicVertex()` — runs whichever has credentials                                                                       |
+| `hooks/format_on_write.py`                                  | The PostToolUse hook                                                                                                                                                                      |
+| `managed-settings.example.json`, `keybindings.example.json` | Org policy and key remap examples                                                                                                                                                         |
 
 ### Environment variables that matter
 
-| Job | Variables |
-|---|---|
-| Auth (first wins) | `ANTHROPIC_API_KEY` → `ANTHROPIC_AUTH_TOKEN` → subscription login. In `-p`/CI the key always wins |
-| Model routing | `ANTHROPIC_MODEL`, `ANTHROPIC_DEFAULT_OPUS_MODEL` / `_SONNET_MODEL` / `_HAIKU_MODEL` (pin these on Bedrock/Vertex) |
-| Providers | `CLAUDE_CODE_USE_BEDROCK=1` + `AWS_REGION` + AWS credential chain · `CLAUDE_CODE_USE_VERTEX=1` + `CLOUD_ML_REGION` + `ANTHROPIC_VERTEX_PROJECT_ID` + gcloud ADC · `CLAUDE_CODE_USE_FOUNDRY=1` · gateway: `ANTHROPIC_BASE_URL` + `ANTHROPIC_AUTH_TOKEN` |
-| Network | `HTTPS_PROXY` / `NO_PROXY` (no SOCKS); `NODE_EXTRA_CA_CERTS` for a corporate CA not in the OS store; `CLAUDE_CODE_CERT_STORE` |
-| Privacy | `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1` (telemetry, error reports, changelog, flags), `DISABLE_TELEMETRY` |
-| Where | Project-wide → `.claude/settings.json` `env`; personal → `~/.claude/settings.json` `env`; org → managed. Shell exports are read once at `claude` startup |
+| Job               | Variables                                                                                                                                                                                                                                              |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Auth (first wins) | `ANTHROPIC_API_KEY` → `ANTHROPIC_AUTH_TOKEN` → subscription login. In `-p`/CI the key always wins                                                                                                                                                      |
+| Model routing     | `ANTHROPIC_MODEL`, `ANTHROPIC_DEFAULT_OPUS_MODEL` / `_SONNET_MODEL` / `_HAIKU_MODEL` (pin these on Bedrock/Vertex)                                                                                                                                     |
+| Providers         | `CLAUDE_CODE_USE_BEDROCK=1` + `AWS_REGION` + AWS credential chain · `CLAUDE_CODE_USE_VERTEX=1` + `CLOUD_ML_REGION` + `ANTHROPIC_VERTEX_PROJECT_ID` + gcloud ADC · `CLAUDE_CODE_USE_FOUNDRY=1` · gateway: `ANTHROPIC_BASE_URL` + `ANTHROPIC_AUTH_TOKEN` |
+| Network           | `HTTPS_PROXY` / `NO_PROXY` (no SOCKS); `NODE_EXTRA_CA_CERTS` for a corporate CA not in the OS store; `CLAUDE_CODE_CERT_STORE`                                                                                                                          |
+| Privacy           | `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1` (telemetry, error reports, changelog, flags), `DISABLE_TELEMETRY`                                                                                                                                         |
+| Where             | Project-wide → `.claude/settings.json` `env`; personal → `~/.claude/settings.json` `env`; org → managed. Shell exports are read once at `claude` startup                                                                                               |
 
 Hosts Claude Code needs through a firewall: `api.anthropic.com`, `claude.ai`, `claude.com`,
 `platform.claude.com`, `mcp-proxy.anthropic.com`, `downloads.claude.ai`, `registry.npmjs.org`,
@@ -209,11 +209,11 @@ python claude-agent/03_agent_loop.py      # think → act → observe → check 
 
 ## 6. Dependencies
 
-| Package | Purpose |
-|---|---|
-| `@playwright/test` | Runner, browsers, assertions |
-| `@faker-js/faker` | Test data |
-| `dotenv` | `.env` loading |
-| `eslint` + `eslint-plugin-playwright` + `typescript-eslint` | Lint, typed rules |
-| `prettier` | Formatting (also run by the Claude Code hook) |
-| `anthropic`, `mitmproxy` (Python) | `claude-config/` demos |
+| Package                                                     | Purpose                                       |
+| ----------------------------------------------------------- | --------------------------------------------- |
+| `@playwright/test`                                          | Runner, browsers, assertions                  |
+| `@faker-js/faker`                                           | Test data                                     |
+| `dotenv`                                                    | `.env` loading                                |
+| `eslint` + `eslint-plugin-playwright` + `typescript-eslint` | Lint, typed rules                             |
+| `prettier`                                                  | Formatting (also run by the Claude Code hook) |
+| `anthropic`, `mitmproxy` (Python)                           | `claude-config/` demos                        |

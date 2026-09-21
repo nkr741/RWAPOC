@@ -1,16 +1,19 @@
 {
   "name": "ryvan-e2e + Claude Code",
-  "build": { "dockerfile": "Dockerfile" },
-
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
   "features": {
-    "ghcr.io/devcontainers/features/node:1": { "version": "22" },
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "22"
+    },
     "ghcr.io/anthropics/devcontainer-features/claude-code:1.0": {}
   },
-
   "remoteUser": "vscode",
-
-  "mounts": ["source=claude-code-config-${devcontainerId},target=/home/vscode/.claude,type=volume"],
-
+  "mounts": [
+    "source=claude-code-config-${devcontainerId},target=/home/vscode/.claude,type=volume",
+    "source=ryvan-e2e-node-modules-${devcontainerId},target=/workspaces/ryvan-e2e/node_modules,type=volume"
+  ],
   "containerEnv": {
     "CLAUDE_CONFIG_DIR": "/home/vscode/.claude",
     "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
@@ -18,14 +21,16 @@
     "BASE_URL": "http://localhost:3000",
     "API_URL": "http://localhost:3001"
   },
-
-  "runArgs": ["--cap-add=NET_ADMIN", "--cap-add=NET_RAW"],
-
-  "postCreateCommand": "npm ci && npx playwright install --with-deps chromium",
+  "runArgs": [
+    "--cap-add=NET_ADMIN",
+    "--cap-add=NET_RAW"
+  ],
+  "postCreateCommand": "sudo chown vscode:vscode node_modules && npm ci && npx playwright install --with-deps chromium",
   "postStartCommand": "sudo /usr/local/bin/ryvan-firewall.sh",
-
-  "forwardPorts": [3000, 3001],
-
+  "forwardPorts": [
+    3000,
+    3001
+  ],
   "customizations": {
     "vscode": {
       "extensions": [
@@ -34,7 +39,9 @@
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode"
       ],
-      "settings": { "terminal.integrated.defaultProfile.linux": "bash" }
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
     }
   }
 }
