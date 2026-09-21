@@ -1,0 +1,17 @@
+{
+  "model": { "id": "claude-opus-5", "display_name": "Opus 5" },
+  "workspace": { "current_dir": "C:/ryvan-e2e", "project_dir": "C:/ryvan-e2e" },
+  "cost": {
+    "total_cost_usd": 1.2345,
+    "total_duration_ms": 450000,
+    "total_lines_added": 156,
+    "total_lines_removed": 23
+  },
+  "context_window": {
+    "context_window_size": 1000000,
+    "used_percentage": 23.5,
+    "remaining_percentage": 76.5
+  },
+  "prompt_cache": { "warm": true, "hit_ratio": 0.91, "requests": 14, "misses": 2, "ttl": "1h" },
+  "rate_limits": { "five_hour": { "used_percentage": 41.2, "resets_at": 1738425600 } }
+}

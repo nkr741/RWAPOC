@@ -1,0 +1,19 @@
+{
+  "$comment": "Container-baked org policy (copied to /etc/claude-code/managed-settings.json by the Dockerfile). Highest precedence inside the container.",
+  "permissions": {
+    "deny": [
+      "Read(**/.env)",
+      "Read(**/.env.*)",
+      "Read(**/*.pem)",
+      "Read(**/id_rsa*)",
+      "Bash(curl * | sh*)",
+      "Bash(git push --force*)"
+    ],
+    "disableBypassPermissionsMode": "disable"
+  },
+  "env": {
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+    "BASH_DEFAULT_TIMEOUT_MS": "300000"
+  },
+  "allowedMcpServers": [{ "serverName": "playwright" }]
+}

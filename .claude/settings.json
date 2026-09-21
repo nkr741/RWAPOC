@@ -1,0 +1,44 @@
+{
+  "$comment": "Shared project settings — committed, applies to everyone who clones. Personal overrides go in settings.local.json (gitignored). Precedence: managed > --settings > local > THIS FILE > ~/.claude/settings.json",
+
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(npm test)",
+      "Bash(npx playwright *)",
+      "Bash(npx tsc *)",
+      "Bash(npx eslint *)",
+      "Bash(npx prettier *)",
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./demo-projects/.env)",
+      "Read(./**/.env)",
+      "Bash(git push --force *)",
+      "Bash(rm -rf *)"
+    ]
+  },
+
+  "env": {
+    "$comment": "Project-scoped env vars — set for every Claude Code session in this folder, on every machine. Playwright runs are long, so raise the Bash tool's default timeout.",
+    "BASH_DEFAULT_TIMEOUT_MS": "300000",
+    "BASH_MAX_OUTPUT_LENGTH": "60000"
+  },
+
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python claude-config/hooks/format_on_write.py"
+          }
+        ]
+      }
+    ]
+  }
+}

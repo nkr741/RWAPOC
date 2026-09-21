@@ -7,7 +7,11 @@ playwright/.auth/
 demo-app/shop.db
 rwa-app/
 rwa-app-ci/
-.claude/
+# Claude Code: keep the shared project settings, ignore everything personal/generated
+# (settings.local.json, installed skills/commands, caches). `.claude/*` rather than
+# `.claude/` so the re-include below can work — git cannot un-ignore inside an ignored dir.
+.claude/*
+!.claude/settings.json
 demo-projects/node_modules/
 demo-projects/test-results/
 demo-projects/playwright-report/
@@ -19,3 +23,6 @@ __pycache__/
 # PromptLens / SDLC observer — local-only setup notes and artifacts
 docs/promptlens-setup.md
 *.whl
+
+# claude-config demo artefacts
+claude-config/proxy_demo.log

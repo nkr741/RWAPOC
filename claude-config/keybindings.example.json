@@ -1,0 +1,13 @@
+{
+  "$comment": "Copy to ~/.claude/keybindings.json. Remaps Claude Code's OWN shortcuts (not the terminal's). Docs: https://code.claude.com/docs/en/keybindings",
+  "bindings": [
+    {
+      "context": "Chat",
+      "bindings": {
+        "ctrl+enter": "chat:submit",
+        "enter": "chat:newline",
+        "meta+k": "voice:pushToTalk"
+      }
+    }
+  ]
+}

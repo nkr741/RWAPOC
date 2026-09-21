@@ -1,2 +1,4 @@
 # CI shell scripts must stay LF — CRLF breaks `#!/usr/bin/env bash` on Linux runners.
 *.sh text eol=lf
+# Dev container files are consumed by Linux/Podman: CRLF breaks Dockerfile line continuations.
+.devcontainer/** text eol=lf
