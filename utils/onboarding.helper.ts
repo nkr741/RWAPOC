@@ -26,28 +26,25 @@ export async function dismissOnboarding(page: Page): Promise<void> {
 }
 
 export async function registerOnboardingHandler(page: Page): Promise<void> {
-  await page.addLocatorHandler(
-    page.getByTestId('user-onboarding-dialog'),
-    async () => {
-      // Step 1: click Next on welcome screen
-      const nextBtn = page.getByTestId('user-onboarding-next');
-      if (await nextBtn.isVisible({ timeout: 1_000 }).catch(() => false)) {
-        await nextBtn.click();
-      }
+  await page.addLocatorHandler(page.getByTestId('user-onboarding-dialog'), async () => {
+    // Step 1: click Next on welcome screen
+    const nextBtn = page.getByTestId('user-onboarding-next');
+    if (await nextBtn.isVisible({ timeout: 1_000 }).catch(() => false)) {
+      await nextBtn.click();
+    }
 
-      // Step 2: fill bank account form if shown
-      const bankName = page.getByTestId('bankaccount-bankName-input').locator('input');
-      if (await bankName.isVisible({ timeout: 1_000 }).catch(() => false)) {
-        await bankName.fill('Test Bank');
-        await page.getByTestId('bankaccount-routingNumber-input').locator('input').fill('123456789');
-        await page.getByTestId('bankaccount-accountNumber-input').locator('input').fill('987654321');
-        await page.getByTestId('bankaccount-submit').click();
-      }
+    // Step 2: fill bank account form if shown
+    const bankName = page.getByTestId('bankaccount-bankName-input').locator('input');
+    if (await bankName.isVisible({ timeout: 1_000 }).catch(() => false)) {
+      await bankName.fill('Test Bank');
+      await page.getByTestId('bankaccount-routingNumber-input').locator('input').fill('123456789');
+      await page.getByTestId('bankaccount-accountNumber-input').locator('input').fill('987654321');
+      await page.getByTestId('bankaccount-submit').click();
+    }
 
-      // Step 3: click Done
-      if (await nextBtn.isVisible({ timeout: 1_000 }).catch(() => false)) {
-        await nextBtn.click();
-      }
-    },
-  );
+    // Step 3: click Done
+    if (await nextBtn.isVisible({ timeout: 1_000 }).catch(() => false)) {
+      await nextBtn.click();
+    }
+  });
 }

@@ -21,16 +21,10 @@
     "BASE_URL": "http://localhost:3000",
     "API_URL": "http://localhost:3001"
   },
-  "runArgs": [
-    "--cap-add=NET_ADMIN",
-    "--cap-add=NET_RAW"
-  ],
+  "runArgs": ["--cap-add=NET_ADMIN", "--cap-add=NET_RAW"],
   "postCreateCommand": "sudo chown vscode:vscode node_modules && npm ci && npx playwright install --with-deps chromium",
   "postStartCommand": "sudo /usr/local/bin/ryvan-firewall.sh",
-  "forwardPorts": [
-    3000,
-    3001
-  ],
+  "forwardPorts": [3000, 3001],
   "customizations": {
     "vscode": {
       "extensions": [

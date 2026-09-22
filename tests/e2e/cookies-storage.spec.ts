@@ -58,7 +58,11 @@ test.describe('Cookies', () => {
     }
   });
 
-  test('should selectively clear cookies by re-adding specific ones', async ({ page, signinPage, sidenav }) => {
+  test('should selectively clear cookies by re-adding specific ones', async ({
+    page,
+    signinPage,
+    sidenav,
+  }) => {
     await ensureLoggedIn(page);
     const cookies = await page.context().cookies();
     const sessionCookie = cookies.find((c) => c.name === 'connect.sid')!;
@@ -183,7 +187,9 @@ test.describe('Session Storage', () => {
 });
 
 test.describe('addInitScript — pre-populate storage', () => {
-  test('should inject localStorage values before page loads via addInitScript', async ({ sharedContext }) => {
+  test('should inject localStorage values before page loads via addInitScript', async ({
+    sharedContext,
+  }) => {
     const tab = await sharedContext.newPage();
     try {
       await tab.addInitScript(() => {
@@ -198,7 +204,9 @@ test.describe('addInitScript — pre-populate storage', () => {
     }
   });
 
-  test('should inject sessionStorage before page loads via addInitScript', async ({ sharedContext }) => {
+  test('should inject sessionStorage before page loads via addInitScript', async ({
+    sharedContext,
+  }) => {
     const tab = await sharedContext.newPage();
     try {
       await tab.addInitScript(() => {

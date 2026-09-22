@@ -6,7 +6,9 @@ export class TransactionPage extends BasePage {
 
   readonly userSearchInput = this.page.getByTestId('user-list-search-input');
   readonly amountInput = this.page.getByTestId('transaction-create-amount-input').locator('input');
-  readonly descriptionInput = this.page.getByTestId('transaction-create-description-input').locator('input');
+  readonly descriptionInput = this.page
+    .getByTestId('transaction-create-description-input')
+    .locator('input');
   readonly payBtn = this.page.getByTestId('transaction-create-submit-payment');
   readonly requestBtn = this.page.getByTestId('transaction-create-submit-request');
   readonly alertSuccess = this.page.getByTestId('alert-bar-success');
@@ -28,7 +30,11 @@ export class TransactionPage extends BasePage {
 
   async selectUser(name: string): Promise<void> {
     await this.userSearchInput.fill(name);
-    await this.page.locator('[data-test*="user-list-item"]').filter({ hasText: name }).first().click();
+    await this.page
+      .locator('[data-test*="user-list-item"]')
+      .filter({ hasText: name })
+      .first()
+      .click();
   }
 
   async pay(amount: string, description: string): Promise<void> {

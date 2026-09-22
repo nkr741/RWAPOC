@@ -1,0 +1,9 @@
+# Python lint/format (the ESLint + Prettier of the sessions). Run:
+#   .venv/Scripts/ruff check . && .venv/Scripts/ruff format --check .
+line-length = 110
+target-version = "py312"
+extend-exclude = [".venv", "rwa-app", "rwa-app-ci", ".scratch", "node_modules", ".agents"]
+
+[lint]
+select = ["E", "F", "W", "I", "B", "UP"]   # pycodestyle, pyflakes, isort, bugbear, pyupgrade
+ignore = ["E501"]                          # long lines: format handles wrapping; prompts/URLs may exceed

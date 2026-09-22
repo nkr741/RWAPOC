@@ -13,13 +13,7 @@
       "Bash(git diff *)",
       "Bash(git log *)"
     ],
-    "deny": [
-      "Read(./.env)",
-      "Read(./demo-projects/.env)",
-      "Read(./**/.env)",
-      "Bash(git push --force *)",
-      "Bash(rm -rf *)"
-    ]
+    "deny": ["Read(./.env)", "Read(./**/.env)", "Bash(git push --force *)", "Bash(rm -rf *)"]
   },
 
   "env": {
@@ -29,13 +23,24 @@
   },
 
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/pre_tool_use.py\""
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Edit|Write",
         "hooks": [
           {
             "type": "command",
-            "command": "python claude-config/hooks/format_on_write.py"
+            "command": "python \"$CLAUDE_PROJECT_DIR/claude-config/hooks/format_on_write.py\""
           }
         ]
       }

@@ -1,6 +1,6 @@
 """Step 2 — one tool call. Claude requests, Python executes, Claude sees the result.
 
-    python 02_tool_call.py
+python 02_tool_call.py
 """
 
 import subprocess
@@ -62,9 +62,7 @@ messages = [
     }
 ]
 
-response = client.messages.create(
-    model=MODEL, max_tokens=1000, tools=tools, messages=messages
-)
+response = client.messages.create(model=MODEL, max_tokens=1000, tools=tools, messages=messages)
 
 print("stop_reason:", response.stop_reason)
 
@@ -84,17 +82,13 @@ if response.stop_reason == "tool_use":
         else:
             result = f"Unknown tool: {block.name}"
 
-        tool_results.append(
-            {"type": "tool_result", "tool_use_id": block.id, "content": result}
-        )
+        tool_results.append({"type": "tool_result", "tool_use_id": block.id, "content": result})
 
     # Assistant turn, then the results — this pair is the required shape.
     messages.append({"role": "assistant", "content": response.content})
     messages.append({"role": "user", "content": tool_results})
 
-    response = client.messages.create(
-        model=MODEL, max_tokens=1000, tools=tools, messages=messages
-    )
+    response = client.messages.create(model=MODEL, max_tokens=1000, tools=tools, messages=messages)
 
 for block in response.content:
     if block.type == "text":

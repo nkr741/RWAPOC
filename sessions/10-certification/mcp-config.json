@@ -1,0 +1,68 @@
+{
+  "_comment": "Curriculum example — mcp-config.json (D2). Three scopes side by side, plus the error-response contract a server should honour. Only the 'project' block is a real .mcp.json shape; the others show where the same entry would live.",
+
+  "project_scope__.mcp.json": {
+    "_where": "<repo>/.mcp.json — committed; every clone gets it after a one-time approval prompt",
+    "_use_for": "servers the whole team needs for THIS repo (test results, the app's API, the browser)",
+    "mcpServers": {
+      "ryvan-results": { "command": ".venv/Scripts/python", "args": ["sessions/05-mcp/server.py"] },
+      "rwa": {
+        "command": ".venv/Scripts/python",
+        "args": ["sessions/05-mcp/rest_api_server.py"],
+        "env": { "API_URL": "${API_URL:-http://localhost:3001}" }
+      }
+    }
+  },
+
+  "user_scope__~/.claude.json": {
+    "_where": "~/.claude.json (global section) — `claude mcp add --scope user …`; yours in every repo",
+    "_use_for": "personal tooling and accounts: GitHub, Slack, notes; never committed",
+    "mcpServers": {
+      "github": { "type": "http", "url": "https://api.githubcopilot.com/mcp/" }
+    }
+  },
+
+  "local_scope__~/.claude.json[project]": {
+    "_where": "~/.claude.json under this project's path — the default for `claude mcp add`; you, this repo only",
+    "_use_for": "experiments and servers with personal tokens for this repo",
+    "mcpServers": {
+      "postgres-readonly": {
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-postgres", "${DATABASE_URL}"]
+      }
+    }
+  },
+
+  "precedence": "local > project > user when names collide; `--mcp-config file --strict-mcp-config` replaces all three for one run; managed settings can deny servers entirely",
+
+  "error_response_design": {
+    "_rule": "A tool result is what the MODEL reads next. Make failures actionable, never silent, never a stack trace.",
+    "good": {
+      "isError": true,
+      "content": [
+        {
+          "type": "text",
+          "text": "POST /transactions -> 500 Internal Server Error. The RWA API is running but rejected the payload; senderId 'uBmeaz5pX' exists, receiverId 'nobody' does not. Call search_users first to get a valid receiver id."
+        }
+      ]
+    },
+    "bad_examples": [
+      { "why": "silent failure", "content": [{ "type": "text", "text": "[]" }] },
+      {
+        "why": "unactionable",
+        "content": [{ "type": "text", "text": "Error executing tool pay_user" }]
+      },
+      {
+        "why": "leaks internals / huge",
+        "content": [
+          {
+            "type": "text",
+            "text": "Traceback (most recent call last): File \"/srv/app/db.py\", line 88 …"
+          }
+        ]
+      }
+    ],
+    "in_python": "raise ToolError('message') in an mcp MCPServer tool; return {'content': [...], 'is_error': True} from an Agent SDK @tool; set is_error=True on a tool_result in the raw API loop",
+    "protocol_level_vs_tool_level": "JSON-RPC error (code -32602 invalid params, -32601 unknown method) = the CALL was malformed; isError:true inside a normal result = the call was fine but the OPERATION failed — the model can retry or change course only in the second case"
+  }
+}

@@ -22,7 +22,11 @@ test.describe('User Settings', () => {
     }
   });
 
-  test('should navigate to settings via sidenav @critical', async ({ page, sidenav, settingsPage }) => {
+  test('should navigate to settings via sidenav @critical', async ({
+    page,
+    sidenav,
+    settingsPage,
+  }) => {
     await sidenav.navigateMyAccount();
     await expect(page).toHaveURL(/\/user\/settings/);
     await expect(settingsPage.form).toBeVisible();

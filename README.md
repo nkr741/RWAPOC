@@ -1,37 +1,35 @@
-# Ryvan E2E — Playwright framework + Claude Code training repo
+# Ryvan E2E — Playwright framework + Claude certification training repo
 
 ![E2E Tests](https://github.com/nkr741/RWAPOC/actions/workflows/e2e.yml/badge.svg)
 
-One repository, four things:
+One repository, three things:
 
-| Area                          | What it is                                                                                                                                     | Where                                                 |
-| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
-| **E2E framework**             | Playwright + TypeScript suite against the Cypress Real World App (RWA): POM + fixtures, UI / API / integration / practice tests, cross-browser | `tests/`, `pages/`, `fixtures/`, `utils/`             |
-| **Claude-powered CI**         | PR review, quality gate, release notes, failure root-cause analysis, GitLab MR review                                                          | `.github/workflows/`, `.gitlab-ci.yml`, `scripts/ci/` |
-| **Claude Code configuration** | Settings hierarchy, env vars, proxy/TLS, providers, cost, dev container, policy                                                                | `.claude/`, `claude-config/`, `.devcontainer/`        |
-| **Training demos**            | Self-healing locators, Claude Platform concepts, Python agent loop                                                                             | `demo-projects/`, `claude-agent/`                     |
+| Area                                                         | What it is                                                                                                                                                                             | Where                                                      |
+| ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| **E2E framework** (system under test for the Claude lessons) | Playwright + TypeScript suite against the Cypress Real World App (RWA): POM + fixtures, UI / API / integration / practice tests, cross-browser                                         | `tests/`, `pages/`, `fixtures/`, `utils/`                  |
+| **Claude-powered CI**                                        | PR review, quality gate, release notes, failure root-cause analysis, GitLab MR review                                                                                                  | `.github/workflows/`, `.gitlab-ci.yml`, `scripts/ci/`      |
+| **Claude certification sessions** (Python)                   | 10 sessions covering the _Claude Certified Architect – Foundations_ syllabus end to end: 46 runnable Python demos, a real MCP server, hooks/skills/agents, RAG, and practice questions | `sessions/`, `.claude/`, `claude-config/`, `claude-agent/` |
 
-Requires **Node ≥ 22.5**, and **Python 3.12** for the Claude Code demos.
+Requires **Node ≥ 22.5** (framework + Claude Code CLI) and **Python 3.12** (sessions).
+Everything Claude-related is Python; the only TypeScript is the Playwright framework itself.
 
 ---
 
 ## 1. Quick start
 
 ```bash
-npm ci
-npx playwright install --with-deps chromium firefox webkit
-cp .env.example .env                 # QA_USER / QA_PASSWORD (RWA default password: s3cret)
-
-# RWA app in a second terminal (ports 3000 / 3001)
+# framework
+npm ci && npx playwright install --with-deps chromium firefox webkit
+cp .env.example .env                 # QA_USER / QA_PASSWORD (RWA default password: s3cret); add VOYAGE_API_KEY for RAG
 git clone --depth 1 https://github.com/cypress-io/cypress-realworld-app.git rwa-app
-cd rwa-app && yarn install && yarn dev
-
+(cd rwa-app && yarn install && yarn dev)          # ports 3000 / 3001, second terminal
 npm test                             # every project: api, setup, chromium, practice, firefox, webkit
-npm run test:e2e                     # UI, Chromium only
-npm run test:api                     # API, no browser
-npm run test:integration             # UI -> API -> DB
-npm run test:smoke                   # @smoke tests
 npm run check                        # typecheck + lint (the CI gate)
+
+# sessions
+python -m venv .venv && .venv/Scripts/pip install -r requirements.txt
+claude --version                     # Claude Code CLI ≥ 2.1 on PATH; export ANTHROPIC_API_KEY
+.venv/Scripts/python sessions/01-getting-started/01_first_session.py
 ```
 
 Config is loaded and validated in `config/env.ts` — it fails fast on a missing variable.
@@ -54,166 +52,109 @@ config/         env.ts
 playwright.config.ts   projects: api, setup, chromium, practice, firefox, webkit; 1 worker; data-test ids
 ```
 
-Conventions enforced by ESLint: no `any`, no `waitForTimeout`, no `{ force: true }`, every test
-asserts, no floating promises. Test-id attribute is **`data-test`**. See `CLAUDE.md` for the
-full conventions Claude Code follows in this repo.
+Conventions enforced by ESLint _and_ by a Claude Code PreToolUse hook: no `any`, no
+`waitForTimeout`, no `{ force: true }`, every test asserts, no floating promises. Test-id
+attribute is **`data-test`**. See `CLAUDE.md` and `.claude/rules/tests.md`.
 
-117 unique tests; 262 runs once the UI projects replay on Firefox and WebKit. Firefox needs the
-RWA app started the CI way (`yarn build && yarn start:ci`) — against the Vite dev server its
-`load` event never fires.
+117 unique tests; 262 runs once the UI projects replay on Firefox and WebKit. Firefox needs
+the RWA app started the CI way (`yarn build && yarn start:ci`) — against the Vite dev server
+its `load` event never fires.
 
 ---
 
 ## 3. Claude-powered CI
 
 Every job runs the Claude Code CLI headless (`claude -p --output-format json`) with
-`ANTHROPIC_API_KEY` from the platform's secret store. Claude reads the repo for context but
-cannot edit in that mode. Shared scripts in `scripts/ci/`; `lib.sh` wraps the CLI so a failed
-call surfaces its real error instead of an empty log.
+`ANTHROPIC_API_KEY` from the platform's secret store; `scripts/ci/lib.sh` wraps the CLI so a
+failed call surfaces its real error.
 
-| What                                                                                | Trigger                        | Where                                                                 |
-| ----------------------------------------------------------------------------------- | ------------------------------ | --------------------------------------------------------------------- |
-| Interactive PR review — comment `@claude …` (repo members only; can push fixes)     | comment / review / issue       | `.github/workflows/github-actions-review.yml`                         |
-| Quality gate — **exit 1 on any HIGH finding**                                       | every PR / MR                  | `scripts/ci/quality-gate.sh` via `quality-gate.yml`, `.gitlab-ci.yml` |
-| Release notes → GitHub Release                                                      | push a `v*` tag                | `.github/workflows/github-actions-release-notes.yml`                  |
-| Root-cause analysis of failed specs (APP_BUG / TEST_BUG / FLAKY / ENV) → PR comment | smoke failure; nightly summary | `scripts/ci/test-failure-analysis.sh` from `e2e.yml`                  |
-| MR review posted as a note                                                          | every merge request            | `scripts/ci/diff-review.sh` via `.gitlab-ci.yml`                      |
+| What                                                                            | Trigger                  | Where                                                                 |
+| ------------------------------------------------------------------------------- | ------------------------ | --------------------------------------------------------------------- |
+| Interactive PR review — comment `@claude …` (repo members only; can push fixes) | comment / review / issue | `.github/workflows/github-actions-review.yml`                         |
+| Quality gate — **exit 1 on any HIGH finding**                                   | every PR / MR            | `scripts/ci/quality-gate.sh` via `quality-gate.yml`, `.gitlab-ci.yml` |
+| Release notes → GitHub Release                                                  | push a `v*` tag          | `.github/workflows/github-actions-release-notes.yml`                  |
+| Root-cause analysis of failed specs (APP_BUG / TEST_BUG / FLAKY / ENV)          | smoke failure; nightly   | `scripts/ci/test-failure-analysis.sh` from `e2e.yml`                  |
+| MR review posted as a note                                                      | every merge request      | `scripts/ci/diff-review.sh` via `.gitlab-ci.yml`                      |
 
-The base pipeline (`e2e.yml`): PR gate = typecheck + lint + API + smoke on Chromium; nightly =
-full suite, 4 shards, all browsers, merged report, Slack/Teams notify.
-
-Secrets: `ANTHROPIC_API_KEY` on both platforms; GitLab also needs `GITLAB_API_TOKEN` (`api`
-scope) to post notes, and its variables must be **unprotected** (MR pipelines run on feature
-branches). GitHub needs the Claude GitHub App installed for the `@claude` job.
+Base pipeline (`e2e.yml`): PR gate = typecheck + lint + API + smoke on Chromium; nightly =
+full suite, 4 shards, all browsers, merged report, Slack/Teams notify. Secrets:
+`ANTHROPIC_API_KEY` on both platforms; GitLab also `GITLAB_API_TOKEN` (`api` scope, unprotected).
 
 ---
 
-## 4. Claude Code configuration
+## 4. Certification sessions (`sessions/`)
 
-### Settings hierarchy
+Target: **Claude Certified Architect – Foundations** (pass 720/1000). Domain weights: D1
+Agentic Architecture & Orchestration 27 % · D2 Tool Design & MCP 18 % · D3 Claude Code Config &
+Workflows 20 % · D4 Prompt Engineering & Structured Output 20 % · D5 Context Management &
+Reliability 15 %.
 
-```
-1. managed-settings.json / MDM / claude.ai console   org       nothing below overrides it
-2. claude --settings <file>                          session
-3. .claude/settings.local.json                       you + project     (gitignored)
-4. .claude/settings.json                             team + project    (committed — this repo)
-5. ~/.claude/settings.json                           you, everywhere
-```
+Each session folder has runnable Python demos (every one executed on this machine) and a
+local `README.md` study page (concept → config → steps → real output → _exam lens_). The
+per-session markdown is deliberately **not tracked in git** — this file is the single
+committed document; regenerate or ask for the notes locally.
 
-Scalars: highest wins. `permissions`: union of every file, deny wins. `env`: per key.
-`ANTHROPIC_MODEL` overrides `model` from any file; `--model` overrides both.
+| #   | Folder                    | Session                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Domains        | Runnables                                                                                                                        |
+| --- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | `01-getting-started/`     | agentic loop, install, auth, interactive vs `-p` (text/json/stream-json), resume, Desktop/IDE, themes, permission modes, status line                                                                                                                                                                                                                                                                                                                                                                                                                                                 | D3             | `01_first_session.py`                                                                                                            |
+| 2   | `02-commands-memory/`     | slash commands, CLAUDE.md hierarchy (root/import/local always; subdir + `.claude/rules` on touch; `--bare` none), context window, permission rules, models/effort/cost, `/rewind`, `/branch` = `--fork-session`                                                                                                                                                                                                                                                                                                                                                                      | D3, D5         | `01_claude_md_hierarchy.py`, `02_branching.py`, `03_models_effort.py`                                                            |
+| 3   | `03-workflows-prompting/` | explore/fix/test/refactor, `/review` `/security-review` `/simplify` ultrareview, plan mode, prompting (clear · specific · XML · examples), git (commit/PR/changelog), debugging; **prompt-eval pipeline**: dataset → run → code grading → model grading                                                                                                                                                                                                                                                                                                                              | D3, D4         | `01_prompt_engineering.py`, `02_git_workflow.py`, `eval/01_generate_dataset.py`, `eval/02_run_eval.py`, `eval/03_grade_model.py` |
+| 4   | `04-ci-cd/`               | map + exam view of §3 above                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | D3, D4         | (existing CI)                                                                                                                    |
+| 5   | `05-mcp/`                 | **MCP server** (tools, resources + templates, prompts, logging, progress, **sampling**, roots; stdio + Streamable HTTP), **client** (in-process / stdio / HTTP, callbacks), Inspector, **custom REST-API server** over the live RWA backend, MCP inside the Agent SDK, configs for Postgres/SQLite/GitHub/Slack/browser, scopes, security                                                                                                                                                                                                                                            | D2             | `server.py`, `client.py`, `rest_api_server.py`, `agent_sdk_mcp.py`, `configs/`                                                   |
+| 6   | `06-hooks-skills-agents/` | **PreToolUse** guard hook + PostToolUse formatter (proven headless), hook gotchas, skills vs commands vs agents, multi-file skill `ci-triage`, `/loop` `/schedule` routines, subagents (parallel Haiku workers under a Sonnet coordinator), remote control / teleport                                                                                                                                                                                                                                                                                                                | D3, D1, D5     | `01_hooks_demo.py`, `02_subagents_demo.py` + `.claude/hooks`, `.claude/skills`, `.claude/commands`, `.claude/agents`             |
+| 7   | `07-advanced-config/`     | map + exam view of `claude-config/` (settings hierarchy, env vars, proxy/TLS, Bedrock/Vertex/Foundry/gateway, cost, dev container, managed policy)                                                                                                                                                                                                                                                                                                                                                                                                                                   | D3, D5         | (existing)                                                                                                                       |
+| 8   | `08-agent-sdk/`           | **Agent SDK**: `query()` + message types, `StreamEvent` + `ClaudeSDKClient`, structured output + jsonschema + retry + conflict check, `@tool` + `can_use_tool` gate, in-process hooks, secure deployment (least privilege, budgets, semaphore, logs). **Claude API**: multi-turn, streaming events, `parse()`/json_schema/strict tools, manual tool loop + `tool_choice` + tool runner, text-editor + web-search tools, adaptive thinking/effort, images, PDF + citations, prompt caching (proven 11 632 write → read), code execution + Files API                                   | D1, D2, D4, D5 | `sdk/01`–`06`, `api/01`–`10`                                                                                                     |
+| 9   | `09-enterprise-patterns/` | org CLAUDE.md template + path rules, agent teams, GHES/Slack/analytics/ZDR/audit/sandboxing, prompt-injection defence (judged), morning briefing, **workflows** (chaining with gates, parallel reviews, routing with a human queue, environment inspection), **RAG** (chunking strategies, Voyage embeddings, BM25 from scratch, grounded flow with citations, multi-index RRF + rerank)                                                                                                                                                                                             | D1, D5, D3     | `01_morning_briefing.py`, `02_prompt_injection_defense.py`, `workflows/01`–`04`, `rag/01`–`05`                                   |
+| 10  | `10-certification/`       | study guide by domain; curriculum examples **`agentic_loop.py`** (every stop_reason, HITL gate), **`coordinator_subagent.py`** (plan → parallel workers → verify citations → synthesise), **`structured_output.py`** (shape-only schema + Pydantic + retry + two-run conflict detection), **`ci-review.yml`** (`--json-schema` gate), **`mcp-config.json`** (scopes + error-response design), `context_management.py` (count, context editing, compaction, summarise-restart, threshold gate); **`exercises/05-exam-scenarios.md`** — 6 scenarios × D1–D5 + rapid-fire, with answers | all            | 4 scripts + 2 configs                                                                                                            |
+| —   | `python-concepts/`        | every Python concept the project uses, from scratch (venv, imports, strings, collections, typing, control flow, exceptions, classes/Pydantic, decorators, context managers, generators, pathlib, JSON, subprocess, env, asyncio, stdlib misc, the four SDKs)                                                                                                                                                                                                                                                                                                                         | —              | 21 pages                                                                                                                         |
 
-**`.claude/settings.json`** (committed) denies reading `.env` files, force-push and `rm -rf`,
-raises the Bash timeout for Playwright runs, and runs Prettier after every Edit/Write via
-`claude-config/hooks/format_on_write.py`. Personal approvals stay in `settings.local.json`.
+Shared plumbing: `sessions/_env.py` loads `.env`, fixes Windows console encoding, locates
+git-bash for the Agent SDK, and exposes `ROOT`, `MODEL` (`ANTHROPIC_MODEL` or
+`claude-opus-5`) and `CHEAP` (`claude-haiku-4-5`).
 
-Windows managed path: `C:\Program Files\ClaudeCode\managed-settings.json` (macOS
-`/Library/Application Support/ClaudeCode/`, Linux `/etc/claude-code/`).
+### Claude Code project assets (committed, used by the sessions)
 
-### `claude-config/` — runnable demos (Python)
+| Path                    | What                                                                                                                                                                                                                                         |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CLAUDE.md`             | project memory; `.claude/rules/tests.md` adds path-scoped rules for `tests/**`, `pages/**`, `fixtures/**`                                                                                                                                    |
+| `.claude/settings.json` | team permissions (deny `.env`, force-push, `rm -rf`), env, **hooks**: `PreToolUse` → `.claude/hooks/pre_tool_use.py` (blocks dangerous commands and test anti-patterns), `PostToolUse` → `claude-config/hooks/format_on_write.py` (Prettier) |
+| `.claude/skills/`       | `ci-triage` (multi-file: SKILL.md + reference.md + scripts/summarize.py), `bug-analyzer`, `locator-auditor`, `self-healer`, `test-generator`, `test-reviewer`                                                                                |
+| `.claude/commands/`     | `/heal`, `/generate-tests`, `/audit-locators`                                                                                                                                                                                                |
+| `.claude/agents/`       | `test-healer` (sonnet, edits), `results-analyst` (haiku, read-only, MCP tools)                                                                                                                                                               |
+| `.mcp.json`             | project-scoped MCP servers: `playwright` (browser) and `ryvan-results` (`sessions/05-mcp/server.py`)                                                                                                                                         |
 
-```bash
-python -m venv .venv && .venv/Scripts/pip install -r claude-config/requirements.txt
-```
+### `claude-config/` — advanced configuration demos (Lesson 7)
 
-| Script                                                      | Shows                                                                                                                                                                                     |
-| ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `show_settings.py`                                          | Every settings file, then the merged result with the winning source per key                                                                                                               |
-| `env_audit.py`                                              | 40 documented env vars (auth, model routing, providers, network, flags). `--live`: SDK call proving the key. `--claude`: headless CLI proving `ANTHROPIC_MODEL` routing from `modelUsage` |
-| `proxy_demo.py` + `proxy_addon.py`                          | mitmproxy as a TLS-inspecting corporate proxy: handshake rejected without the CA, works with `NODE_EXTRA_CA_CERTS`, every host Claude Code contacts logged. `--hosts` for phase 2 only    |
-| `cost_report.py`                                            | Spend at list price from `~/.claude/projects/**/*.jsonl` by day / session / model / project; dedups streamed messages, prices cache tokens correctly                                      |
-| `statusline.py`                                             | Status bar: model · context % · $ · cache · plan window · branch. Wire with `"statusLine": {"type":"command","command":"python .../statusline.py"}`                                       |
-| `providers_sdk.py`                                          | Same prompt through `Anthropic()`, `AnthropicBedrockMantle()`, `AnthropicVertex()` — runs whichever has credentials                                                                       |
-| `hooks/format_on_write.py`                                  | The PostToolUse hook                                                                                                                                                                      |
-| `managed-settings.example.json`, `keybindings.example.json` | Org policy and key remap examples                                                                                                                                                         |
+`show_settings.py` (merged settings with winning source), `env_audit.py` (40 env vars,
+`--live`, `--claude`), `proxy_demo.py` + `proxy_addon.py` (mitmproxy TLS inspection),
+`cost_report.py`, `statusline.py`, `providers_sdk.py` (Anthropic / Bedrock / Vertex clients),
+`hooks/format_on_write.py`, `managed-settings.example.json`, `keybindings.example.json`.
+Settings hierarchy: managed > `--settings` > `.claude/settings.local.json` > `.claude/settings.json`
 
-### Environment variables that matter
+> `~/.claude/settings.json`; `permissions` merge with deny winning; `ANTHROPIC_MODEL` beats
+> `model`, `--model` beats both. Windows managed path `C:\Program Files\ClaudeCode\managed-settings.json`.
 
-| Job               | Variables                                                                                                                                                                                                                                              |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Auth (first wins) | `ANTHROPIC_API_KEY` → `ANTHROPIC_AUTH_TOKEN` → subscription login. In `-p`/CI the key always wins                                                                                                                                                      |
-| Model routing     | `ANTHROPIC_MODEL`, `ANTHROPIC_DEFAULT_OPUS_MODEL` / `_SONNET_MODEL` / `_HAIKU_MODEL` (pin these on Bedrock/Vertex)                                                                                                                                     |
-| Providers         | `CLAUDE_CODE_USE_BEDROCK=1` + `AWS_REGION` + AWS credential chain · `CLAUDE_CODE_USE_VERTEX=1` + `CLOUD_ML_REGION` + `ANTHROPIC_VERTEX_PROJECT_ID` + gcloud ADC · `CLAUDE_CODE_USE_FOUNDRY=1` · gateway: `ANTHROPIC_BASE_URL` + `ANTHROPIC_AUTH_TOKEN` |
-| Network           | `HTTPS_PROXY` / `NO_PROXY` (no SOCKS); `NODE_EXTRA_CA_CERTS` for a corporate CA not in the OS store; `CLAUDE_CODE_CERT_STORE`                                                                                                                          |
-| Privacy           | `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1` (telemetry, error reports, changelog, flags), `DISABLE_TELEMETRY`                                                                                                                                         |
-| Where             | Project-wide → `.claude/settings.json` `env`; personal → `~/.claude/settings.json` `env`; org → managed. Shell exports are read once at `claude` startup                                                                                               |
+### `claude-agent/` — the raw agent loop (Lesson: tool use)
 
-Hosts Claude Code needs through a firewall: `api.anthropic.com`, `claude.ai`, `claude.com`,
-`platform.claude.com`, `mcp-proxy.anthropic.com`, `downloads.claude.ai`, `registry.npmjs.org`,
-plus the two Datadog intake hosts unless telemetry is disabled.
+`01_basic_claude.py` (one call) → `02_tool_call.py` (Claude asks for a tool) →
+`03_agent_loop.py` (think → act → observe → check, fixing a deliberately indirect bug in `demo/`).
 
-### Cost
+### `.devcontainer/` — runs on Docker or Podman
 
-`/usage` in a session (cost, per-model tokens, cache hit rate, plan bars); `claude -p … --output-format json`
-returns `total_cost_usd`; `--max-budget-usd` hard-stops a headless run; `cost_report.py` aggregates
-history. Cost is dominated by context (system prompt + tool schemas on every call) — prompt caching
-makes repeat calls ~10× cheaper until a session idles past the TTL (1 h subscription, 5 min API key).
-
-### Dev container (`.devcontainer/`) — runs on Docker or Podman
-
-Claude Code installed by the official feature, `CLAUDE_CONFIG_DIR` on a named volume so login
-survives rebuilds, `containerEnv` for team-wide variables, `managed-settings.json` baked into
-`/etc/claude-code/` (top of the hierarchy inside the container), and `ryvan-firewall.sh` — default-deny
-egress from the host list above. Verified: `example.com` and telemetry blocked, API reachable, and
-Claude inside the container refused a `*.pem` read by a rule that exists only in the managed file.
-
-```powershell
-npx @devcontainers/cli up   --workspace-folder . --docker-path podman     # or omit --docker-path for Docker
-npx @devcontainers/cli exec --workspace-folder . --docker-path podman claude --version
-```
-
-Gotchas: the base image's user is `vscode` (not `node`); the Claude Code feature installs its own
-`/usr/local/bin/init-firewall.sh`, so ours has a different name; on Podman 6 + WSL, netavark's nftables
-rules are rejected by the Microsoft kernel — set `firewall_driver = "none"` in the machine's
-`containers.conf.d` and add one `masquerade` rule for `10.88.0.0/16`. `--dangerously-skip-permissions`
-inside the container can still exfiltrate `~/.claude` credentials: trusted repos only, never mount `~/.ssh`.
-
-### Terminal & voice
-
-`/terminal-setup` (Shift+Enter in VS Code), `"preferredNotifChannel": "terminal_bell"`,
-`~/.claude/keybindings.json` (`chat:submit`, `chat:newline`, `voice:pushToTalk`), `/theme`, `"editorMode": "vim"`.
-Voice dictation (`/voice`) streams audio to Anthropic, needs a claude.ai login and a local microphone —
-unavailable on API-key auth, Bedrock/Vertex, SSH, and dev containers; org admins can disable it.
+Claude Code via the official feature, `CLAUDE_CONFIG_DIR` on a named volume, team
+`containerEnv`, `managed-settings.json` baked into `/etc/claude-code/`, `ryvan-firewall.sh`
+default-deny egress. `npx @devcontainers/cli up --workspace-folder . [--docker-path podman]`.
 
 ---
 
-## 5. Training demos
+## 5. Dependencies
 
-### `demo-projects/` — self-healing locators and Claude Platform
+| Package                                                                                                | Purpose                                                    |
+| ------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------- |
+| `@playwright/test`, `@faker-js/faker`, `dotenv`                                                        | test runner, data, `.env` (TypeScript framework)           |
+| `eslint` + `eslint-plugin-playwright` + `typescript-eslint`, `prettier`                                | lint/format (Prettier is also run by the PostToolUse hook) |
+| `anthropic` 1.x, `claude-agent-sdk`, `mcp[cli]` 2.x, `pydantic`, `jsonschema`, `voyageai`, `mitmproxy` | Python sessions — `requirements.txt`                       |
 
-Standalone sub-project (own `package.json`, `playwright.config.ts`, demo app on port 4200,
-login `demo` / `password123`).
-
-```bash
-cd demo-projects && npm ci && npx playwright install chromium
-npm run demo:serve               # http://localhost:4200
-npm run test:without-ai          # 7 specs: fallback locators, attribute cascade, text/role, structural, CSS+XPath, resolver class, fingerprinting
-npm run test:with-ai             # 5 specs: DOM-diff repair, screenshot repair, semantic locator, test auto-fix, page-object regeneration (needs ANTHROPIC_API_KEY)
-npm run demo:platform            # claude-platform/00–20: agent loop, tool use, thinking, MCP, skills, model choice, context, delegation, prompting, evals (score- and model-based), temperature
-```
-
-`demo-projects/.claude/` holds the Claude Code files those sessions teach: skills (bug-analyzer,
-locator-auditor, self-healer, test-generator, test-reviewer), commands (`/audit-locators`,
-`/generate-tests`, `/heal`), a `test-healer` agent, and a settings file with an anti-pattern hook.
-
-### `claude-agent/` — the agent loop in Python
-
-```bash
-pip install anthropic && set ANTHROPIC_API_KEY=...
-python claude-agent/01_basic_claude.py    # one call
-python claude-agent/02_tool_call.py       # Claude asks for a tool, you run it
-python claude-agent/03_agent_loop.py      # think → act → observe → check → repeat, fixing a deliberately indirect bug in demo/
-```
-
----
-
-## 6. Dependencies
-
-| Package                                                     | Purpose                                       |
-| ----------------------------------------------------------- | --------------------------------------------- |
-| `@playwright/test`                                          | Runner, browsers, assertions                  |
-| `@faker-js/faker`                                           | Test data                                     |
-| `dotenv`                                                    | `.env` loading                                |
-| `eslint` + `eslint-plugin-playwright` + `typescript-eslint` | Lint, typed rules                             |
-| `prettier`                                                  | Formatting (also run by the Claude Code hook) |
-| `anthropic`, `mitmproxy` (Python)                           | `claude-config/` demos                        |
+Environment variables: `ANTHROPIC_API_KEY` (shell / CI secret store), optional
+`ANTHROPIC_MODEL`; in `.env`: `BASE_URL`, `API_URL`, `QA_USER`, `QA_PASSWORD`, `VOYAGE_API_KEY`
+(RAG demos; free tier is 3 RPM / 10K TPM, the demos cache embeddings and back off).

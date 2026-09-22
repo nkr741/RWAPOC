@@ -1,0 +1,53 @@
+{
+  "_comment": "Reference .mcp.json entries. Copy what you need into .mcp.json (project) or add with `claude mcp add`. ${VAR} expands from the environment — never paste secrets here.",
+  "mcpServers": {
+    "ryvan-results": {
+      "_comment": "This repo's own server (sessions/05-mcp/server.py) over stdio.",
+      "command": "python",
+      "args": ["sessions/05-mcp/server.py"]
+    },
+    "ryvan-results-http": {
+      "_comment": "Same server over Streamable HTTP; start it with `python sessions/05-mcp/server.py --http`. Remote servers use this shape plus headers for auth.",
+      "type": "http",
+      "url": "http://127.0.0.1:8765/mcp",
+      "headers": { "Authorization": "Bearer ${RYVAN_MCP_TOKEN}" }
+    },
+    "rwa": {
+      "_comment": "Custom REST-API wrapper (sessions/05-mcp/rest_api_server.py). Credentials via env, not args.",
+      "command": "python",
+      "args": ["sessions/05-mcp/rest_api_server.py"],
+      "env": { "API_URL": "http://localhost:3001" }
+    },
+    "postgres": {
+      "_comment": "Read-only Postgres. Use a DB role that has SELECT only; the URL comes from the environment.",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-postgres", "${DATABASE_URL}"]
+    },
+    "sqlite": {
+      "_comment": "Local SQLite file. Point it at a copy, not the production file.",
+      "command": "uvx",
+      "args": ["mcp-server-sqlite", "--db-path", "./data/app.db"]
+    },
+    "github": {
+      "_comment": "GitHub's official remote server. OAuth on first use; or a fine-grained PAT with only the repos/scopes needed.",
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/"
+    },
+    "slack": {
+      "_comment": "Slack via a bot token scoped to the channels it needs (channels:history, chat:write).",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-slack"],
+      "env": { "SLACK_BOT_TOKEN": "${SLACK_BOT_TOKEN}", "SLACK_TEAM_ID": "${SLACK_TEAM_ID}" }
+    },
+    "playwright": {
+      "_comment": "Browser automation (the root .mcp.json already has this). --caps vision adds screenshots.",
+      "command": "npx",
+      "args": ["@playwright/mcp", "--caps", "vision"]
+    },
+    "filesystem": {
+      "_comment": "Filesystem access restricted to listed roots — the roots ARE the security boundary.",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "./docs", "./sessions"]
+    }
+  }
+}

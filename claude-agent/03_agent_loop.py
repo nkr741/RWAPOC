@@ -1,6 +1,6 @@
 """Step 3 — the loop. Claude keeps going until it no longer needs a tool.
 
-    python 03_agent_loop.py
+python 03_agent_loop.py
 """
 
 import subprocess
@@ -105,9 +105,7 @@ def execute_tools(response):
         print(f"  -> {block.name}({args})")
         func = TOOL_FUNCS.get(block.name)
         output = func(block.input) if func else f"Unknown tool: {block.name}"
-        results.append(
-            {"type": "tool_result", "tool_use_id": block.id, "content": output}
-        )
+        results.append({"type": "tool_result", "tool_use_id": block.id, "content": output})
     return results
 
 
@@ -122,9 +120,7 @@ def main():
     for attempt in range(MAX_ITERATIONS):
         print(f"\n--- iteration {attempt + 1} ---")
 
-        response = client.messages.create(
-            model=MODEL, max_tokens=2000, tools=tools, messages=messages
-        )
+        response = client.messages.create(model=MODEL, max_tokens=2000, tools=tools, messages=messages)
 
         # No tool requested = Claude is done. This is the exit condition.
         if response.stop_reason != "tool_use":

@@ -21,7 +21,11 @@ test.describe('Multiple Tabs & Windows', () => {
     }
   });
 
-  test('should maintain independent navigation across tabs', async ({ page, sharedContext, sidenav }) => {
+  test('should maintain independent navigation across tabs', async ({
+    page,
+    sharedContext,
+    sidenav,
+  }) => {
     await page.goto('/');
     const secondTab = await sharedContext.newPage();
     try {
@@ -40,7 +44,12 @@ test.describe('Multiple Tabs & Windows', () => {
     }
   });
 
-  test('should reflect data changes across tabs after refresh', async ({ sharedContext, db, topnav, transactionPage }) => {
+  test('should reflect data changes across tabs after refresh', async ({
+    sharedContext,
+    db,
+    topnav,
+    transactionPage,
+  }) => {
     const users = db.users();
     const recipient = users.find((u) => u.username !== ENV.user.username)!;
 

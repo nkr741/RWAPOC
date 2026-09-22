@@ -1,0 +1,96 @@
+{
+  "config": { "version": "1.50.0", "workers": 1, "projects": ["api", "chromium", "firefox"] },
+  "suites": [
+    {
+      "title": "tests/e2e/bank-accounts.spec.ts",
+      "specs": [
+        {
+          "title": "should create a bank account",
+          "file": "tests/e2e/bank-accounts.spec.ts",
+          "line": 14,
+          "ok": true,
+          "tests": [
+            {
+              "projectName": "chromium",
+              "results": [{ "retry": 0, "status": "passed", "duration": 2310 }]
+            }
+          ]
+        },
+        {
+          "title": "should reject a routing number shorter than 9 digits",
+          "file": "tests/e2e/bank-accounts.spec.ts",
+          "line": 41,
+          "ok": false,
+          "tests": [
+            {
+              "projectName": "chromium",
+              "results": [
+                {
+                  "retry": 0,
+                  "status": "failed",
+                  "duration": 30012,
+                  "error": {
+                    "message": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByText('Must contain a valid routing number')\nExpected: visible\nTimeout: 15000ms\n\nCall log:\n  - waiting for getByText('Must contain a valid routing number')\n\n    at tests/e2e/bank-accounts.spec.ts:52:60"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "tests/e2e/notifications.spec.ts",
+      "specs": [
+        {
+          "title": "should mark a notification as read",
+          "file": "tests/e2e/notifications.spec.ts",
+          "line": 22,
+          "ok": true,
+          "tests": [
+            {
+              "projectName": "firefox",
+              "results": [
+                {
+                  "retry": 0,
+                  "status": "failed",
+                  "duration": 15340,
+                  "error": {
+                    "message": "TimeoutError: page.waitForResponse: Timeout 15000ms exceeded while waiting for **/notifications"
+                  }
+                },
+                { "retry": 1, "status": "passed", "duration": 1210 }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "tests/api/transactions.api.spec.ts",
+      "specs": [
+        {
+          "title": "should create a payment",
+          "file": "tests/api/transactions.api.spec.ts",
+          "line": 23,
+          "ok": false,
+          "tests": [
+            {
+              "projectName": "api",
+              "results": [
+                {
+                  "retry": 0,
+                  "status": "failed",
+                  "duration": 88,
+                  "error": {
+                    "message": "ApiError: POST /transactions -> 500 Internal Server Error\n    at ApiClient.post (utils/api.client.ts:54:11)"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

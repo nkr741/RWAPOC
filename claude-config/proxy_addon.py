@@ -15,7 +15,10 @@ from mitmproxy import http, tls
 def response(flow: http.HTTPFlow) -> None:
     req, res = flow.request, flow.response
     size = len(res.raw_content or b"")
-    print(f"[proxy] {req.method:4} {req.pretty_host:34} {req.path[:48]:48} -> {res.status_code} {size:>7}B", flush=True)
+    print(
+        f"[proxy] {req.method:4} {req.pretty_host:34} {req.path[:48]:48} -> {res.status_code} {size:>7}B",
+        flush=True,
+    )
 
 
 def tls_failed_client(data: tls.TlsData) -> None:

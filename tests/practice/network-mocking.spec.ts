@@ -19,9 +19,7 @@ test.describe('Network Interception & Mocking', () => {
     expect(count).toBeGreaterThan(0);
 
     for (let i = 0; i < count; i++) {
-      const naturalWidth = await images
-        .nth(i)
-        .evaluate((el: HTMLImageElement) => el.naturalWidth);
+      const naturalWidth = await images.nth(i).evaluate((el: HTMLImageElement) => el.naturalWidth);
       expect(naturalWidth).toBe(0);
     }
   });
@@ -72,9 +70,7 @@ test.describe('Network Interception & Mocking', () => {
       await route.fulfill({ response, body: JSON.stringify(json) });
     });
 
-    const response = await page.goto(
-      'https://jsonplaceholder.typicode.com/todos/1',
-    );
+    const response = await page.goto('https://jsonplaceholder.typicode.com/todos/1');
     const body = (await response!.json()) as { title: string; userId: number };
     expect(body.title).toBe('INTERCEPTED BY PLAYWRIGHT');
     expect(body.userId).toBe(1);

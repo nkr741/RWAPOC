@@ -58,7 +58,10 @@ test.describe('Dialogs, Alerts & Pop-ups', () => {
     expect(result).toBeNull();
   });
 
-  test('should auto-dismiss onboarding overlay via addLocatorHandler', async ({ homePage, sidenav }) => {
+  test('should auto-dismiss onboarding overlay via addLocatorHandler', async ({
+    homePage,
+    sidenav,
+  }) => {
     await homePage.page.goto('/');
     await sidenav.userFullName.waitFor({ timeout: 10_000 });
     await expect(homePage.onboardingDialog).toBeHidden();

@@ -28,7 +28,7 @@ import json
 import os
 import sys
 from collections import defaultdict
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 # USD per million tokens: (input, output). Cache write = 1.25 x input, cache read = 0.10 x input.
@@ -107,7 +107,7 @@ def iter_messages(root: Path, since: datetime, project_filter: str | None):
 
 
 def fmt_tokens(n: int) -> str:
-    return f"{n/1000:.1f}k" if n >= 1000 else str(n)
+    return f"{n / 1000:.1f}k" if n >= 1000 else str(n)
 
 
 def main() -> int:
@@ -122,7 +122,7 @@ def main() -> int:
     if not root.exists():
         print(f"No transcripts at {root}")
         return 1
-    since = datetime.now(timezone.utc) - timedelta(days=args.days)
+    since = datetime.now(UTC) - timedelta(days=args.days)
 
     totals = defaultdict(lambda: {"cost": 0.0, "msgs": 0, "in": 0, "out": 0, "cw": 0, "cr": 0})
     by_model = defaultdict(float)
@@ -150,17 +150,25 @@ def main() -> int:
         grand += c
 
     if not totals:
-        print(f"No assistant messages in the last {args.days} days" + (f" for project '{args.project}'" if args.project else ""))
+        print(
+            f"No assistant messages in the last {args.days} days"
+            + (f" for project '{args.project}'" if args.project else "")
+        )
         return 0
 
-    print(f"Claude Code spend at API list price - last {args.days} days"
-          + (f", project ~ '{args.project}'" if args.project else ", all projects") + f"\nSource: {root}\n")
+    print(
+        f"Claude Code spend at API list price - last {args.days} days"
+        + (f", project ~ '{args.project}'" if args.project else ", all projects")
+        + f"\nSource: {root}\n"
+    )
     print(f"{args.by:38} {'cost $':>8} {'msgs':>6} {'input':>8} {'output':>8} {'cache w':>9} {'cache r':>9}")
     print("-" * 92)
     rows = sorted(totals.items(), key=lambda kv: kv[0] if args.by == "day" else -kv[1]["cost"])
     for key, t in rows[: args.top if args.by != "day" else None]:
-        print(f"{key:38} {t['cost']:8.2f} {t['msgs']:6d} {fmt_tokens(t['in']):>8} {fmt_tokens(t['out']):>8} "
-              f"{fmt_tokens(t['cw']):>9} {fmt_tokens(t['cr']):>9}")
+        print(
+            f"{key:38} {t['cost']:8.2f} {t['msgs']:6d} {fmt_tokens(t['in']):>8} {fmt_tokens(t['out']):>8} "
+            f"{fmt_tokens(t['cw']):>9} {fmt_tokens(t['cr']):>9}"
+        )
     print("-" * 92)
     print(f"{'TOTAL':38} {grand:8.2f}")
 
@@ -174,10 +182,14 @@ def main() -> int:
     cw = sum(t["cw"] for t in totals.values())
     cr = sum(t["cr"] for t in totals.values())
     if cw + cr:
-        print(f"\nCache: {fmt_tokens(cr)} read vs {fmt_tokens(cw)} written - "
-              f"{100*cr/(cw+cr):.0f}% of cached tokens were reads (the cheap kind). "
-              "A low % means sessions idle past the cache TTL and re-pay for context.")
-    print("\nCompare: /usage inside Claude Code (this session), platform.claude.com/usage (authoritative bill).")
+        print(
+            f"\nCache: {fmt_tokens(cr)} read vs {fmt_tokens(cw)} written - "
+            f"{100 * cr / (cw + cr):.0f}% of cached tokens were reads (the cheap kind). "
+            "A low % means sessions idle past the cache TTL and re-pay for context."
+        )
+    print(
+        "\nCompare: /usage inside Claude Code (this session), platform.claude.com/usage (authoritative bill)."
+    )
     return 0
 
 

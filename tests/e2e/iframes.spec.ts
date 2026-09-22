@@ -42,7 +42,9 @@ test.describe('Iframes & Frames', () => {
     await page.route('**/test-named-parent', (r) =>
       r.fulfill({
         contentType: 'text/html',
-        body: wrap(`<iframe name="my-frame" src="/test-named-child" style="width:300px;height:200px"></iframe>`),
+        body: wrap(
+          `<iframe name="my-frame" src="/test-named-child" style="width:300px;height:200px"></iframe>`,
+        ),
       }),
     );
     await page.route('**/test-named-child', (r) =>
@@ -62,7 +64,9 @@ test.describe('Iframes & Frames', () => {
     await page.route('**/test-byurl-parent', (r) =>
       r.fulfill({
         contentType: 'text/html',
-        body: wrap(`<iframe src="/test-byurl-child-unique" style="width:300px;height:200px"></iframe>`),
+        body: wrap(
+          `<iframe src="/test-byurl-child-unique" style="width:300px;height:200px"></iframe>`,
+        ),
       }),
     );
     await page.route('**/test-byurl-child-unique', (r) =>

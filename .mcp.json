@@ -3,6 +3,10 @@
     "playwright": {
       "command": "npx",
       "args": ["@playwright/mcp", "--caps", "vision"]
+    },
+    "ryvan-results": {
+      "command": ".venv/Scripts/python",
+      "args": ["sessions/05-mcp/server.py"]
     }
   }
 }

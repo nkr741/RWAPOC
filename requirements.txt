@@ -1,0 +1,10 @@
+# Python deps for sessions/, claude-agent/ and claude-config/ (Python 3.12, one venv for all)
+#   python -m venv .venv && .venv/Scripts/pip install -r requirements.txt
+anthropic>=1.6            # Claude API client (Session 8)
+claude-agent-sdk>=0.2.157 # Claude Code as a library (Sessions 5, 6, 8, 10); needs the `claude` CLI installed
+mcp[cli]>=2.2             # MCP servers/clients (Session 5)
+pydantic>=2.11            # structured output models
+jsonschema>=4.23          # schema validation of agent output
+voyageai>=0.5             # embeddings + reranker for RAG (Session 9); needs VOYAGE_API_KEY
+mitmproxy>=11             # TLS-inspecting proxy demo (Session 7 / claude-config)
+ruff>=0.14                # Python lint + format: `ruff check . && ruff format --check .` (config in ruff.toml)

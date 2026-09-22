@@ -44,7 +44,9 @@ def start_proxy(log: Path) -> subprocess.Popen:
     fh = log.open("w", encoding="utf-8")
     p = subprocess.Popen(
         [str(MITMDUMP), "-p", str(PORT), "-q", "-s", str(HERE / "proxy_addon.py")],
-        stdout=fh, stderr=subprocess.STDOUT, text=True,
+        stdout=fh,
+        stderr=subprocess.STDOUT,
+        text=True,
     )
     for _ in range(60):  # first start generates the CA; wait for it
         if CA.exists() and p.poll() is None:
@@ -58,12 +60,20 @@ def start_proxy(log: Path) -> subprocess.Popen:
 def run_claude(extra_env: dict[str, str], timeout: int) -> tuple[int | None, str]:
     env = {**os.environ, **extra_env}
     env.pop("CLAUDECODE", None)  # we're often launched from inside Claude Code; don't confuse the child
-    cmd = ["claude", "-p", "Reply with exactly: proxied ok", "--output-format", "json", "--model", "claude-sonnet-5"]
+    cmd = [
+        "claude",
+        "-p",
+        "Reply with exactly: proxied ok",
+        "--output-format",
+        "json",
+        "--model",
+        "claude-sonnet-5",
+    ]
     try:
         r = subprocess.run(cmd, env=env, capture_output=True, text=True, timeout=timeout, shell=WIN)
         return r.returncode, (r.stdout + r.stderr).strip()
     except subprocess.TimeoutExpired as e:
-        out = ((e.stdout or b"") if isinstance(e.stdout, bytes) else (e.stdout or ""))
+        ((e.stdout or b"") if isinstance(e.stdout, bytes) else (e.stdout or ""))
         return None, f"(timed out after {timeout}s - retrying a TLS failure is what Claude Code does)"
 
 
@@ -85,7 +95,9 @@ def main() -> int:
             print("PHASE 1  HTTPS_PROXY set, CA NOT trusted   -> expect a certificate failure")
             print("=" * 78)
             mark = log.stat().st_size
-            code, out = run_claude({"HTTPS_PROXY": PROXY, "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"}, timeout=45)
+            code, out = run_claude(
+                {"HTTPS_PROXY": PROXY, "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"}, timeout=45
+            )
             print(f"claude exit: {code}")
             print("claude said: " + (out[-400:] if out else "(nothing)"))
             time.sleep(1)
@@ -100,9 +112,10 @@ def main() -> int:
         print(f"claude exit: {code}")
         if code == 0:
             import json
+
             try:
                 d = json.loads(out)
-                print(f"claude said: {d.get('result','').strip()!r}   cost ${d.get('total_cost_usd')}")
+                print(f"claude said: {d.get('result', '').strip()!r}   cost ${d.get('total_cost_usd')}")
             except json.JSONDecodeError:
                 print("claude said: " + out[-300:])
         else:
@@ -110,7 +123,9 @@ def main() -> int:
         time.sleep(1)
         print("proxy saw:\n" + (tail(log, mark) or "  (nothing logged)"))
         print("\nEvery host above is one you would allowlist on a corporate firewall for Claude Code.")
-        print("Set DISABLE_TELEMETRY=1 / CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1 and re-run --hosts to see the Datadog lines vanish.")
+        print(
+            "Set DISABLE_TELEMETRY=1 / CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1 and re-run --hosts to see the Datadog lines vanish."
+        )
     finally:
         proxy.terminate()
         try:

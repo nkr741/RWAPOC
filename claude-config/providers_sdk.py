@@ -33,7 +33,9 @@ PROMPT = "In one sentence: which cloud are you being served from, if you can tel
 def ask(client, model: str, label: str) -> None:
     print(f"\n[{label}] model={model}")
     try:
-        r = client.messages.create(model=model, max_tokens=120, messages=[{"role": "user", "content": PROMPT}])
+        r = client.messages.create(
+            model=model, max_tokens=120, messages=[{"role": "user", "content": PROMPT}]
+        )
         text = "".join(b.text for b in r.content if b.type == "text")
         print(f"[{label}] {r.model}: {text.strip()}")
         print(f"[{label}] tokens in={r.usage.input_tokens} out={r.usage.output_tokens}")
@@ -53,7 +55,11 @@ def main() -> int:
         ask(anthropic.Anthropic(), "claude-sonnet-5", "anthropic")
         ran += 1
 
-    if only in (None, "bedrock") and (os.environ.get("AWS_PROFILE") or os.environ.get("AWS_ACCESS_KEY_ID") or os.environ.get("AWS_BEARER_TOKEN_BEDROCK")):
+    if only in (None, "bedrock") and (
+        os.environ.get("AWS_PROFILE")
+        or os.environ.get("AWS_ACCESS_KEY_ID")
+        or os.environ.get("AWS_BEARER_TOKEN_BEDROCK")
+    ):
         region = os.environ.get("AWS_REGION", "us-east-1")
         # Mantle = Bedrock endpoint that speaks the native Anthropic API shape. Preferred for new code.
         ask(anthropic.AnthropicBedrockMantle(aws_region=region), "anthropic.claude-sonnet-5", "bedrock")
@@ -61,15 +67,20 @@ def main() -> int:
 
     if only in (None, "vertex") and os.environ.get("ANTHROPIC_VERTEX_PROJECT_ID"):
         region = os.environ.get("CLOUD_ML_REGION", "global")
-        ask(anthropic.AnthropicVertex(project_id=os.environ["ANTHROPIC_VERTEX_PROJECT_ID"], region=region),
-            "claude-sonnet-5", "vertex")
+        ask(
+            anthropic.AnthropicVertex(project_id=os.environ["ANTHROPIC_VERTEX_PROJECT_ID"], region=region),
+            "claude-sonnet-5",
+            "vertex",
+        )
         ran += 1
 
     if ran == 0:
-        print("No back-end has credentials in this environment. Set one of:\n"
-              "  ANTHROPIC_API_KEY                                  -> Anthropic API\n"
-              "  AWS_PROFILE / AWS_ACCESS_KEY_ID / AWS_BEARER_TOKEN_BEDROCK (+AWS_REGION) -> Bedrock\n"
-              "  ANTHROPIC_VERTEX_PROJECT_ID (+CLOUD_ML_REGION, gcloud auth application-default login) -> Vertex")
+        print(
+            "No back-end has credentials in this environment. Set one of:\n"
+            "  ANTHROPIC_API_KEY                                  -> Anthropic API\n"
+            "  AWS_PROFILE / AWS_ACCESS_KEY_ID / AWS_BEARER_TOKEN_BEDROCK (+AWS_REGION) -> Bedrock\n"
+            "  ANTHROPIC_VERTEX_PROJECT_ID (+CLOUD_ML_REGION, gcloud auth application-default login) -> Vertex"
+        )
         return 1
     return 0
 

@@ -37,9 +37,7 @@ test.describe('Transactions API', () => {
     const txns = db.transactions();
     const txn = txns[0];
 
-    const data = await authedApi.get<{ transaction: { id: string } }>(
-      `/transactions/${txn.id}`,
-    );
+    const data = await authedApi.get<{ transaction: { id: string } }>(`/transactions/${txn.id}`);
     expect(data.transaction.id).toBe(txn.id);
   });
 });

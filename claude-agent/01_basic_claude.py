@@ -1,8 +1,8 @@
 """Step 1 — a normal Claude call. Claude can tell us what it thinks. Nothing more.
 
-    pip install anthropic
-    set ANTHROPIC_API_KEY=...
-    python 01_basic_claude.py
+pip install anthropic
+set ANTHROPIC_API_KEY=...
+python 01_basic_claude.py
 """
 
 import anthropic

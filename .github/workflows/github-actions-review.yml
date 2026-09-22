@@ -28,15 +28,15 @@ jobs:
                     github.event.comment.author_association || github.event.review.author_association || github.event.issue.author_association)
     runs-on: ubuntu-latest
     permissions:
-      contents: write        # let Claude push fixes to the PR branch when asked
+      contents: write # let Claude push fixes to the PR branch when asked
       pull-requests: write
       issues: write
       id-token: write
-      actions: read          # read CI results of the PR being reviewed
+      actions: read # read CI results of the PR being reviewed
     steps:
       - uses: actions/checkout@v5
         with:
-          fetch-depth: 0     # full history so `git diff origin/main...HEAD` works
+          fetch-depth: 0 # full history so `git diff origin/main...HEAD` works
 
       - uses: anthropics/claude-code-action@v1
         with:

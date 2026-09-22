@@ -24,7 +24,9 @@ def bar(pct: float, width: int = 10) -> str:
 
 def git_branch(cwd: str) -> str:
     try:
-        r = subprocess.run(["git", "-C", cwd, "branch", "--show-current"], capture_output=True, text=True, timeout=2)
+        r = subprocess.run(
+            ["git", "-C", cwd, "branch", "--show-current"], capture_output=True, text=True, timeout=2
+        )
         return r.stdout.strip() or ""
     except Exception:
         return ""
@@ -55,7 +57,7 @@ def main() -> None:
         f"${cost:.2f}",
     ]
     if hit is not None:
-        parts.append(f"cache {hit*100:.0f}% {'warm' if warm else 'cold'}")
+        parts.append(f"cache {hit * 100:.0f}% {'warm' if warm else 'cold'}")
     if five_h is not None:
         parts.append(f"5h {five_h:.0f}%")
     if branch:

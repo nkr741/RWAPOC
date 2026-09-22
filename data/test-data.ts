@@ -46,7 +46,10 @@ export const SignupData = {
   newUser: () => ({
     firstName: faker.person.firstName(),
     lastName: faker.person.lastName(),
-    username: faker.internet.username().toLowerCase().replace(/[^a-z0-9_]/g, '_'),
+    username: faker.internet
+      .username()
+      .toLowerCase()
+      .replace(/[^a-z0-9_]/g, '_'),
     password: faker.internet.password({ length: 12 }),
   }),
 } as const;

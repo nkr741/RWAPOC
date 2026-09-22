@@ -34,7 +34,9 @@ HOME = Path.home()
 PROJECT = Path.cwd()
 
 if platform.system() == "Windows":
-    MANAGED = Path(os.environ.get("ProgramFiles", r"C:\Program Files")) / "ClaudeCode" / "managed-settings.json"
+    MANAGED = (
+        Path(os.environ.get("ProgramFiles", r"C:\Program Files")) / "ClaudeCode" / "managed-settings.json"
+    )
 elif platform.system() == "Darwin":
     MANAGED = Path("/Library/Application Support/ClaudeCode/managed-settings.json")
 else:
@@ -115,7 +117,9 @@ def main() -> int:
 
     if not as_json:
         print(f"Project: {PROJECT}")
-        print(f"Config dir: {CONFIG_DIR}  (CLAUDE_CONFIG_DIR {'set' if 'CLAUDE_CONFIG_DIR' in os.environ else 'not set'})\n")
+        print(
+            f"Config dir: {CONFIG_DIR}  (CLAUDE_CONFIG_DIR {'set' if 'CLAUDE_CONFIG_DIR' in os.environ else 'not set'})\n"
+        )
         print("Settings files, highest precedence first")
         print("=" * 72)
 
@@ -147,7 +151,9 @@ def main() -> int:
     # CLI / env overrides that beat every file for `model`.
     override_note = None
     if os.environ.get("ANTHROPIC_MODEL"):
-        override_note = f"ANTHROPIC_MODEL={os.environ['ANTHROPIC_MODEL']} (env var overrides `model` from any file)"
+        override_note = (
+            f"ANTHROPIC_MODEL={os.environ['ANTHROPIC_MODEL']} (env var overrides `model` from any file)"
+        )
 
     if as_json:
         print(json.dumps({"effective": eff, "source": src, "model_override": override_note}, indent=2))
@@ -173,7 +179,9 @@ def main() -> int:
                 print(f"  env.{k2:26} = {mask(k2, v2)!s:28} <- {src[f'env.{k2}']}")
         elif key == "hooks":
             for event, entries in value.items():
-                print(f"  hooks.{event:22} {len(entries)} entr{'y' if len(entries)==1 else 'ies'}{'':22} <- {src[f'hooks.{event}'].lstrip('+')}")
+                print(
+                    f"  hooks.{event:22} {len(entries)} entr{'y' if len(entries) == 1 else 'ies'}{'':22} <- {src[f'hooks.{event}'].lstrip('+')}"
+                )
         else:
             print(f"  {key:30} = {json.dumps(value):28} <- {src[key]}")
     if override_note:

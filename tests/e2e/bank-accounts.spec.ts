@@ -7,7 +7,11 @@ test.describe('Bank Accounts', () => {
     await ensureLoggedIn(page);
   });
 
-  test('should navigate to bank accounts via sidenav', async ({ page, sidenav, bankAccountPage }) => {
+  test('should navigate to bank accounts via sidenav', async ({
+    page,
+    sidenav,
+    bankAccountPage,
+  }) => {
     await sidenav.navigateBankAccounts();
     await expect(page).toHaveURL(/\/bankaccounts/);
     await expect(bankAccountPage.list).toBeVisible();

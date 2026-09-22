@@ -3,9 +3,7 @@ import { ENV } from '../../config/env';
 
 test.describe('Contacts API', () => {
   test('GET /contacts/:username returns contacts list', async ({ authedApi }) => {
-    const data = await authedApi.get<{ contacts: unknown[] }>(
-      `/contacts/${ENV.user.username}`,
-    );
+    const data = await authedApi.get<{ contacts: unknown[] }>(`/contacts/${ENV.user.username}`);
     expect(Array.isArray(data.contacts)).toBe(true);
   });
 

@@ -1,0 +1,19 @@
+# generated / vendored / not ours
+node_modules
+rwa-app
+rwa-app-ci
+.venv
+.scratch
+playwright-report
+test-results
+package-lock.json
+skills-lock.json
+.agents
+.claude/skills/accessibility
+.claude/skills/bash-defensive-patterns
+.claude/skills/frontend-design
+.claude/skills/nodejs-*
+.claude/skills/playwright-best-practices
+.claude/skills/seo
+.claude/skills/typescript-advanced-types
+*.html

@@ -54,7 +54,8 @@ export interface RwaDatabase {
   banktransfers: unknown[];
 }
 
-const DB_PATH = process.env.RWA_DB_PATH || path.join(process.cwd(), 'rwa-app', 'data', 'database.json');
+const DB_PATH =
+  process.env.RWA_DB_PATH || path.join(process.cwd(), 'rwa-app', 'data', 'database.json');
 
 export class DbClient {
   private dbPath: string;
@@ -88,9 +89,7 @@ export class DbClient {
   }
 
   transactionsForUser(userId: string): RwaTransaction[] {
-    return this.read().transactions.filter(
-      (t) => t.senderId === userId || t.receiverId === userId,
-    );
+    return this.read().transactions.filter((t) => t.senderId === userId || t.receiverId === userId);
   }
 
   bankAccounts(userId: string): RwaBankAccount[] {

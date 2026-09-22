@@ -12,9 +12,11 @@ rwa-app-ci/
 # `.claude/` so the re-include below can work — git cannot un-ignore inside an ignored dir.
 .claude/*
 !.claude/settings.json
-demo-projects/node_modules/
-demo-projects/test-results/
-demo-projects/playwright-report/
+!.claude/skills/
+!.claude/commands/
+!.claude/agents/
+!.claude/rules/
+!.claude/hooks/
 
 # Python (claude-agent demo)
 __pycache__/
@@ -26,3 +28,9 @@ docs/promptlens-setup.md
 
 # claude-config demo artefacts
 claude-config/proxy_demo.log
+
+# scratch dirs made by sessions/ demos
+.scratch/
+
+# session notes are local study material — only the root README.md is tracked
+sessions/**/*.md

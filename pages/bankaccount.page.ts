@@ -7,8 +7,12 @@ export class BankAccountPage extends BasePage {
   readonly list = this.page.getByTestId('bankaccount-list');
   readonly createBtn = this.page.getByTestId('bankaccount-new');
   readonly bankName = this.page.getByTestId('bankaccount-bankName-input').locator('input');
-  readonly routingNumber = this.page.getByTestId('bankaccount-routingNumber-input').locator('input');
-  readonly accountNumber = this.page.getByTestId('bankaccount-accountNumber-input').locator('input');
+  readonly routingNumber = this.page
+    .getByTestId('bankaccount-routingNumber-input')
+    .locator('input');
+  readonly accountNumber = this.page
+    .getByTestId('bankaccount-accountNumber-input')
+    .locator('input');
   readonly submitBtn = this.page.getByTestId('bankaccount-submit');
   readonly deleteBtn = this.page.getByTestId('bankaccount-delete');
   readonly deletedLabel = this.page.locator('text=(Deleted)');

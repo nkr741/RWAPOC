@@ -1,0 +1,83 @@
+# Curriculum example — ci-review.yml (scenario 5, D3 + D4)
+#
+# Reference workflow, kept OUT of .github/workflows so it does not run twice next to the live
+# quality-gate.yml. Differences from the live one: structured output enforced with
+# --json-schema (no fence-stripping needed), a hard budget, a pinned CLI version, --bare for
+# reproducibility, and the review posted as a PR comment in addition to failing the job.
+#
+# Copy to .github/workflows/ci-review.yml to enable. Secrets: ANTHROPIC_API_KEY.
+
+name: Claude CI review
+
+on:
+  pull_request:
+    paths-ignore: ['**/*.md']
+
+permissions:
+  contents: read
+  pull-requests: write # to post the comment
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0 # git diff origin/main...HEAD needs history
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Install Claude Code (pinned)
+        run: npm install -g @anthropic-ai/claude-code@2.1.123
+        env:
+          DISABLE_AUTOUPDATER: '1'
+
+      - name: Review the diff with a JSON schema
+        id: review
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: '1'
+        run: |
+          set -euo pipefail
+          DIFF=$(git diff "origin/${{ github.base_ref }}...HEAD" -- . ':!package-lock.json' ':!*.png' ':!*.snap')
+          SCHEMA='{"type":"object","properties":{"summary":{"type":"string"},"findings":{"type":"array","items":{"type":"object","properties":{"severity":{"type":"string","enum":["HIGH","MEDIUM","LOW"]},"file":{"type":"string"},"line":{"type":"integer"},"title":{"type":"string"},"detail":{"type":"string"}},"required":["severity","file","title","detail"],"additionalProperties":false}}},"required":["summary","findings"],"additionalProperties":false}'
+          claude -p --bare --model claude-sonnet-5 --effort medium \
+            --max-turns 6 --max-budget-usd 0.50 \
+            --allowedTools "Read,Grep,Glob" \
+            --output-format json --json-schema "$SCHEMA" \
+            --append-system-prompt "You review a Playwright + TypeScript E2E repo. HIGH = breaks or weakens tests, leaks secrets, banned APIs (any, waitForTimeout, force:true, missing expect). Report real defects only." \
+            "Review this diff.
+
+          <diff>
+          $DIFF
+          </diff>" > envelope.json
+          jq -e '.is_error != true' envelope.json                       # API/CLI failure → fail loudly
+          jq '.structured_output' envelope.json > review.json           # already schema-valid
+          echo "high=$(jq '[.findings[] | select(.severity=="HIGH")] | length' review.json)" >> "$GITHUB_OUTPUT"
+          echo "cost=$(jq '.total_cost_usd' envelope.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Post the review as a PR comment
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo "## Claude CI review — ${{ steps.review.outputs.high }} HIGH · \$${{ steps.review.outputs.cost }}"
+            jq -r '.summary' review.json; echo
+            jq -r '.findings[] | "- **\(.severity)** `\(.file):\(.line // "")` — \(.title): \(.detail)"' review.json
+          } > comment.md
+          gh pr comment ${{ github.event.pull_request.number }} --body-file comment.md
+
+      - uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: claude-review
+          path: review.json
+
+      - name: Gate
+        if: steps.review.outputs.high != '0'
+        run: |
+          echo "::error::${{ steps.review.outputs.high }} HIGH finding(s) — merge blocked"
+          exit 1

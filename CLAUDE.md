@@ -48,6 +48,7 @@ npm run format             # Prettier
 ## Environment
 
 Requires Node >= 22.5.0. Copy `.env.example` to `.env` with:
+
 - `QA_USER` / `QA_PASSWORD` — seeded RWA test credentials (default password: `s3cret`)
 - `BASE_URL` — frontend (default `http://localhost:3000`)
 - `API_URL` — backend (default `http://localhost:3001`)
@@ -59,27 +60,34 @@ The RWA app lives in `rwa-app/` and runs on ports 3000/3001. Config is loaded an
 **Three-layer hybrid pattern:** Page Object Model + Keyword-Driven Components + Data-Driven tests.
 
 ### Test execution model
+
 - All UI tests in a project share **one browser context/page** via worker-scoped `sharedPage` fixture (not isolated per test)
 - `ensureLoggedIn()` / `ensureLoggedOut()` in `utils/login.helper.ts` skip redundant auth flows
 - `utils/onboarding.helper.ts` auto-dismisses RWA's welcome dialog via `page.addLocatorHandler()`
 - Tests run with `fullyParallel: false`, 1 worker per project
 
 ### Fixtures (`fixtures/`)
+
 All POM classes, components, API/DB clients are injected as Playwright fixtures. The fixture file is the central wiring point — page objects are never instantiated directly in tests.
 
 ### Pages (`pages/`)
+
 All pages extend `BasePage` which provides `open()` (goto + waitForLoaded) and composes `SideNavComponent` + `TopNavComponent`. Locators are declared as readonly properties, actions as async methods.
 
 ### Components (`pages/components/`)
+
 `SideNavComponent` and `TopNavComponent` — keyword-driven wrappers exposing navigation actions. Composed into `BasePage`, also available as standalone fixtures.
 
 ### API client (`utils/api.client.ts`)
+
 Typed REST client wrapping `APIRequestContext`. The `authedApi` fixture auto-authenticates on first use. Custom `ApiError` includes status + URL.
 
 ### DB client (`utils/db.client.ts`)
+
 Reads RWA's `database.json` directly (lowdb format). Worker-scoped, single read cached for the shard.
 
 ### Test data (`data/test-data.ts`)
+
 Faker-generated, declared `as const`. Tests reference data objects, not hardcoded strings.
 
 ## Key Conventions
@@ -92,9 +100,25 @@ Faker-generated, declared `as const`. Tests reference data objects, not hardcode
 - **Floating promises are errors** — `@typescript-eslint/no-floating-promises: error`
 - Prettier: single quotes, semicolons, 100 char width, trailing commas
 
+## Python sessions (`sessions/`, `claude-config/`, `claude-agent/`)
+
+Certification training material is **Python 3.12 only** — no TypeScript demos. One venv:
+`python -m venv .venv && .venv/Scripts/pip install -r requirements.txt`; run scripts as
+`.venv/Scripts/python sessions/<folder>/<file>.py` from the repo root.
+Quality gates: TS `npm run check` (tsc + ESLint) and `npx prettier --check .` (md/json/yml too;
+`.prettierignore` excludes vendored skills); Python `.venv/Scripts/ruff check . && .venv/Scripts/ruff format --check .`
+(`ruff.toml`, line length 110).
+
+- `sessions/_env.py` is the shared bootstrap (loads `.env`, UTF-8 console, git-bash path for the Agent SDK, `ROOT`/`MODEL`/`CHEAP`); scripts import it via `sys.path.insert(0, …)`.
+- Scratch output goes to `.scratch/` (gitignored). Never use `tempfile`'s default dir — it is an 8.3 short path Claude Code refuses to read.
+- Per-session `*.md` under `sessions/` are local study notes and gitignored; the root `README.md` is the only tracked doc.
+- `.mcp.json` runs `sessions/05-mcp/server.py` with `.venv/Scripts/python`; hooks live in `.claude/hooks/` (PreToolUse guard) and `claude-config/hooks/` (PostToolUse Prettier).
+- Default API model is `claude-opus-5` (`ANTHROPIC_MODEL` overrides); graders/workers use `claude-haiku-4-5`. Voyage free tier is 3 RPM / 10K TPM — embeddings are cached in `.scratch/embeddings.json`.
+
 ## CI/CD
 
 GitHub Actions (`.github/workflows/e2e.yml`):
+
 - **PR gate:** typecheck + lint + API tests + smoke tests (Chromium)
 - **Nightly:** full suite with 4-way sharding, all browsers, blob report merging, Slack/Teams notifications
 - CI uses 2 retries; local uses 0
