@@ -22,8 +22,7 @@ rwa-app-ci/
 __pycache__/
 *.pyc
 
-# PromptLens / SDLC observer — local-only setup notes and artifacts
-docs/promptlens-setup.md
+# PromptLens / SDLC observer — local-only artifacts
 *.whl
 
 # claude-config demo artefacts
@@ -32,5 +31,13 @@ claude-config/proxy_demo.log
 # scratch dirs made by sessions/ demos
 .scratch/
 
-# session notes are local study material — only the root README.md is tracked
+# ── Documentation policy ────────────────────────────────────────────────────
+# Only the root README.md is tracked. Every other prose .md — session study
+# notes, presenter scripts, per-area notes — stays local to each machine.
+# (Functional Markdown is NOT prose and stays tracked: CLAUDE.md project
+#  memory, and .claude/ + .agents/ skills, commands, agents and rules.)
+# These rules were previously in .git/info/exclude, which does not travel with
+# a clone — moved here so the policy applies to everyone who checks out.
 sessions/**/*.md
+docs/*.md
+claude-config/*.md
