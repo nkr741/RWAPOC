@@ -30,6 +30,8 @@ import platform
 import sys
 from pathlib import Path
 
+sys.stdout.reconfigure(encoding="utf-8")  # Windows consoles default to cp1252
+
 HOME = Path.home()
 PROJECT = Path.cwd()
 

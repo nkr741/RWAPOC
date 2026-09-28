@@ -16,6 +16,8 @@ import os
 import subprocess
 import sys
 
+sys.stdout.reconfigure(encoding="utf-8")  # Windows consoles default to cp1252
+
 # (name, category, one-line meaning)
 VARS = [
     # --- authentication: first match wins ---
@@ -188,20 +190,43 @@ def live_api() -> None:
     )
 
 
-def live_claude() -> None:
-    """Run the Claude Code CLI headless and read back which model it billed. Proves ANTHROPIC_MODEL routing."""
-    model = os.environ.get("ANTHROPIC_MODEL")
-    print(f"[claude] claude -p with ANTHROPIC_MODEL={model or '<unset>'} in the environment")
-    cmd = ["claude", "-p", "Reply with exactly: ok", "--output-format", "json"]
-    r = subprocess.run(cmd, capture_output=True, text=True, shell=sys.platform == "win32")
+def _headless(env_override: dict[str, str] | None) -> dict:
+    """One `claude -p` run, optionally with extra env vars, returning the JSON envelope.
+
+    --bare keeps it cheap and reproducible: no hooks, no CLAUDE.md discovery, no plugins.
+    """
+    cmd = ["claude", "-p", "--bare", "--output-format", "json", "Reply with exactly: ok"]
+    env = {**os.environ, **(env_override or {})}
+    r = subprocess.run(
+        cmd, capture_output=True, text=True, encoding="utf-8", env=env, shell=sys.platform == "win32"
+    )
     if r.returncode != 0:
-        print(f"[claude] failed (exit {r.returncode}):\n{r.stderr or r.stdout}")
-        return
-    data = json.loads(r.stdout)
-    used = list(data.get("modelUsage", {}).keys())
-    print(f"[claude] modelUsage keys = {used}")
-    print(f"[claude] total_cost_usd  = {data.get('total_cost_usd')}")
-    print(f"[claude] result          = {data.get('result', '').strip()!r}\n")
+        raise RuntimeError(f"claude -p failed (exit {r.returncode}):\n{r.stderr or r.stdout}")
+    return json.loads(r.stdout)
+
+
+def live_claude() -> None:
+    """Prove ANTHROPIC_MODEL routing: the SAME command, twice, only the env var differs.
+
+    Run 1 inherits your environment (whatever settings/aliases resolve to).
+    Run 2 injects ANTHROPIC_MODEL, and `modelUsage` in the JSON envelope shows it took effect —
+    the env var overrides `model` from every settings file (only --model beats it).
+    """
+    pinned = "claude-haiku-4-5"
+    for label, override in (
+        (f"inherited (ANTHROPIC_MODEL={os.environ.get('ANTHROPIC_MODEL') or '<unset>'})", None),
+        (f"ANTHROPIC_MODEL={pinned}", {"ANTHROPIC_MODEL": pinned}),
+    ):
+        try:
+            data = _headless(override)
+        except RuntimeError as e:
+            print(f"[claude] {label}: {e}")
+            continue
+        print(
+            f"[claude] {label:<46} -> modelUsage={list(data.get('modelUsage', {}))} "
+            f"cost=${data.get('total_cost_usd', 0):.4f} result={data.get('result', '').strip()!r}"
+        )
+    print("         the env var wins over `model` in any settings file; --model wins over the env var.\n")
 
 
 if __name__ == "__main__":

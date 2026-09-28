@@ -51,21 +51,44 @@ def main() -> int:
     only = sys.argv[sys.argv.index("--only") + 1] if "--only" in sys.argv else None
     ran = 0
 
-    if only in (None, "anthropic") and os.environ.get("ANTHROPIC_API_KEY"):
+    # Which env vars each back-end needs. Printed even when absent, so the credential-detection
+    # rules are visible on a laptop with no cloud accounts.
+    print("provider   required environment                                          status")
+    print("-" * 100)
+    checks = {
+        "anthropic": ("ANTHROPIC_API_KEY", bool(os.environ.get("ANTHROPIC_API_KEY"))),
+        "bedrock": (
+            "CLAUDE_CODE_USE_BEDROCK=1 + AWS_REGION + (AWS_PROFILE | AWS_ACCESS_KEY_ID | AWS_BEARER_TOKEN_BEDROCK)",
+            any(os.environ.get(v) for v in ("AWS_PROFILE", "AWS_ACCESS_KEY_ID", "AWS_BEARER_TOKEN_BEDROCK")),
+        ),
+        "vertex": (
+            "CLAUDE_CODE_USE_VERTEX=1 + ANTHROPIC_VERTEX_PROJECT_ID + CLOUD_ML_REGION + gcloud ADC",
+            bool(os.environ.get("ANTHROPIC_VERTEX_PROJECT_ID")),
+        ),
+        "foundry": (
+            "CLAUDE_CODE_USE_FOUNDRY=1 + ANTHROPIC_FOUNDRY_RESOURCE + Entra ID / key",
+            bool(os.environ.get("ANTHROPIC_FOUNDRY_RESOURCE")),
+        ),
+        "gateway": (
+            "ANTHROPIC_BASE_URL + ANTHROPIC_AUTH_TOKEN (LiteLLM etc.)",
+            bool(os.environ.get("ANTHROPIC_BASE_URL")),
+        ),
+    }
+    for name, (needs, present) in checks.items():
+        print(f"{name:<10} {needs:<64} {'credentials found' if present else 'skipped - not configured'}")
+    print()
+
+    if only in (None, "anthropic") and checks["anthropic"][1]:
         ask(anthropic.Anthropic(), "claude-sonnet-5", "anthropic")
         ran += 1
 
-    if only in (None, "bedrock") and (
-        os.environ.get("AWS_PROFILE")
-        or os.environ.get("AWS_ACCESS_KEY_ID")
-        or os.environ.get("AWS_BEARER_TOKEN_BEDROCK")
-    ):
+    if only in (None, "bedrock") and checks["bedrock"][1]:
         region = os.environ.get("AWS_REGION", "us-east-1")
         # Mantle = Bedrock endpoint that speaks the native Anthropic API shape. Preferred for new code.
         ask(anthropic.AnthropicBedrockMantle(aws_region=region), "anthropic.claude-sonnet-5", "bedrock")
         ran += 1
 
-    if only in (None, "vertex") and os.environ.get("ANTHROPIC_VERTEX_PROJECT_ID"):
+    if only in (None, "vertex") and checks["vertex"][1]:
         region = os.environ.get("CLOUD_ML_REGION", "global")
         ask(
             anthropic.AnthropicVertex(project_id=os.environ["ANTHROPIC_VERTEX_PROJECT_ID"], region=region),
