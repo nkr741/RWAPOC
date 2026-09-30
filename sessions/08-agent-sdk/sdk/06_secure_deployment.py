@@ -44,7 +44,10 @@ HARDENED = ClaudeAgentOptions(
     sandbox={
         "enabled": True,
         "autoAllowBashIfSandboxed": False,
-    },  # OS sandbox where available (no-op on Windows)
+    },  # OS sandbox: macOS (seatbelt), Linux/WSL2 (bubblewrap). On WINDOWS it prints
+    # "Sandbox disabled ... commands will run WITHOUT sandboxing" and continues — the
+    # request is NOT enforced. Never treat this option as your only boundary on Windows;
+    # use WSL2, a dev container, or keep Bash out of allowed_tools entirely (as we do here).
     env={"CI": "1"},  # scrub: only what the agent needs; secrets stay in this process
     system_prompt="You are a read-only assistant. Answer briefly with file:line references.",
 )

@@ -30,7 +30,15 @@ with client.messages.stream(
     model=MODEL,
     max_tokens=2000,
     thinking={"type": "adaptive", "display": "summarized"},
-    messages=[{"role": "user", "content": "In one sentence, why do tests share one page in this repo?"}],
+    # Self-contained: a raw API call has NO repo context (unlike the Agent SDK, which has tools).
+    # Ask something answerable from the prompt alone, or the model correctly replies "I can't see it".
+    messages=[
+        {
+            "role": "user",
+            "content": "In one sentence: why would an E2E suite share one browser page across tests "
+            "instead of isolating each test?",
+        }
+    ],
 ) as stream:
     for event in stream:
         seen[event.type] += 1
